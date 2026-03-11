@@ -1,0 +1,7 @@
+# Git ignore file
+__pycache__/
+*.pyc
+database.db
+.env
+uploads/
+node_modules/
