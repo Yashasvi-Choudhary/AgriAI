@@ -231,7 +231,7 @@
         </div>
         <div class="hidden sm:flex items-center gap-2.5">
           <a
-            href="#"
+            href="{{ url_for('login') }}"
             class="text-white/80 hover:text-white border border-white/20 hover:bg-white/10 px-4 py-1.5 rounded-md text-[0.88rem] font-medium transition-all"
             data-key="nav.login"
             >Sign In</a
@@ -290,7 +290,7 @@
       >
       <div class="flex gap-3 mt-4">
         <a
-          href="#"
+          href="{{ url_for('login') }}"
           class="flex-1 text-center py-3 rounded-lg border border-white/30 text-white font-semibold"
           onclick="
             toggleMenu();
@@ -340,7 +340,7 @@
           class="flex flex-wrap justify-center gap-4 animate-fade-up [animation-delay:0.45s]"
         >
           <a
-            href="#"
+            href="{{ url_for('register') }}"
             class="bg-gold-btn hover:bg-gold-light text-white px-8 py-3.5 rounded-lg font-bold shadow-[0_4px_18px_rgba(185,148,16,0.28)] hover:shadow-[0_8px_28px_rgba(185,148,16,0.38)] hover:-translate-y-1 transition-all flex items-center gap-2"
           >
             <span data-key="hero.btn_start">Get Started Free</span> →
@@ -1034,12 +1034,17 @@
         </p>
         <div class="flex flex-wrap justify-center gap-4">
           <a
-            href="#"
+            href="/login"
             class="px-8 py-3.5 border border-white/30 hover:border-white/60 hover:bg-white/5 rounded-lg font-medium transition-all hover:-translate-y-1"
             ><span data-key="nav_login">Sign In</span></a
           >
           <a
-            href="#"
+            href="/register"
+            class="px-8 py-3.5 border border-white/30 hover:border-white/60 hover:bg-white/5 rounded-lg font-medium transition-all hover:-translate-y-1"
+            >Sign Up</a
+          >
+          <a
+            href="/register"
             class="px-8 py-3.5 bg-gold-btn hover:bg-gold-light text-white rounded-lg font-bold shadow-lg hover:-translate-y-1 transition-all"
             >🌱 <span data-key="cta.btn">Create Free Account</span></a
           >
