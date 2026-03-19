@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────
    LANGUAGE LOAD FROM JSON FILES
 ───────────────────────────────────────── */
-let lang = localStorage.getItem("krishi_lang") || "en";
+let lang = localStorage.getItem("Labhansh.ai_lang") || "en";
 let i18n = {};
 
 async function loadLang(l) {
@@ -46,7 +46,7 @@ async function applyLang() {
 
 function setLang(l) {
   lang = l;
-  localStorage.setItem("krishi_lang", l);
+  localStorage.setItem("Labhansh.ai_lang", l);
   applyLang();
 }
 
