@@ -1,0 +1,15 @@
+{
+  "heading": "Welcome Back",
+  "subtext": "Login to continue your smart farming journey",
+  "label_email": "Email Address",
+  "label_pwd": "Password",
+  "ph_email": "you@example.com",
+  "ph_pwd": "Enter your password",
+  "forgot_pwd": "Forgot Password?",
+  "btn_login": "Login",
+  "register_prompt": "Don't have an account?",
+  "register_link": "Sign Up",
+  "e_email_req": "Email address is required",
+  "e_email_inv": "Please enter a valid email address",
+  "e_pwd_req": "Password is required"
+}

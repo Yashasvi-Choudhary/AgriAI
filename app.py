@@ -10,6 +10,26 @@ def index():
 def login():
     return render_template('auth/login.html')
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        data = request.get_json()
+        email = data.get('email')
+
+        print("Email received:", email)  # for testing
+
+        # For now just simulate success
+        return jsonify({
+            'success': True,
+            'message': 'Reset link sent'
+        })
+
+    return render_template('auth/forgot_password.html')
+
+@app.route('/reset-password')
+def reset_password():
+    return render_template('auth/reset_password.html')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':

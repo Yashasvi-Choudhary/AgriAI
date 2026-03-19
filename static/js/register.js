@@ -67,17 +67,25 @@ function validateField(field, value) {
   }
 }
 
-// --- Error UI ---
 function showError(field, errorKey) {
   const el = document.getElementById(`err-${field}`);
+  const input = document.getElementById(field);
 
   if (errorKey) {
+    // Show error text
     el.textContent = translations[errorKey] || errorKey;
     el.style.opacity = "1";
     el.style.height = "auto";
+
+    // 🔴 ADD RED BORDER (same as login page)
+    input.classList.add("!border-red-500/60", "!ring-2", "!ring-red-500/10");
   } else {
+    // Hide error text
     el.style.opacity = "0";
     el.style.height = "0";
+
+    // ✅ REMOVE RED BORDER
+    input.classList.remove("!border-red-500/60", "!ring-2", "!ring-red-500/10");
   }
 }
 
