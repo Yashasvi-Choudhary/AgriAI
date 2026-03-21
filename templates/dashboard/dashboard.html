@@ -1,1 +1,1228 @@
-<!-- Dashboard page -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Labhansh.ai – Smart Agriculture Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "green-deep": "#1a4d2e",
+              "green-mid": "#2d7a4f",
+              "green-soft": "#4aaa74",
+              "green-pale": "#e8f5ed",
+              gold: "#c9963a",
+              "gold-light": "#f0c46a",
+              "gold-pale": "#fdf3e0",
+              cream: "#f8f6f0",
+              "text-dark": "#1c2b1e",
+              "text-mid": "#4a5e4f",
+              "text-light": "#8a9e8f",
+              "border-clr": "#dce9df",
+            },
+            fontFamily: {
+              sans: ["DM Sans", "sans-serif"],
+              serif: ["Playfair Display", "serif"],
+            },
+            animation: {
+              "fade-in": "fadeIn 0.3s ease",
+              "slide-up": "slideUp 0.4s cubic-bezier(.22,.68,0,1.2)",
+              "fade-in-up": "fadeInUp 0.5s ease both",
+            },
+            keyframes: {
+              fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },
+              slideUp: {
+                from: { opacity: "0", transform: "translateY(30px)" },
+                to: { opacity: "1", transform: "translateY(0)" },
+              },
+              fadeInUp: {
+                from: { opacity: "0", transform: "translateY(18px)" },
+                to: { opacity: "1", transform: "translateY(0)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply bg-cream text-text-dark font-sans min-h-screen overflow-x-hidden;
+        }
+        body::before {
+          content: "";
+          @apply fixed inset-0 pointer-events-none z-0;
+          background-image:
+            radial-gradient(
+              circle at 15% 25%,
+              rgba(45, 122, 79, 0.05) 0%,
+              transparent 55%
+            ),
+            radial-gradient(
+              circle at 85% 75%,
+              rgba(201, 150, 58, 0.04) 0%,
+              transparent 55%
+            ),
+            url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232d7a4f' fill-opacity='0.022'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+      }
+      @layer utilities {
+        .nav-item.active {
+          @apply text-gold-light bg-white/10 border-l-[3px] border-gold font-semibold;
+        }
+        .sidebar.open {
+          @apply !translate-x-0;
+        }
+        .sidebar-overlay.show {
+          @apply block;
+        }
+        .dropdown.show {
+          @apply block;
+        }
+        .lang-btn.active {
+          @apply bg-gold text-white;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .d1 {
+          animation-delay: 0.06s;
+        }
+        .d2 {
+          animation-delay: 0.12s;
+        }
+        .d3 {
+          animation-delay: 0.18s;
+        }
+        .d4 {
+          animation-delay: 0.24s;
+        }
+        .d5 {
+          animation-delay: 0.3s;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══════════════════════════════════
+       LOCATION POPUP
+  ══════════════════════════════════ -->
+    <div
+      class="fixed inset-0 bg-green-deep/50 backdrop-blur-md z-[1000] flex items-center justify-center p-4 animate-fade-in"
+      id="locationPopup"
+    >
+      <div
+        class="bg-white rounded-3xl p-8 sm:p-10 max-w-[400px] w-full text-center shadow-[0_32px_80px_rgba(26,77,46,0.25)] animate-slide-up"
+      >
+        <div
+          class="w-20 h-20 bg-gradient-to-br from-green-pale to-gold-pale rounded-full flex items-center justify-center mx-auto mb-5 text-4xl"
+        >
+          📍
+        </div>
+        <h2
+          class="font-serif text-[1.5rem] text-green-deep mb-2"
+          data-i18n="popup_title"
+        >
+          Enable Location Access
+        </h2>
+        <p
+          class="text-text-mid text-sm leading-relaxed mb-7"
+          data-i18n="popup_desc"
+        >
+          Allow Labhansh.ai to access your location for personalised weather
+          updates, crop recommendations, and local market prices.
+        </p>
+        <div class="flex gap-3">
+          <button
+            class="flex-1 py-3.5 px-4 bg-gradient-to-br from-gold to-gold-light text-white rounded-xl font-semibold shadow-[0_4px_16px_rgba(201,150,58,0.35)] hover:-translate-y-0.5 transition-all"
+            onclick="allowLocation()"
+            data-i18n="popup_allow"
+          >
+            📍 Allow
+          </button>
+          <button
+            class="flex-1 py-3.5 px-4 bg-transparent text-text-mid border-[1.5px] border-border-clr rounded-xl font-medium hover:bg-green-pale hover:text-green-deep transition-all"
+            onclick="denyLocation()"
+            data-i18n="popup_deny"
+          >
+            Not Now
+          </button>
+        </div>
+        <div class="mt-4 hidden" id="manualLoc">
+          <input
+            type="text"
+            id="locInput"
+            placeholder="Enter your village / district..."
+            data-i18n-placeholder="manual_placeholder"
+            class="w-full p-3 border-[1.5px] border-border-clr rounded-xl text-sm text-text-dark bg-cream outline-none focus:border-green-soft transition-colors"
+          />
+          <button
+            class="mt-2.5 w-full p-3 bg-green-deep text-white rounded-xl font-semibold hover:bg-green-mid transition-colors"
+            onclick="confirmManual()"
+            data-i18n="manual_confirm"
+          >
+            Confirm Location
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile sidebar overlay -->
+    <div
+      class="sidebar-overlay hidden fixed inset-0 bg-green-deep/55 z-[95] backdrop-blur-sm"
+      id="sidebarOverlay"
+      onclick="closeSidebar()"
+    ></div>
+
+    <!-- ══════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════ -->
+    <aside
+      class="sidebar w-[240px] flex flex-col fixed top-0 left-0 bottom-0 z-[100] -translate-x-full md:translate-x-0 transition-transform duration-300 ease-out shadow-[6px_0_40px_rgba(0,0,0,0.2)]"
+      id="sidebar"
+      style="
+        background: linear-gradient(
+          160deg,
+          #163d24 0%,
+          #1a4d2e 40%,
+          #122a1c 100%
+        );
+      "
+    >
+      <div
+        class="absolute top-0 left-0 right-0 h-[2px]"
+        style="
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(240, 196, 106, 0.5),
+            transparent
+          );
+        "
+      ></div>
+
+      <nav class="flex-1 overflow-y-auto scrollbar-hide pt-7 pb-4">
+        <div class="px-5 mb-2">
+          <span
+            class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
+            data-i18n="nav_main"
+            >Main</span
+          >
+        </div>
+
+        <div
+          class="nav-item active flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">🏠</span
+          ><span data-i18n="nav_dashboard">Dashboard</span>
+        </div>
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">🌱</span
+          ><span data-i18n="nav_crop">Crop Recommendation</span>
+        </div>
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">🌾</span
+          ><span data-i18n="nav_yield">Yield Prediction</span>
+        </div>
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">🍃</span
+          ><span data-i18n="nav_disease">Disease Detection</span>
+        </div>
+
+        <div class="px-5 mt-5 mb-2">
+          <span
+            class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
+            data-i18n="nav_tools"
+            >Tools</span
+          >
+        </div>
+
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">🧪</span
+          ><span data-i18n="nav_fert">Fertilizer Guide</span>
+        </div>
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">📊</span
+          ><span data-i18n="nav_profit">Profit Analyzer</span>
+        </div>
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">📈</span
+          ><span data-i18n="nav_market">Market Price</span>
+        </div>
+
+        <div class="px-5 mt-5 mb-2">
+          <span
+            class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
+            data-i18n="nav_community"
+            >Community</span
+          >
+        </div>
+
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">👥</span
+          ><span data-i18n="nav_community_link">Farmer Community</span>
+        </div>
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">🏛️</span
+          ><span data-i18n="nav_schemes">Govt. Schemes</span>
+        </div>
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">🤖</span
+          ><span data-i18n="nav_ai">AI Assistant</span>
+        </div>
+        <div
+          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+          onclick="setActive(this)"
+        >
+          <span class="text-[1.1rem] w-6 text-center shrink-0">ℹ️</span
+          ><span data-i18n="nav_about">About</span>
+        </div>
+      </nav>
+
+      <!-- Sidebar user card -->
+      <div class="border-t border-white/10 p-4">
+        <div
+          class="flex items-center gap-3 rounded-2xl px-3 py-2.5"
+          style="background: rgba(255, 255, 255, 0.07)"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-white text-xs font-bold shrink-0"
+          >
+            RK
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-white text-[0.8rem] font-semibold truncate">
+              Ramesh Kumar
+            </p>
+            <p class="text-white/35 text-[0.67rem] truncate">Raipur, CG</p>
+          </div>
+          <span
+            class="text-white/25 text-sm hover:text-white/60 cursor-pointer transition-colors"
+            >⚙️</span
+          >
+        </div>
+      </div>
+    </aside>
+
+    <!-- ══════════════════════════════════
+       HEADER — DEEP GREEN BACKGROUND
+       Logo left · Weather chips center · Controls right
+  ══════════════════════════════════ -->
+    <header
+      class="fixed top-0 left-0 md:left-[240px] right-0 h-[64px] z-[90] flex items-center px-4 md:px-6 gap-3 transition-all bg-[rgb(14,47,30)] border-b border-white/10 shadow-md"
+    >
+      <!-- Subtle inner glow at top -->
+      <div
+        class="absolute top-0 left-0 right-0 h-[1px]"
+        style="
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(240, 196, 106, 0.4),
+            transparent
+          );
+        "
+      ></div>
+
+      <!-- LEFT: Hamburger + Logo image -->
+      <div class="flex items-center gap-3 shrink-0">
+        <!-- Hamburger -->
+        <button
+          class="md:hidden flex flex-col gap-[5px] p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+          onclick="toggleSidebar()"
+          aria-label="Menu"
+        >
+          <span class="block w-5 h-0.5 bg-white rounded-full"></span>
+          <span class="block w-5 h-0.5 bg-white rounded-full"></span>
+          <span class="block w-5 h-0.5 bg-white rounded-full"></span>
+        </button>
+
+        <!-- Logo Wrapper -->
+        <a href="#" class="shrink-0 flex items-center">
+          <!-- 🖥️ Desktop Logo -->
+          <img
+            src="/static/images/logo.png"
+            alt="Labhansh.ai"
+            class="hidden md:block h-10 w-auto"
+          />
+
+          <!-- 📱 Mobile Favicon -->
+          <img
+            src="/static/images/favicon.png"
+            alt="Labhansh.ai"
+            class="block md:hidden h-8 w-8"
+          />
+        </a>
+      </div>
+
+      <!-- CENTER: Compact weather chips -->
+      <div class="flex-1 flex items-center justify-center gap-2">
+        <!-- Desktop chips -->
+        <div class="hidden md:flex items-center gap-2">
+          <!-- Temp chip -->
+          <div
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem] font-semibold"
+            style="background: rgba(255, 255, 255, 0.12)"
+          >
+            <span>⛅</span>
+            <span class="text-white" id="headerTemp">28°C</span>
+            <span class="text-white/50 text-[0.7rem]">Cloudy</span>
+          </div>
+          <!-- Humidity chip -->
+          <div
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem]"
+            style="background: rgba(255, 255, 255, 0.1)"
+          >
+            <span>💧</span><span class="text-white/80">74%</span>
+          </div>
+          <!-- Wind chip -->
+          <div
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem]"
+            style="background: rgba(255, 255, 255, 0.1)"
+          >
+            <span>🌬️</span><span class="text-white/80">12 km/h</span>
+          </div>
+          <!-- Rain chip -->
+          <div
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem]"
+            style="background: rgba(255, 255, 255, 0.1)"
+          >
+            <span>🌧️</span><span class="text-white/80">68%</span>
+          </div>
+          <!-- Location chip -->
+          <div
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem]"
+            style="
+              background: rgba(240, 196, 106, 0.18);
+              border: 1px solid rgba(240, 196, 106, 0.3);
+            "
+          >
+            <span>📍</span
+            ><span class="text-gold-light font-semibold" id="headerLoc"
+              >Raipur</span
+            >
+          </div>
+        </div>
+        <!-- Mobile: single compact chip -->
+        <div
+          class="md:hidden flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm"
+          style="background: rgba(255, 255, 255, 0.12)"
+        >
+          <span>⛅</span
+          ><span class="text-white font-semibold">28°C · Raipur</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: Lang + Notif + Profile -->
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Language toggle -->
+        <div
+          class="flex rounded-lg overflow-hidden"
+          style="border: 1px solid rgba(255, 255, 255, 0.2)"
+        >
+          <button
+            class="lang-btn active px-2.5 py-1.5 text-[0.74rem] font-semibold transition-colors"
+            onclick="setLang('en')"
+          >
+            EN
+          </button>
+          <button
+            class="lang-btn px-2.5 py-1.5 text-white/50 text-[0.74rem] font-medium transition-colors hover:bg-white/10"
+            onclick="setLang('hi')"
+          >
+            हि
+          </button>
+        </div>
+
+        <!-- Notification -->
+        <div
+          class="relative w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer hover:bg-white/15 transition-all"
+          style="background: rgba(255, 255, 255, 0.1)"
+        >
+          <span class="text-[1rem]">🔔</span>
+          <span
+            class="absolute -top-1 -right-1 w-[17px] h-[17px] bg-gold rounded-full border-2 flex items-center justify-center text-white text-[0.5rem] font-bold"
+            style="border-color: #1a4d2e"
+            >3</span
+          >
+        </div>
+
+        <!-- Profile -->
+        <div class="profile-wrap relative">
+          <div
+            class="flex items-center gap-2 rounded-xl px-2.5 py-[0.4rem] cursor-pointer hover:bg-white/15 transition-all"
+            style="
+              background: rgba(255, 255, 255, 0.1);
+              border: 1px solid rgba(255, 255, 255, 0.15);
+            "
+            onclick="toggleDropdown()"
+          >
+            <div
+              class="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-white text-[0.68rem] font-bold"
+            >
+              RK
+            </div>
+            <span class="hidden sm:inline text-[0.8rem] text-white font-medium"
+              >Ramesh</span
+            >
+            <span class="text-white/50 text-[0.62rem]">▾</span>
+          </div>
+          <div
+            class="dropdown hidden absolute top-[calc(100%+8px)] right-0 bg-white border border-border-clr rounded-2xl p-2 w-[180px] shadow-[0_16px_48px_rgba(26,77,46,0.18)] z-[200] animate-fade-in"
+            id="profileDropdown"
+          >
+            <div class="px-3 py-2 mb-1 border-b border-border-clr">
+              <p class="text-text-dark font-semibold text-[0.82rem]">
+                Ramesh Kumar
+              </p>
+              <p class="text-text-light text-[0.68rem]">farmer@labhansh.ai</p>
+            </div>
+            <a
+              href="#"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-text-mid text-[0.82rem] hover:bg-green-pale hover:text-green-deep transition-all"
+              >👤 <span data-i18n="dd_profile">View Profile</span></a
+            >
+            <a
+              href="#"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-text-mid text-[0.82rem] hover:bg-green-pale hover:text-green-deep transition-all"
+              >⚙️ <span data-i18n="dd_settings">Settings</span></a
+            >
+            <hr class="border-t border-border-clr my-1" />
+            <a
+              href="#"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[#e05c5c] text-[0.82rem] hover:bg-red-50 transition-all"
+              >🚪 <span data-i18n="dd_logout">Logout</span></a
+            >
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════
+       MAIN WRAPPER
+  ══════════════════════════════════ -->
+    <div
+      class="md:pl-[240px] pt-[64px] min-h-screen flex flex-col relative z-10"
+    >
+      <main class="flex-1 w-full px-4 py-6 md:px-7 md:py-8 pb-28 md:pb-12">
+        <!-- ─── HERO GREETING (replaces boring title) ─── -->
+        <div class="mb-6 animate-fade-in-up d1">
+          <div
+            class="w-full rounded-2xl px-6 py-4 flex items-center justify-between gap-4 relative overflow-hidden"
+            style="
+              background: linear-gradient(120deg, #e8f5ed 0%, #fdf3e0 100%);
+              border: 1.5px solid #dce9df;
+            "
+          >
+            <div>
+              <p
+                class="text-text-light text-[0.75rem] font-semibold uppercase tracking-widest mb-0.5"
+              >
+                नमस्ते 🙏
+              </p>
+              <h1
+                class="font-serif text-[1.5rem] md:text-[1.75rem] text-green-deep leading-tight"
+              >
+                Good to see you, <em class="text-gold not-italic">Ramesh Ji</em>
+              </h1>
+              <p class="text-text-mid text-[0.82rem] mt-0.5">
+                Your fields are ready to be monitored. Let's grow smarter today.
+                🌱
+              </p>
+            </div>
+            <div
+              class="hidden sm:block text-[3.5rem] leading-none select-none opacity-80"
+            >
+              👨‍🌾
+            </div>
+          </div>
+        </div>
+
+        <!-- ── WEATHER CARD ── -->
+        <p
+          class="text-[0.68rem] tracking-[2.5px] uppercase text-text-light font-semibold mb-3 animate-fade-in-up d2"
+          data-i18n="sec_weather"
+        >
+          🌤 Today's Weather
+        </p>
+        <div
+          class="w-full rounded-3xl p-5 md:p-7 text-white relative overflow-hidden mb-6 shadow-[0_16px_56px_rgba(26,77,46,0.28)] animate-fade-in-up d2"
+          style="
+            background: linear-gradient(
+              135deg,
+              #1a4d2e 0%,
+              #2d7a4f 55%,
+              #3a9060 100%
+            );
+          "
+        >
+          <div
+            class="absolute -top-14 -right-10 w-56 h-56 rounded-full pointer-events-none"
+            style="background: rgba(255, 255, 255, 0.05)"
+          ></div>
+          <div
+            class="absolute -bottom-8 right-16 w-40 h-40 rounded-full pointer-events-none"
+            style="background: rgba(255, 255, 255, 0.04)"
+          ></div>
+
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start gap-3 mb-5"
+          >
+            <div>
+              <div class="flex items-center gap-2 text-white/60 text-sm mb-2">
+                <span>📍</span><span id="wLocation">Raipur, Chhattisgarh</span>
+              </div>
+              <div class="flex items-end gap-3">
+                <div
+                  class="font-serif leading-none font-bold"
+                  style="font-size: clamp(2.8rem, 7vw, 4.5rem)"
+                  id="wTemp"
+                >
+                  28°C
+                </div>
+                <div class="pb-1">
+                  <div
+                    class="text-white/80 font-medium text-sm"
+                    data-i18n="w_desc"
+                  >
+                    Partly Cloudy
+                  </div>
+                  <div class="text-white/45 text-xs">Feels like 31°C</div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="hidden sm:block text-[5rem] leading-none opacity-90 drop-shadow-2xl pr-2"
+            >
+              ⛅
+            </div>
+          </div>
+
+          <div
+            class="grid grid-cols-3 gap-2 rounded-2xl p-3"
+            style="background: rgba(255, 255, 255, 0.1)"
+          >
+            <div class="text-center py-1">
+              <div class="text-xl mb-0.5">💧</div>
+              <div class="font-semibold text-sm">74%</div>
+              <div class="text-white/50 text-[0.65rem]" data-i18n="w_humidity">
+                Humidity
+              </div>
+            </div>
+            <div class="text-center py-1 border-x border-white/15">
+              <div class="text-xl mb-0.5">🌬️</div>
+              <div class="font-semibold text-sm">12 km/h</div>
+              <div class="text-white/50 text-[0.65rem]" data-i18n="w_wind">
+                Wind
+              </div>
+            </div>
+            <div class="text-center py-1">
+              <div class="text-xl mb-0.5">🌧️</div>
+              <div class="font-semibold text-sm">68%</div>
+              <div
+                class="text-white/50 text-[0.65rem]"
+                data-i18n="w_rain_chance"
+              >
+                Rain Chance
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── QUICK ACTIONS ── -->
+        <p
+          class="text-[0.68rem] tracking-[2.5px] uppercase text-text-light font-semibold mb-3 animate-fade-in-up d3"
+          data-i18n="sec_actions"
+        >
+          ⚡ Quick Actions
+        </p>
+        <div
+          class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 animate-fade-in-up d3"
+        >
+          <div
+            class="group bg-white border-[1.5px] border-border-clr rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-gold-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+            <div
+              class="relative w-11 h-11 bg-gradient-to-br from-gold-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+            >
+              🍃
+            </div>
+            <span
+              class="relative text-[0.8rem] font-bold text-text-dark block"
+              data-i18n="qa_scan"
+              >Scan Crop</span
+            >
+            <small
+              class="relative text-[0.67rem] text-text-light block mt-0.5"
+              data-i18n="qa_scan_sub"
+              >Detect diseases</small
+            >
+          </div>
+          <div
+            class="group bg-white border-[1.5px] border-border-clr rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-gold-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+            <div
+              class="relative w-11 h-11 bg-gradient-to-br from-gold-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+            >
+              📈
+            </div>
+            <span
+              class="relative text-[0.8rem] font-bold text-text-dark block"
+              data-i18n="qa_market"
+              >Market Price</span
+            >
+            <small
+              class="relative text-[0.67rem] text-text-light block mt-0.5"
+              data-i18n="qa_market_sub"
+              >Live mandi rates</small
+            >
+          </div>
+          <div
+            class="group bg-white border-[1.5px] border-border-clr rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-gold-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+            <div
+              class="relative w-11 h-11 bg-gradient-to-br from-gold-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+            >
+              🤖
+            </div>
+            <span
+              class="relative text-[0.8rem] font-bold text-text-dark block"
+              data-i18n="qa_ai"
+              >Ask AI</span
+            >
+            <small
+              class="relative text-[0.67rem] text-text-light block mt-0.5"
+              data-i18n="qa_ai_sub"
+              >Get instant help</small
+            >
+          </div>
+          <div
+            class="group bg-white border-[1.5px] border-border-clr rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-gold-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+            ></div>
+            <div
+              class="relative w-11 h-11 bg-gradient-to-br from-gold-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+            >
+              🏛️
+            </div>
+            <span
+              class="relative text-[0.8rem] font-bold text-text-dark block"
+              data-i18n="qa_schemes"
+              >Schemes</span
+            >
+            <small
+              class="relative text-[0.67rem] text-text-light block mt-0.5"
+              data-i18n="qa_schemes_sub"
+              >Govt. benefits</small
+            >
+          </div>
+        </div>
+
+        <!-- ── RAIN FORECAST — SVG LINE CHART ── -->
+        <p
+          class="text-[0.68rem] tracking-[2.5px] uppercase text-text-light font-semibold mb-3 animate-fade-in-up d4"
+          data-i18n="sec_rain"
+        >
+          🌧 7-Day Rain Forecast
+        </p>
+        <div
+          class="w-full bg-white border-[1.5px] border-border-clr rounded-3xl p-5 md:p-6 mb-8 shadow-sm animate-fade-in-up d4"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h3
+              class="font-bold text-text-dark text-[0.95rem]"
+              data-i18n="rain_title"
+            >
+              Rainfall Prediction
+            </h3>
+            <span
+              class="text-[0.72rem] text-text-light bg-green-pale px-3 py-1 rounded-full"
+              data-i18n="rain_unit"
+              >probability %</span
+            >
+          </div>
+
+          <!-- SVG chart rendered by JS -->
+          <div class="w-full overflow-x-auto">
+            <svg
+              id="rainChart"
+              viewBox="0 0 700 180"
+              preserveAspectRatio="xMidYMid meet"
+              class="w-full h-auto"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <!-- Defs for gradient and glow -->
+              <defs>
+                <linearGradient id="rainGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#2d7a4f" stop-opacity="0.25" />
+                  <stop
+                    offset="100%"
+                    stop-color="#2d7a4f"
+                    stop-opacity="0.02"
+                  />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2.5" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <!-- Grid lines -->
+              <line
+                x1="50"
+                y1="20"
+                x2="680"
+                y2="20"
+                stroke="#dce9df"
+                stroke-width="1"
+                stroke-dasharray="4,4"
+              />
+              <line
+                x1="50"
+                y1="55"
+                x2="680"
+                y2="55"
+                stroke="#dce9df"
+                stroke-width="1"
+                stroke-dasharray="4,4"
+              />
+              <line
+                x1="50"
+                y1="90"
+                x2="680"
+                y2="90"
+                stroke="#dce9df"
+                stroke-width="1"
+                stroke-dasharray="4,4"
+              />
+              <line
+                x1="50"
+                y1="125"
+                x2="680"
+                y2="125"
+                stroke="#dce9df"
+                stroke-width="1"
+                stroke-dasharray="4,4"
+              />
+
+              <!-- Y-axis labels -->
+              <text
+                x="40"
+                y="24"
+                text-anchor="end"
+                fill="#8a9e8f"
+                font-size="10"
+                font-family="DM Sans,sans-serif"
+              >
+                100%
+              </text>
+              <text
+                x="40"
+                y="59"
+                text-anchor="end"
+                fill="#8a9e8f"
+                font-size="10"
+                font-family="DM Sans,sans-serif"
+              >
+                75%
+              </text>
+              <text
+                x="40"
+                y="94"
+                text-anchor="end"
+                fill="#8a9e8f"
+                font-size="10"
+                font-family="DM Sans,sans-serif"
+              >
+                50%
+              </text>
+              <text
+                x="40"
+                y="129"
+                text-anchor="end"
+                fill="#8a9e8f"
+                font-size="10"
+                font-family="DM Sans,sans-serif"
+              >
+                25%
+              </text>
+              <text
+                x="40"
+                y="164"
+                text-anchor="end"
+                fill="#8a9e8f"
+                font-size="10"
+                font-family="DM Sans,sans-serif"
+              >
+                0%
+              </text>
+
+              <!-- Area fill (path built by JS) -->
+              <path id="rainArea" fill="url(#rainGrad)" />
+              <!-- Line (path built by JS) -->
+              <path
+                id="rainLine"
+                fill="none"
+                stroke="#2d7a4f"
+                stroke-width="2.5"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                filter="url(#glow)"
+              />
+              <!-- Dots (rendered by JS) -->
+              <g id="rainDots"></g>
+              <!-- Day labels (rendered by JS) -->
+              <g id="rainLabels"></g>
+              <!-- Percent labels (rendered by JS) -->
+              <g id="rainPcts"></g>
+            </svg>
+          </div>
+
+          <div
+            class="flex items-center gap-2 text-[0.78rem] text-text-mid bg-green-pale rounded-xl px-4 py-2.5 mt-2"
+          >
+            <span>💡</span>
+            <span data-i18n="rain_note"
+              >Best days to irrigate: Tuesday &amp; Wednesday (low rainfall
+              expected)</span
+            >
+          </div>
+        </div>
+      </main>
+
+      <!-- ══════════════════════════════════
+         FOOTER
+    ══════════════════════════════════ -->
+      <footer
+        class="w-full text-white relative overflow-hidden"
+        style="
+          background: linear-gradient(
+            160deg,
+            #163d24 0%,
+            #1a4d2e 50%,
+            #122a1c 100%
+          );
+        "
+      >
+        <div
+          class="absolute top-0 left-0 right-0 h-[2px]"
+          style="
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(240, 196, 106, 0.55),
+              transparent
+            );
+          "
+        ></div>
+        <div
+          class="absolute top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4"
+          style="background: rgba(255, 255, 255, 0.02)"
+        ></div>
+        <div
+          class="absolute bottom-0 left-0 w-[350px] h-[350px] rounded-full pointer-events-none translate-y-1/2 -translate-x-1/4"
+          style="background: rgba(201, 150, 58, 0.05)"
+        ></div>
+
+        <div class="relative z-10 px-6 md:px-10 pt-12 pb-5">
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-9 mb-10"
+          >
+            <!-- Brand -->
+            <div>
+              <div class="mb-4">
+                <img
+                  src="/static/images/logo.png"
+                  alt="Labhansh.ai"
+                  class="h-11 w-auto"
+                />
+              </div>
+              <p class="text-white/40 text-[0.82rem] leading-relaxed mb-5">
+                Empowering Indian farmers with AI-driven insights — smarter
+                decisions, better harvests.
+              </p>
+              <div class="flex gap-2">
+                <a
+                  href="#"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center text-sm hover:-translate-y-0.5 transition-all"
+                  style="background: rgba(255, 255, 255, 0.07)"
+                  >🐦</a
+                >
+                <a
+                  href="#"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center text-sm hover:-translate-y-0.5 transition-all"
+                  style="background: rgba(255, 255, 255, 0.07)"
+                  >📘</a
+                >
+                <a
+                  href="#"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center text-sm hover:-translate-y-0.5 transition-all"
+                  style="background: rgba(255, 255, 255, 0.07)"
+                  >▶️</a
+                >
+                <a
+                  href="#"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center text-sm hover:-translate-y-0.5 transition-all"
+                  style="background: rgba(255, 255, 255, 0.07)"
+                  >💬</a
+                >
+              </div>
+            </div>
+
+            <!-- Features -->
+            <div>
+              <h4
+                class="text-white/80 font-semibold text-[0.78rem] mb-4 uppercase tracking-[2px]"
+              >
+                Features
+              </h4>
+              <ul class="space-y-2.5">
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors flex items-center gap-2"
+                    >🌱 Crop Recommendation</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors flex items-center gap-2"
+                    >🍃 Disease Detection</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors flex items-center gap-2"
+                    >📈 Market Prices</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors flex items-center gap-2"
+                    >🤖 AI Assistant</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors flex items-center gap-2"
+                    >🏛️ Govt. Schemes</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <!-- Company -->
+            <div>
+              <h4
+                class="text-white/80 font-semibold text-[0.78rem] mb-4 uppercase tracking-[2px]"
+              >
+                Company
+              </h4>
+              <ul class="space-y-2.5">
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors"
+                    data-i18n="f_about"
+                    >About Us</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors"
+                    >Careers</a
+                  >
+                </li>
+
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors"
+                    data-i18n="f_contact"
+                    >Contact Us</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors"
+                    data-i18n="f_terms"
+                    >Terms &amp; Privacy</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <!-- Support -->
+            <div>
+              <h4
+                class="text-white/80 font-semibold text-[0.78rem] mb-4 uppercase tracking-[2px]"
+              >
+                Support
+              </h4>
+              <ul class="space-y-2.5 mb-4">
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors"
+                    data-i18n="f_help"
+                    >Help Center</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors"
+                    >Farmer Helpline</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/40 hover:text-gold-light text-[0.82rem] transition-colors"
+                    >Report a Bug</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bottom bar -->
+          <div
+            class="border-t border-white/10 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3"
+          >
+            <p class="text-white/25 text-[0.74rem]">
+              © 2025 Labhansh.ai. All rights reserved. Made with ❤️ for Indian
+              Farmers.
+            </p>
+            <div class="flex items-center gap-2">
+              <span class="text-white/20 text-[0.7rem]">Available in</span>
+              <span
+                class="text-white/40 text-[0.7rem] px-2.5 py-0.5 rounded-full"
+                style="background: rgba(255, 255, 255, 0.07)"
+                >🇮🇳 English</span
+              >
+              <span
+                class="text-white/40 text-[0.7rem] px-2.5 py-0.5 rounded-full"
+                style="background: rgba(255, 255, 255, 0.07)"
+                >हिंदी</span
+              >
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- /main wrapper -->
+
+    <!-- ══════════════════════════════════
+       MOBILE BOTTOM NAV
+  ══════════════════════════════════ -->
+    <nav
+      class="md:hidden fixed bottom-0 left-0 right-0 z-[100] border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
+      style="background: rgba(26, 77, 46, 0.97); backdrop-filter: blur(16px)"
+    >
+      <div class="flex justify-around items-center py-1.5">
+        <button
+          class="flex flex-col items-center gap-0.5 px-3 py-2 text-gold-light rounded-xl"
+        >
+          <span class="text-xl">🏠</span
+          ><span class="text-[0.58rem] font-sans" data-i18n="nav_dashboard"
+            >Home</span
+          >
+        </button>
+        <button
+          class="flex flex-col items-center gap-0.5 px-3 py-2 text-white/40 hover:text-gold-light rounded-xl transition-colors"
+        >
+          <span class="text-xl">🌱</span
+          ><span class="text-[0.58rem] font-sans" data-i18n="nav_crop"
+            >Crop</span
+          >
+        </button>
+        <button
+          class="flex flex-col items-center gap-0.5 px-3 py-2 text-white/40 hover:text-gold-light rounded-xl transition-colors"
+        >
+          <span class="text-xl">📈</span
+          ><span class="text-[0.58rem] font-sans" data-i18n="nav_market"
+            >Market</span
+          >
+        </button>
+        <button
+          class="flex flex-col items-center gap-0.5 px-3 py-2 text-white/40 hover:text-gold-light rounded-xl transition-colors"
+        >
+          <span class="text-xl">🤖</span
+          ><span class="text-[0.58rem] font-sans" data-i18n="nav_ai">AI</span>
+        </button>
+        <button
+          class="flex flex-col items-center gap-0.5 px-3 py-2 text-white/40 hover:text-gold-light rounded-xl transition-colors"
+          onclick="toggleSidebar()"
+        >
+          <span class="text-xl">☰</span
+          ><span class="text-[0.58rem] font-sans">Menu</span>
+        </button>
+      </div>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  </body>
+</html>

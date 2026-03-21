@@ -39,5 +39,10 @@ def register():
         return jsonify({'success': True, 'message': 'Registration successful'})
     return render_template('auth/register.html')
 
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard/dashboard.html') 
+
 if __name__ == '__main__':
     app.run(debug=True)

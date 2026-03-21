@@ -1,0 +1,61 @@
+{
+  "popup_title": "Enable Location Access",
+  "popup_desc": "Allow Labhansh.ai to access your location for personalised weather updates, crop recommendations, and local market prices.",
+  "popup_allow": "📍 Allow",
+  "popup_deny": "Not Now",
+  "manual_placeholder": "Enter your village / district...",
+  "manual_confirm": "Confirm Location",
+
+  "tagline": "Smart Agriculture",
+
+  "nav_main": "Main",
+  "nav_dashboard": "Dashboard",
+  "nav_crop": "Crop Recommendation",
+  "nav_yield": "Yield Prediction",
+  "nav_disease": "Disease Detection",
+  "nav_tools": "Tools",
+  "nav_fert": "Fertilizer Guide",
+  "nav_profit": "Profit Analyzer",
+  "nav_market": "Market Price",
+  "nav_community": "Community",
+  "nav_community_link": "Farmer Community",
+  "nav_schemes": "Govt. Schemes",
+  "nav_ai": "AI Assistant",
+  "nav_about": "About",
+
+  "greeting": "Good morning,",
+  "dd_profile": "View Profile",
+  "dd_settings": "Settings",
+  "dd_logout": "Logout",
+
+  "dash_title": "Your Farm Dashboard",
+  "dash_sub": "Here's what's happening on your farm today",
+
+  "alert_warn": "Heavy rainfall expected in your area within 48 hours. Consider harvesting early.",
+
+  "sec_weather": "🌤 Today's Weather",
+  "w_desc": "Partly Cloudy · Feels like 31°C",
+  "w_humidity": "Humidity",
+  "w_wind": "Wind",
+  "w_rain_chance": "Rain Chance",
+
+  "sec_actions": "⚡ Quick Actions",
+  "qa_scan": "Scan Crop",
+  "qa_scan_sub": "Detect diseases",
+  "qa_market": "Market Price",
+  "qa_market_sub": "Live mandi rates",
+  "qa_ai": "Ask AI",
+  "qa_ai_sub": "Get instant help",
+  "qa_schemes": "Schemes",
+  "qa_schemes_sub": "Govt. benefits",
+
+  "sec_rain": "🌧 7-Day Rain Forecast",
+  "rain_title": "Rainfall Prediction",
+  "rain_unit": "probability %",
+  "rain_note": "Best days to irrigate: Tuesday & Wednesday",
+
+  "f_about": "About",
+  "f_contact": "Contact",
+  "f_help": "Help & Support",
+  "f_terms": "Terms & Privacy"
+}

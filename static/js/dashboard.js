@@ -1,1 +1,153 @@
-// Dashboard JavaScript
+let currentLang = localStorage.getItem("Labhansh.ai_lang") || "en";
+let i18n = {};
+
+// ─────────────────────────────
+// LOAD LANGUAGE JSON
+// ─────────────────────────────
+async function loadLang(lang) {
+  try {
+    const res = await fetch(`/static/locales/${lang}/dashboard.json`);
+    i18n = await res.json();
+    applyLang();
+    localStorage.setItem("Labhansh.ai_lang", lang);
+  } catch (err) {
+    console.error("Language load error:", err);
+  }
+}
+
+function applyLang() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (i18n[key]) el.textContent = i18n[key];
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (i18n[key]) el.placeholder = i18n[key];
+  });
+
+  document
+    .querySelectorAll(".lang-btn")
+    .forEach((b) => b.classList.remove("active"));
+  document
+    .querySelector(`.lang-btn[onclick="setLang('${currentLang}')"]`)
+    ?.classList.add("active");
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  loadLang(lang);
+}
+
+// ─────────────────────────────
+// LOCATION
+// ─────────────────────────────
+function allowLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        document.getElementById("wLocation").textContent = "Your Location";
+        document.getElementById("headerLoc").textContent = "Your Area";
+        closepopup();
+      },
+      () => showManual(),
+    );
+  } else showManual();
+}
+
+function denyLocation() {
+  showManual();
+}
+
+function showManual() {
+  document.getElementById("manualLoc").style.display = "block";
+}
+
+function confirmManual() {
+  const v = document.getElementById("locInput").value.trim();
+  if (v) {
+    document.getElementById("wLocation").textContent = v;
+    document.getElementById("headerLoc").textContent = v;
+    closepopup();
+  }
+}
+
+function closepopup() {
+  const p = document.getElementById("locationPopup");
+  p.style.opacity = "0";
+  setTimeout(() => (p.style.display = "none"), 300);
+}
+
+// ─────────────────────────────
+// SIDEBAR
+// ─────────────────────────────
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("sidebarOverlay").classList.toggle("show");
+}
+
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebarOverlay").classList.remove("show");
+}
+
+// ─────────────────────────────
+// PROFILE DROPDOWN
+// ─────────────────────────────
+function toggleDropdown() {
+  document.getElementById("profileDropdown").classList.toggle("show");
+}
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".profile-wrap")) {
+    document.getElementById("profileDropdown").classList.remove("show");
+  }
+});
+
+// ─────────────────────────────
+// NAV ACTIVE
+// ─────────────────────────────
+function setActive(el) {
+  document
+    .querySelectorAll(".nav-item")
+    .forEach((i) => i.classList.remove("active"));
+  el.classList.add("active");
+  if (window.innerWidth <= 768) closeSidebar();
+}
+
+// ─────────────────────────────
+// RAIN DATA
+// ─────────────────────────────
+const rainData = [
+  { day: "Mon", pct: 20 },
+  { day: "Tue", pct: 45 },
+  { day: "Wed", pct: 80 },
+  { day: "Thu", pct: 90 },
+  { day: "Fri", pct: 55 },
+  { day: "Sat", pct: 30 },
+  { day: "Sun", pct: 15 },
+];
+
+function renderRain() {
+  const rainBarsEl = document.getElementById("rainBars");
+  rainBarsEl.innerHTML = "";
+
+  rainData.forEach((d) => {
+    rainBarsEl.innerHTML += `
+      <div class="bar-wrap">
+        <div class="bar-pct">${d.pct}%</div>
+        <div class="bar-outer">
+          <div class="bar-fill" style="height:${d.pct}%"></div>
+        </div>
+        <div class="bar-day">${d.day}</div>
+      </div>`;
+  });
+}
+
+// ─────────────────────────────
+// INIT
+// ─────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  loadLang(currentLang);
+  renderRain();
+});

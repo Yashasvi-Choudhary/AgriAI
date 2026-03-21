@@ -5,8 +5,13 @@ let lang = localStorage.getItem("Labhansh.ai_lang") || "en";
 let i18n = {};
 
 async function loadLang(l) {
-  const res = await fetch(`/static/locales/${l}/login.json`);
-  i18n = await res.json();
+  try {
+    const res = await fetch(`/static/locales/${l}/login.json`);
+    i18n = await res.json();
+  } catch (err) {
+    console.error("Language load error:", err);
+    i18n = {};
+  }
 }
 
 function t(key) {
@@ -116,132 +121,88 @@ function togglePwd(inputId, btn) {
 }
 
 /* ───────────── FORM SUBMIT ───────────── */
-document.getElementById("login-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
 
-  Object.keys(touched).forEach((k) => (touched[k] = true));
-  const errs = ["email", "password"].map(validateField).filter(Boolean);
-
-  if (errs.length) return;
-
-  const formErr = document.getElementById("form-error");
-  const btn = document.getElementById("btn-submit");
-  const label = btn.querySelector(".btn-label");
-  const spinner = document.getElementById("spinner");
-
-  btn.disabled = true;
-  label.classList.add("hidden");
-  spinner.classList.remove("hidden");
-
-  try {
-    const res = await fetch("/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: email.value.trim(),
-        password: password.value,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      window.location.href = "/dashboard";
-    } else {
-      formErr.textContent = data.message || "Invalid credentials";
-      formErr.classList.remove("hidden");
-    }
-  } catch {
-    formErr.textContent = "Network error";
-    formErr.classList.remove("hidden");
-  }
-
-  btn.disabled = false;
-  label.classList.remove("hidden");
-  spinner.classList.add("hidden");
-});
-
-      /* ─────────────────────────────────────────
+/* ─────────────────────────────────────────
          NEURAL NETWORK CANVAS
          (exact same implementation as register)
       ───────────────────────────────────────── */
-      (function () {
-        const canvas = document.getElementById("neural");
-        const ctx = canvas.getContext("2d");
-        let W,
-          H,
-          nodes = [],
-          animId;
+(function () {
+  const canvas = document.getElementById("neural");
+  const ctx = canvas.getContext("2d");
+  let W,
+    H,
+    nodes = [],
+    animId;
 
-        function resize() {
-          W = canvas.width = window.innerWidth;
-          H = canvas.height = window.innerHeight;
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function createNodes(n) {
+    nodes = [];
+    for (let i = 0; i < n; i++) {
+      nodes.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: Math.random() * 2 + 1,
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 130) {
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = `rgba(200,168,75,${0.09 * (1 - dist / 130)})`;
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
         }
+      }
+    }
+    nodes.forEach((n) => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(200,168,75,0.25)";
+      ctx.fill();
+    });
+  }
 
-        function createNodes(n) {
-          nodes = [];
-          for (let i = 0; i < n; i++) {
-            nodes.push({
-              x: Math.random() * W,
-              y: Math.random() * H,
-              vx: (Math.random() - 0.5) * 0.4,
-              vy: (Math.random() - 0.5) * 0.4,
-              r: Math.random() * 2 + 1,
-            });
-          }
-        }
+  function update() {
+    nodes.forEach((n) => {
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    });
+  }
 
-        function draw() {
-          ctx.clearRect(0, 0, W, H);
-          for (let i = 0; i < nodes.length; i++) {
-            for (let j = i + 1; j < nodes.length; j++) {
-              const dx = nodes[i].x - nodes[j].x;
-              const dy = nodes[i].y - nodes[j].y;
-              const dist = Math.sqrt(dx * dx + dy * dy);
-              if (dist < 130) {
-                ctx.beginPath();
-                ctx.moveTo(nodes[i].x, nodes[i].y);
-                ctx.lineTo(nodes[j].x, nodes[j].y);
-                ctx.strokeStyle = `rgba(200,168,75,${0.09 * (1 - dist / 130)})`;
-                ctx.lineWidth = 0.7;
-                ctx.stroke();
-              }
-            }
-          }
-          nodes.forEach((n) => {
-            ctx.beginPath();
-            ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(200,168,75,0.25)";
-            ctx.fill();
-          });
-        }
+  function loop() {
+    update();
+    draw();
+    animId = requestAnimationFrame(loop);
+  }
 
-        function update() {
-          nodes.forEach((n) => {
-            n.x += n.vx;
-            n.y += n.vy;
-            if (n.x < 0 || n.x > W) n.vx *= -1;
-            if (n.y < 0 || n.y > H) n.vy *= -1;
-          });
-        }
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(animId);
+    resize();
+    createNodes(60);
+    loop();
+  });
 
-        function loop() {
-          update();
-          draw();
-          animId = requestAnimationFrame(loop);
-        }
-
-        window.addEventListener("resize", () => {
-          cancelAnimationFrame(animId);
-          resize();
-          createNodes(60);
-          loop();
-        });
-
-        resize();
-        createNodes(60);
-        loop();
-      })();
+  resize();
+  createNodes(60);
+  loop();
+})();
 
 /* ───────────── INIT ───────────── */
 
@@ -250,4 +211,28 @@ document.addEventListener("DOMContentLoaded", () => {
   setupField("email");
   setupField("password");
   lucide.createIcons();
+
+  const form = document.getElementById("login-form");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    Object.keys(touched).forEach((k) => (touched[k] = true));
+    const errs = ["email", "password"].map(validateField).filter(Boolean);
+
+    if (errs.length) return;
+
+    // 🔥 Fake loading (optional but better UX)
+    const btn = document.getElementById("btn-submit");
+    const spinner = document.getElementById("spinner");
+    const label = btn.querySelector(".btn-label");
+
+    btn.disabled = true;
+    label.classList.add("hidden");
+    spinner.classList.remove("hidden");
+
+    setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 1000);
+  });
 });
