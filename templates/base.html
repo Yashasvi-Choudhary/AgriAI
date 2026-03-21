@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Labhansh.ai – Smart Agriculture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "green-deep": "#1a4d2e",
+              "green-mid": "#2d7a4f",
+              "green-soft": "#4aaa74",
+              "green-pale": "#e8f5ed",
+              gold: "#c9963a",
+              "gold-light": "#f0c46a",
+              "gold-pale": "#fdf3e0",
+              cream: "#f8f6f0",
+              "text-dark": "#1c2b1e",
+              "text-mid": "#4a5e4f",
+              "text-light": "#8a9e8f",
+              "border-clr": "#dce9df",
+            },
+            fontFamily: {
+              sans: ["DM Sans", "sans-serif"],
+              serif: ["Playfair Display", "serif"],
+            },
+            animation: {
+              "fade-in": "fadeIn 0.3s ease",
+              "slide-up": "slideUp 0.4s cubic-bezier(.22,.68,0,1.2)",
+              "fade-in-up": "fadeInUp 0.5s ease both",
+            },
+            keyframes: {
+              fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },
+              slideUp: {
+                from: { opacity: "0", transform: "translateY(30px)" },
+                to: { opacity: "1", transform: "translateY(0)" },
+              },
+              fadeInUp: {
+                from: { opacity: "0", transform: "translateY(18px)" },
+                to: { opacity: "1", transform: "translateY(0)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply bg-cream text-text-dark font-sans min-h-screen overflow-x-hidden;
+        }
+        body::before {
+          content: "";
+          @apply fixed inset-0 pointer-events-none z-0;
+          background-image:
+            radial-gradient(
+              circle at 15% 25%,
+              rgba(45, 122, 79, 0.05) 0%,
+              transparent 55%
+            ),
+            radial-gradient(
+              circle at 85% 75%,
+              rgba(201, 150, 58, 0.04) 0%,
+              transparent 55%
+            ),
+            url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232d7a4f' fill-opacity='0.022'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+      }
+      @layer utilities {
+        .nav-item.active {
+          @apply text-gold-light bg-white/10 border-l-[3px] border-gold font-semibold;
+        }
+        .sidebar.open {
+          @apply !translate-x-0;
+        }
+        .sidebar-overlay.show {
+          @apply block;
+        }
+        .dropdown.show {
+          @apply block;
+        }
+        .lang-btn.active {
+          @apply bg-gold text-white;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .d1 {
+          animation-delay: 0.06s;
+        }
+        .d2 {
+          animation-delay: 0.12s;
+        }
+        .d3 {
+          animation-delay: 0.18s;
+        }
+        .d4 {
+          animation-delay: 0.24s;
+        }
+        .d5 {
+          animation-delay: 0.3s;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    {% include "layout/sidebar.html" %}
+
+    <!-- Navbar -->
+    {% include "layout/navbar.html" %}
+
+    <!-- MAIN CONTENT -->
+    {% block content %}{% endblock %}
+
+    <!-- Mobile Nav -->
+    {% include "layout/mobile_nav.html" %} 
+    
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/global.js') }}"></script>
+    {% endblock %}
+  </body>
+</html>
