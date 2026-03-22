@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify
+from routes.auth_routes import auth
 
 app = Flask(__name__)
+app.register_blueprint(auth)
 
 @app.route('/')
 def index():
