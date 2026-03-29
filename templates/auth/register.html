@@ -4,16 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Labhansh.ai — Smart Farming Registration</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="{{ url_for('static', filename='css/output.css') }}"
+      rel="stylesheet"
+    />
+ 
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-      body {
-        font-family: "DM Sans", sans-serif;
-      }
       .font-display {
         font-family: "Playfair Display", serif;
       }
@@ -56,9 +57,7 @@
       }
     </style>
   </head>
-  <body
-    class="bg-[linear-gradient(160deg,#0a2a1e_0%,#0F3D2E_55%,#1A5C44_100%)] text-[#e8f5e2] min-h-screen overflow-x-hidden"
-  >
+  <body class="bg-background text-textDark min-h-screen overflow-x-hidden">
     <canvas id="neural"></canvas>
     <div class="soil-overlay"></div>
 
@@ -66,44 +65,44 @@
       class="relative z-20 min-h-screen flex flex-col items-center justify-center p-6"
     >
       <!-- Language Selection -->
-      <div class="flex bg-[#071c13]/50 rounded-full p-1 w-fit">
+      <div class="flex bg-primaryDark/50 rounded-full p-1 w-fit">
         <button
           onclick="setLang('en')"
           id="btn-en"
-          class="flex-1 px-6 py-2 rounded-full text-xs font-medium transition-all text-[#9bbfa8] hover:text-[#c8a84b]"
+          class="flex-1 px-6 py-2 rounded-full text-xs font-medium transition-all text-textLight hover:text-accent"
         >
           English
         </button>
         <button
           onclick="setLang('hi')"
           id="btn-hi"
-          class="flex-1 px-6 py-2 rounded-full text-xs font-medium transition-all text-[#9bbfa8] hover:text-[#c8a84b]"
+          class="flex-1 px-6 py-2 rounded-full text-xs font-medium transition-all text-textLight hover:text-accent"
         >
           हिंदी
         </button>
       </div>
 
       <div
-        class="animate-card mt-6 w-full max-w-[480px] bg-[#0f3d2e]/55 backdrop-blur-2xl backdrop-saturate-150 border border-[#c8a84b]/25 rounded-[24px] p-8 md:p-8 shadow-2xl"
+        class="animate-card mt-6 w-full max-w-[480px] bg-primary/55 backdrop-blur-2xl backdrop-saturate-150 border border-accent/25 rounded-[24px] p-8 md:p-8 shadow-2xl"
       >
         <!-- Logo -->
         <div class="flex flex-col items-center mb-2">
           <img
             src="/static/images/logo.png"
             alt="Labhansh.ai"
-            class="w-54 h-16 rounded-xl shadow-lg"
+            class="w-52 h-16 rounded-xl shadow-lg"
           />
         </div>
 
         <div
-          class="h-[1px] bg-gradient-to-r from-transparent via-[#c8a84b]/30 to-transparent mb-4"
+          class="h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent mb-4"
         ></div>
 
         <h2 class="font-display text-2xl text-center mb-2" data-i18n="heading">
           Create Your Account
         </h2>
         <p
-          class="text-sm text-center text-[#9bbfa8] mb-8 font-light"
+          class="text-sm text-center text-textLight mb-8 font-light"
           data-i18n="subtext"
         >
           Start your smart farming journey with AI
@@ -113,14 +112,14 @@
           <!-- Full Name -->
           <div>
             <label
-              class="block text-[10px] font-semibold text-[#9bbfa8] uppercase tracking-wider mb-2"
+              class="block text-[10px] font-semibold text-textLight uppercase tracking-wider mb-2"
               data-i18n="label_name"
             ></label>
             <div class="relative flex items-center">
               <input
                 type="text"
                 id="fullname"
-                class="w-full pl-4 pr-4 py-3 bg-[#071c13]/60 border border-[#9bbfa8]/20 rounded-xl outline-none focus:border-[#c8a84b] focus:ring-2 focus:ring-[#c8a84b]/10 transition-all placeholder-[#9bbfa8]/40"
+                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_name"
               />
             </div>
@@ -134,14 +133,14 @@
           <!-- Email -->
           <div>
             <label
-              class="block text-[10px] font-semibold text-[#9bbfa8] uppercase tracking-wider mb-2"
+              class="block text-[10px] font-semibold text-textLight uppercase tracking-wider mb-2"
               data-i18n="label_email"
             ></label>
             <div class="relative flex items-center">
               <input
                 type="email"
                 id="email"
-                class="w-full pl-4 pr-4 py-3 bg-[#071c13]/60 border border-[#9bbfa8]/20 rounded-xl outline-none focus:border-[#c8a84b] focus:ring-2 focus:ring-[#c8a84b]/10 transition-all placeholder-[#9bbfa8]/40"
+                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_email"
               />
             </div>
@@ -155,7 +154,7 @@
           <!-- Phone -->
           <div>
             <label
-              class="block text-[10px] font-semibold text-[#9bbfa8] uppercase tracking-wider mb-2"
+              class="block text-[10px] font-semibold text-textLight uppercase tracking-wider mb-2"
               data-i18n="label_phone"
             ></label>
             <div class="relative flex items-center">
@@ -165,7 +164,7 @@
                 maxlength="10"
                 pattern="[0-9]{10}"
                 inputmode="numeric"
-                class="w-full pl-4 pr-4 py-3 bg-[#071c13]/60 border border-[#9bbfa8]/20 rounded-xl outline-none focus:border-[#c8a84b] focus:ring-2 focus:ring-[#c8a84b]/10 transition-all placeholder-[#9bbfa8]/40"
+                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_phone"
               />
             </div>
@@ -179,20 +178,20 @@
           <!-- Password -->
           <div>
             <label
-              class="block text-[10px] font-semibold text-[#9bbfa8] uppercase tracking-wider mb-2"
+              class="block text-[10px] font-semibold text-textLight uppercase tracking-wider mb-2"
               data-i18n="label_pwd"
             ></label>
             <div class="relative flex items-center">
               <input
                 type="password"
                 id="password"
-                class="w-full pl-4 pr-11 py-3 bg-[#071c13]/60 border border-[#9bbfa8]/20 rounded-xl outline-none focus:border-[#c8a84b] focus:ring-2 focus:ring-[#c8a84b]/10 transition-all placeholder-[#9bbfa8]/40"
+                class="w-full pl-4 pr-11 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_pwd"
               />
               <button
                 type="button"
                 onclick="togglePwd('password', this)"
-                class="absolute right-4 text-[#9bbfa8] hover:text-[#c8a84b]"
+                class="absolute right-4 text-textLight hover:text-accent"
               >
                 <i data-lucide="eye" class="w-5 h-5"></i>
               </button>
@@ -203,14 +202,14 @@
               class="text-[11px] text-red-400 mt-1 block opacity-0 h-0 transition-all"
             ></span>
             <p
-              class="text-[10px] text-[#9bbfa8]/50 mt-1 px-1"
+              class="text-[10px] text-textLight/50 mt-1 px-1"
               data-i18n="helper_pwd"
             ></p>
           </div>
           <!-- Confirm Password -->
           <div>
             <label
-              class="block text-[10px] font-semibold text-[#9bbfa8] uppercase tracking-wider mb-2"
+              class="block text-[10px] font-semibold text-textLight uppercase tracking-wider mb-2"
               data-i18n="label_cpwd"
             ></label>
 
@@ -218,14 +217,14 @@
               <input
                 type="password"
                 id="confirm_password"
-                class="w-full pl-4 pr-11 py-3 bg-[#071c13]/60 border border-[#9bbfa8]/20 rounded-xl outline-none focus:border-[#c8a84b] focus:ring-2 focus:ring-[#c8a84b]/10 transition-all"
+                class="w-full pl-4 pr-11 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all"
                 data-i18n-ph="ph_cpwd"
               />
 
               <button
                 type="button"
                 onclick="togglePwd('confirm_password', this)"
-                class="absolute right-4 text-[#9bbfa8] hover:text-[#c8a84b]"
+                class="absolute right-4 text-textLight hover:text-accent"
               >
                 <i data-lucide="eye" class="w-5 h-5"></i>
               </button>
@@ -237,7 +236,7 @@
               class="text-[11px] text-red-400 mt-1 block opacity-0 h-0 transition-all"
             ></span>
           </div>
-          
+
           <div
             id="form-error"
             class="hidden text-red-400 text-sm text-center"
@@ -247,21 +246,21 @@
           <button
             type="submit"
             id="btn-submit"
-            class="w-full py-4 bg-gradient-to-r from-[#c8a84b] via-[#e8c66a] to-[#a07a20] bg-[length:200%_200%] hover:bg-right text-[#071c13] font-bold rounded-xl shadow-lg shadow-[#c8a84b]/20 transition-all active:scale-95 disabled:opacity-70 mt-4"
+            class="w-full py-4 bg-gradient-to-r from-accent via-accentLight to-accent bg-[length:200%_200%] hover:bg-right text-primaryDark font-bold rounded-xl shadow-lg shadow-[#c8a84b]/20 transition-all active:scale-95 disabled:opacity-70 mt-4"
           >
             <span class="btn-label" data-i18n="btn_register"></span>
             <div
               id="spinner"
-              class="hidden w-5 h-5 border-2 border-[#071c13]/30 border-t-[#071c13] rounded-full animate-spin mx-auto"
+              class="hidden w-5 h-5 border-2 border-primaryDark/30 border-t-primaryDark rounded-full animate-spin mx-auto"
             ></div>
           </button>
         </form>
 
-        <p class="text-center text-sm text-[#9bbfa8] mt-6">
+        <p class="text-center text-sm text-textLight mt-6">
           <span data-i18n="login_prompt"></span>
           <a
             href="{{ url_for('login') }}"
-            class="text-[#c8a84b] font-semibold hover:underline ml-1"
+            class="text-accent font-semibold hover:underline ml-1"
             data-i18n="login_link"
           ></a>
         </p>
@@ -271,23 +270,23 @@
     <!-- Success Modal -->
     <div
       id="success-overlay"
-      class="fixed inset-0 z-[200] bg-[#071c13]/85 backdrop-blur-md hidden items-center justify-center p-6"
+      class="fixed inset-0 z-[200] bg-primaryDark/85 backdrop-blur-md hidden items-center justify-center p-6"
     >
       <div
-        class="bg-[#0f3d2e]/80 border border-[#c8a84b]/30 rounded-[24px] p-10 max-w-[360px] w-full text-center shadow-2xl animate-card"
+        class="bg-primary/80 border border-accent/30 rounded-[24px] p-10 max-w-[360px] w-full text-center shadow-2xl animate-card"
       >
         <span class="text-5xl block mb-4">🎉</span>
         <h3
-          class="font-display text-2xl text-[#c8a84b] mb-2"
+          class="font-display text-2xl text-accent mb-2"
           data-i18n="success_title"
         ></h3>
         <p
-          class="text-sm text-[#9bbfa8] leading-relaxed"
+          class="text-sm text-textLight leading-relaxed"
           data-i18n="success_msg"
         ></p>
       </div>
     </div>
 
-    <script src="/static/js/register.js"></script>
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
   </body>
 </html>

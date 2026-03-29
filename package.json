@@ -1,0 +1,27 @@
+{
+  "devDependencies": {
+    "autoprefixer": "^10.4.27",
+    "concurrently": "^9.2.1",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2"
+  },
+  "name": "agriai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npx tailwindcss@3 -i ./static/css/input.css -o ./static/css/output.css --watch\" \"python app.py\" \"start http://127.0.0.1:5000\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yashasvi-Choudhary/AgriAI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yashasvi-Choudhary/AgriAI/issues"
+  },
+  "homepage": "https://github.com/Yashasvi-Choudhary/AgriAI#readme"
+}

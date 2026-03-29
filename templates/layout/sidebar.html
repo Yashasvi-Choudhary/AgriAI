@@ -1,165 +1,161 @@
+<!-- Mobile sidebar overlay -->
+<div
+  class="sidebar-overlay hidden fixed inset-0 bg-green-deep/55 z-[95] backdrop-blur-sm"
+  id="sidebarOverlay"
+  onclick="closeSidebar()"
+></div>
 
-    <!-- Mobile sidebar overlay -->
-    <div
-      class="sidebar-overlay hidden fixed inset-0 bg-green-deep/55 z-[95] backdrop-blur-sm"
-      id="sidebarOverlay"
-      onclick="closeSidebar()"
-    ></div>
-
-    <!-- ══════════════════════════════════
+<!-- ══════════════════════════════════
        SIDEBAR
   ══════════════════════════════════ -->
-    <aside
-      class="sidebar w-[240px] flex flex-col fixed top-0 left-0 bottom-0 z-[100] -translate-x-full md:translate-x-0 transition-transform duration-300 ease-out shadow-[6px_0_40px_rgba(0,0,0,0.2)]"
-      id="sidebar"
-      style="
-        background: linear-gradient(
-          160deg,
-          #163d24 0%,
-          #1a4d2e 40%,
-          #122a1c 100%
-        );
-      "
+<aside
+  class="sidebar w-[240px] flex flex-col fixed top-0 left-0 bottom-0 z-[100] -translate-x-full md:translate-x-0 transition-transform duration-300 ease-out shadow-[6px_0_40px_rgba(0,0,0,0.2)]"
+  id="sidebar"
+  style="
+    background: linear-gradient(160deg, #163d24 0%, #1a4d2e 40%, #122a1c 100%);
+  "
+>
+  <div
+    class="absolute top-0 left-0 right-0 h-[2px]"
+    style="
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(240, 196, 106, 0.5),
+        transparent
+      );
+    "
+  ></div>
+
+  <nav class="flex-1 overflow-y-auto scrollbar-hide pt-7 pb-4">
+    <div class="px-5 mb-2">
+      <span
+        class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
+        data-i18n="nav_main"
+        >Main</span
+      >
+    </div>
+
+    <div
+      class="nav-item active flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">🏠</span
+      ><span data-i18n="nav_dashboard">Dashboard</span>
+    </div>
+    <a href="{{ url_for('crop_recommendation') }}">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">🌱</span>
+        <span data-i18n="nav_crop">Crop Recommendation</span>
+      </div>
+    </a>
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">🌾</span
+      ><span data-i18n="nav_yield">Yield Prediction</span>
+    </div>
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">🍃</span
+      ><span data-i18n="nav_disease">Disease Detection</span>
+    </div>
+
+    <div class="px-5 mt-5 mb-2">
+      <span
+        class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
+        data-i18n="nav_tools"
+        >Tools</span
+      >
+    </div>
+
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">🧪</span
+      ><span data-i18n="nav_fert">Fertilizer Guide</span>
+    </div>
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">📊</span
+      ><span data-i18n="nav_profit">Profit Analyzer</span>
+    </div>
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">📈</span
+      ><span data-i18n="nav_market">Market Price</span>
+    </div>
+
+    <div class="px-5 mt-5 mb-2">
+      <span
+        class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
+        data-i18n="nav_community"
+        >Community</span
+      >
+    </div>
+
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">👥</span
+      ><span data-i18n="nav_community_link">Farmer Community</span>
+    </div>
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">🏛️</span
+      ><span data-i18n="nav_schemes">Govt. Schemes</span>
+    </div>
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">🤖</span
+      ><span data-i18n="nav_ai">AI Assistant</span>
+    </div>
+    <div
+      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
+      onclick="setActive(this)"
+    >
+      <span class="text-[1.1rem] w-6 text-center shrink-0">ℹ️</span
+      ><span data-i18n="nav_about">About</span>
+    </div>
+  </nav>
+
+  <!-- Sidebar user card -->
+  <div class="border-t border-white/10 p-4">
+    <div
+      class="flex items-center gap-3 rounded-2xl px-3 py-2.5"
+      style="background: rgba(255, 255, 255, 0.07)"
     >
       <div
-        class="absolute top-0 left-0 right-0 h-[2px]"
-        style="
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(240, 196, 106, 0.5),
-            transparent
-          );
-        "
-      ></div>
-
-      <nav class="flex-1 overflow-y-auto scrollbar-hide pt-7 pb-4">
-        <div class="px-5 mb-2">
-          <span
-            class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
-            data-i18n="nav_main"
-            >Main</span
-          >
-        </div>
-
-        <div
-          class="nav-item active flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">🏠</span
-          ><span data-i18n="nav_dashboard">Dashboard</span>
-        </div>
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">🌱</span
-          ><span data-i18n="nav_crop">Crop Recommendation</span>
-        </div>
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">🌾</span
-          ><span data-i18n="nav_yield">Yield Prediction</span>
-        </div>
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">🍃</span
-          ><span data-i18n="nav_disease">Disease Detection</span>
-        </div>
-
-        <div class="px-5 mt-5 mb-2">
-          <span
-            class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
-            data-i18n="nav_tools"
-            >Tools</span
-          >
-        </div>
-
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">🧪</span
-          ><span data-i18n="nav_fert">Fertilizer Guide</span>
-        </div>
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">📊</span
-          ><span data-i18n="nav_profit">Profit Analyzer</span>
-        </div>
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">📈</span
-          ><span data-i18n="nav_market">Market Price</span>
-        </div>
-
-        <div class="px-5 mt-5 mb-2">
-          <span
-            class="text-[0.6rem] tracking-[2.5px] uppercase text-white/25 font-semibold"
-            data-i18n="nav_community"
-            >Community</span
-          >
-        </div>
-
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">👥</span
-          ><span data-i18n="nav_community_link">Farmer Community</span>
-        </div>
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">🏛️</span
-          ><span data-i18n="nav_schemes">Govt. Schemes</span>
-        </div>
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">🤖</span
-          ><span data-i18n="nav_ai">AI Assistant</span>
-        </div>
-        <div
-          class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-white/6 text-[0.85rem] border-l-[3px] border-transparent"
-          onclick="setActive(this)"
-        >
-          <span class="text-[1.1rem] w-6 text-center shrink-0">ℹ️</span
-          ><span data-i18n="nav_about">About</span>
-        </div>
-      </nav>
-
-      <!-- Sidebar user card -->
-      <div class="border-t border-white/10 p-4">
-        <div
-          class="flex items-center gap-3 rounded-2xl px-3 py-2.5"
-          style="background: rgba(255, 255, 255, 0.07)"
-        >
-          <div
-            class="w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-white text-xs font-bold shrink-0"
-          >
-            RK
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-white text-[0.8rem] font-semibold truncate">
-              Ramesh Kumar
-            </p>
-            <p class="text-white/35 text-[0.67rem] truncate">Raipur, CG</p>
-          </div>
-          <span
-            class="text-white/25 text-sm hover:text-white/60 cursor-pointer transition-colors"
-            >⚙️</span
-          >
-        </div>
+        class="w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-white text-xs font-bold shrink-0"
+      >
+        RK
       </div>
-    </aside>
+      <div class="flex-1 min-w-0">
+        <p class="text-white text-[0.8rem] font-semibold truncate">
+          Hello Ji
+        </p>
+        <p class="text-white/35 text-[0.67rem] truncate">Raipur, CG</p>
+      </div>
+      <span
+        class="text-white/25 text-sm hover:text-white/60 cursor-pointer transition-colors"
+        >⚙️</span
+      >
+    </div>
+  </div>
+</aside>

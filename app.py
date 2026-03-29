@@ -6,6 +6,8 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+
+
 @app.route('/login')
 def login():
     return render_template('auth/login.html')
@@ -44,5 +46,10 @@ def register():
 def dashboard():
     return render_template('dashboard/dashboard.html') 
 
+@app.route("/crop-recommendation")
+def crop_recommendation():
+    return render_template("dashboard/crop-recommendation.html")
+
 if __name__ == '__main__':
     app.run(debug=True)
+

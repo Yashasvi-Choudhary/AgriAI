@@ -4,7 +4,7 @@ content %}
        LOCATION POPUP
   ══════════════════════════════════ -->
 <div
-  class="fixed inset-0 bg-green-deep/50 backdrop-blur-md z-[1000] flex items-center justify-center p-4 animate-fade-in"
+  class="fixed inset-0 bg-primary/50 backdrop-blur-md z-[1000] flex items-center justify-center p-4 animate-fade-in"
   id="locationPopup"
 >
   <div
@@ -16,13 +16,13 @@ content %}
       📍
     </div>
     <h2
-      class="font-serif text-[1.5rem] text-green-deep mb-2"
+      class="font-display text-[1.5rem] bg-primary mb-2"
       data-i18n="popup_title"
     >
       Enable Location Access
     </h2>
     <p
-      class="text-text-mid text-sm leading-relaxed mb-7"
+      class="text-textMid text-sm leading-relaxed mb-7"
       data-i18n="popup_desc"
     >
       Allow Labhansh.ai to access your location for personalised weather
@@ -30,14 +30,14 @@ content %}
     </p>
     <div class="flex gap-3">
       <button
-        class="flex-1 py-3.5 px-4 bg-gradient-to-br from-gold to-gold-light text-white rounded-xl font-semibold shadow-[0_4px_16px_rgba(201,150,58,0.35)] hover:-translate-y-0.5 transition-all"
+        class="flex-1 py-3.5 px-4 bg-gradient-to-br from-accent to-accentLight text-white rounded-xl font-semibold shadow-[0_4px_16px_rgba(201,150,58,0.35)] hover:-translate-y-0.5 transition-all"
         onclick="allowLocation()"
         data-i18n="popup_allow"
       >
         📍 Allow
       </button>
       <button
-        class="flex-1 py-3.5 px-4 bg-transparent text-text-mid border-[1.5px] border-border-clr rounded-xl font-medium hover:bg-green-pale hover:text-green-deep transition-all"
+        class="flex-1 py-3.5 px-4 bg-transparent text-textMid border-[1.5px] border-backgroundDark rounded-xl font-medium hover:bg-primary/10 hover:bg-primary transition-all"
         onclick="denyLocation()"
         data-i18n="popup_deny"
       >
@@ -50,10 +50,10 @@ content %}
         id="locInput"
         placeholder="Enter your village / district..."
         data-i18n-placeholder="manual_placeholder"
-        class="w-full p-3 border-[1.5px] border-border-clr rounded-xl text-sm text-text-dark bg-cream outline-none focus:border-green-soft transition-colors"
+        class="w-full p-3 border-[1.5px] border-backgroundDark rounded-xl text-sm text-text-dark bg-cream outline-none focus:border-green-soft transition-colors"
       />
       <button
-        class="mt-2.5 w-full p-3 bg-green-deep text-white rounded-xl font-semibold hover:bg-green-mid transition-colors"
+        class="mt-2.5 w-full p-3 bg-primary text-white rounded-xl font-semibold hover:bg-green-mid transition-colors"
         onclick="confirmManual()"
         data-i18n="manual_confirm"
       >
@@ -79,16 +79,16 @@ content %}
       >
         <div>
           <p
-            class="text-text-light text-[0.75rem] font-semibold uppercase tracking-widest mb-0.5"
+            class="text-textLight text-[0.75rem] font-semibold uppercase tracking-widest mb-0.5"
           >
             नमस्ते 🙏
           </p>
           <h1
-            class="font-serif text-[1.5rem] md:text-[1.75rem] text-green-deep leading-tight"
+            class="font-display text-[1.5rem] md:text-[1.75rem] bg-primary leading-tight"
           >
-            Good to see you, <em class="text-gold not-italic">Ramesh Ji</em>
+            Good to see you, <em class="text-gold not-italic">Hello Ji</em>
           </h1>
-          <p class="text-text-mid text-[0.82rem] mt-0.5">
+          <p class="text-textMid text-[0.82rem] mt-0.5">
             Your fields are ready to be monitored. Let's grow smarter today. 🌱
           </p>
         </div>
@@ -102,7 +102,7 @@ content %}
 
     <!-- ── WEATHER CARD ── -->
     <p
-      class="text-[0.68rem] tracking-[2.5px] uppercase text-text-light font-semibold mb-3 animate-fade-in-up d2"
+      class="text-[0.68rem] tracking-[2.5px] uppercase text-textLight font-semibold mb-3 animate-fade-in-up d2"
       data-i18n="sec_weather"
     >
       🌤 Today's Weather
@@ -136,11 +136,11 @@ content %}
           </div>
           <div class="flex items-end gap-3">
             <div
-              class="font-serif leading-none font-bold"
+              class="font-display leading-none font-bold"
               style="font-size: clamp(2.8rem, 7vw, 4.5rem)"
               id="wTemp"
             >
-              28°C
+              24°C
             </div>
             <div class="pb-1">
               <div class="text-white/80 font-medium text-sm" data-i18n="w_desc">
@@ -187,7 +187,7 @@ content %}
 
     <!-- ── QUICK ACTIONS ── -->
     <p
-      class="text-[0.68rem] tracking-[2.5px] uppercase text-text-light font-semibold mb-3 animate-fade-in-up d3"
+      class="text-[0.68rem] tracking-[2.5px] uppercase text-textLight font-semibold mb-3 animate-fade-in-up d3"
       data-i18n="sec_actions"
     >
       ⚡ Quick Actions
@@ -196,13 +196,13 @@ content %}
       class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 animate-fade-in-up d3"
     >
       <div
-        class="group bg-white border-[1.5px] border-border-clr rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-gold-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute inset-0 bg-gradient-to-br from-accent-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         ></div>
         <div
-          class="relative w-11 h-11 bg-gradient-to-br from-gold-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+          class="relative w-11 h-11 bg-gradient-to-br from-accent-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
         >
           🍃
         </div>
@@ -212,19 +212,19 @@ content %}
           >Scan Crop</span
         >
         <small
-          class="relative text-[0.67rem] text-text-light block mt-0.5"
+          class="relative text-[0.67rem] text-textLight block mt-0.5"
           data-i18n="qa_scan_sub"
           >Detect diseases</small
         >
       </div>
       <div
-        class="group bg-white border-[1.5px] border-border-clr rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-gold-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute inset-0 bg-gradient-to-br from-accent-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         ></div>
         <div
-          class="relative w-11 h-11 bg-gradient-to-br from-gold-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+          class="relative w-11 h-11 bg-gradient-to-br from-accent-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
         >
           📈
         </div>
@@ -234,19 +234,19 @@ content %}
           >Market Price</span
         >
         <small
-          class="relative text-[0.67rem] text-text-light block mt-0.5"
+          class="relative text-[0.67rem] text-textLight block mt-0.5"
           data-i18n="qa_market_sub"
           >Live mandi rates</small
         >
       </div>
       <div
-        class="group bg-white border-[1.5px] border-border-clr rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-gold-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute inset-0 bg-gradient-to-br from-accent-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         ></div>
         <div
-          class="relative w-11 h-11 bg-gradient-to-br from-gold-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+          class="relative w-11 h-11 bg-gradient-to-br from-accent-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
         >
           🤖
         </div>
@@ -256,19 +256,19 @@ content %}
           >Ask AI</span
         >
         <small
-          class="relative text-[0.67rem] text-text-light block mt-0.5"
+          class="relative text-[0.67rem] text-textLight block mt-0.5"
           data-i18n="qa_ai_sub"
           >Get instant help</small
         >
       </div>
       <div
-        class="group bg-white border-[1.5px] border-border-clr rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-gold-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute inset-0 bg-gradient-to-br from-accent-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         ></div>
         <div
-          class="relative w-11 h-11 bg-gradient-to-br from-gold-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+          class="relative w-11 h-11 bg-gradient-to-br from-accent-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
         >
           🏛️
         </div>
@@ -278,7 +278,7 @@ content %}
           >Schemes</span
         >
         <small
-          class="relative text-[0.67rem] text-text-light block mt-0.5"
+          class="relative text-[0.67rem] text-textLight block mt-0.5"
           data-i18n="qa_schemes_sub"
           >Govt. benefits</small
         >
@@ -287,13 +287,13 @@ content %}
 
     <!-- ── RAIN FORECAST — SVG LINE CHART ── -->
     <p
-      class="text-[0.68rem] tracking-[2.5px] uppercase text-text-light font-semibold mb-3 animate-fade-in-up d4"
+      class="text-[0.68rem] tracking-[2.5px] uppercase text-textLight font-semibold mb-3 animate-fade-in-up d4"
       data-i18n="sec_rain"
     >
       🌧 7-Day Rain Forecast
     </p>
     <div
-      class="w-full bg-white border-[1.5px] border-border-clr rounded-3xl p-5 md:p-6 mb-8 shadow-sm animate-fade-in-up d4"
+      class="w-full bg-white border-[1.5px] border-backgroundDark rounded-3xl p-5 md:p-6 mb-8 shadow-sm animate-fade-in-up d4"
     >
       <div class="flex justify-between items-center mb-4">
         <h3
@@ -303,7 +303,7 @@ content %}
           Rainfall Prediction
         </h3>
         <span
-          class="text-[0.72rem] text-text-light bg-green-pale px-3 py-1 rounded-full"
+          class="text-[0.72rem] text-textLight bg-primary/10 px-3 py-1 rounded-full"
           data-i18n="rain_unit"
           >probability %</span
         >
@@ -445,7 +445,7 @@ content %}
       </div>
 
       <div
-        class="flex items-center gap-2 text-[0.78rem] text-text-mid bg-green-pale rounded-xl px-4 py-2.5 mt-2"
+        class="flex items-center gap-2 text-[0.78rem] text-textMid bg-primary/10 rounded-xl px-4 py-2.5 mt-2"
       >
         <span>💡</span>
         <span data-i18n="rain_note"

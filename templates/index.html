@@ -5,53 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Labhansh.ai — AI-Powered Agriculture</title>
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              forest: {
-                DEFAULT: "#0F3D2E",
-                light: "#1A5C44",
-                deep: "#0a2a1e",
-              },
-              gold: {
-                DEFAULT: "#b8930c",
-                btn: "#c9a010",
-                light: "#d9b030",
-              },
-              cream: {
-                DEFAULT: "#F5F7F3",
-                dark: "#E8EDE4",
-              },
-              text: {
-                dark: "#0d1f17",
-                mid: "#3a5246",
-                light: "#7a9a88",
-              },
-            },
-            fontFamily: {
-              syne: ["Syne", "sans-serif"],
-              sans: ["DM Sans", "sans-serif"],
-            },
-            boxShadow: {
-              "card-hover": "0 12px 48px rgba(15,61,46,0.18)",
-            },
-            animation: {
-              "fade-up": "fadeUp 0.8s ease forwards",
-            },
-            keyframes: {
-              fadeUp: {
-                "0%": { opacity: "0", transform: "translateY(30px)" },
-                "100%": { opacity: "1", transform: "translateY(0)" },
-              },
-            },
-          },
-        },
-      };
-    </script>
+    <link
+      href="{{ url_for('static', filename='css/output.css') }}"
+      rel="stylesheet"
+    />
+
     <style type="text/css">
       /* Custom scrollbar & behaviors not easily handled by standard tailwind classes */
       html {
@@ -108,7 +66,7 @@
       }
     </style>
   </head>
-  <body class="bg-cream text-text-dark font-sans overflow-x-hidden">
+  <body class="bg-background text-textDark font-sans overflow-x-hidden">
     <!-- AUTH MODAL -->
     <div
       class="modal-overlay fixed inset-0 z-[2000] bg-black/65 backdrop-blur-md hidden items-center justify-center p-4 transition-all"
@@ -116,39 +74,41 @@
       onclick="closeModalOutside(event)"
     >
       <div
-        class="bg-white rounded-[20px] p-10 w-full max-w-[430px] relative shadow-[0_30px_80px_rgba(0,0,0,0.3)] animate-fade-up"
+        class="bg-background rounded-[20px] p-10 w-full max-w-[430px] relative shadow-[0_30px_80px_rgba(0,0,0,0.3)] animate-fade-up"
         id="modalBox"
       >
         <button
-          class="absolute top-5 right-5 bg-cream w-8 h-8 rounded-full flex items-center justify-center text-text-mid hover:bg-cream-dark transition-colors"
+          class="absolute top-5 right-5 bg-background w-8 h-8 rounded-full flex items-center justify-center text-textMid hover:bg-background-dark transition-colors"
           onclick="closeModal()"
         >
           ✕
         </button>
-        <div class="font-syne font-extrabold text-[1.35rem] text-center mb-1">
+        <div
+          class="font-heading font-extrabold text-[1.35rem] text-center mb-1"
+        >
           <span class="text-gold-btn">Lab</span
-          ><span class="text-forest">hansh</span
+          ><span class="text-primary">hansh</span
           ><span class="text-gold-btn">.</span
-          ><span class="text-forest">ai</span>
+          ><span class="text-primary">ai</span>
         </div>
         <p
-          class="text-center text-[0.87rem] text-text-mid mb-7"
+          class="text-center text-[0.87rem] text-textMid mb-7"
           id="modalSubText"
           data-key="modal.welcome"
         >
           Welcome back! Sign in to your account
         </p>
 
-        <div class="flex bg-cream rounded-xl p-1 mb-7">
+        <div class="flex bg-background rounded-xl p-1 mb-7">
           <button
-            class="flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all bg-white text-forest shadow-sm"
+            class="flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all bg-background text-primary shadow-sm"
             id="tabLogin"
             onclick="switchTab('login')"
           >
             Sign In
           </button>
           <button
-            class="flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all text-text-mid hover:text-forest"
+            class="flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all text-textMid hover:text-primary"
             id="tabRegister"
             onclick="switchTab('register')"
           >
@@ -161,7 +121,7 @@
     <!-- NAV -->
     <nav
       id="navbar"
-      class="fixed top-0 left-0 right-0 z-[1000] flex items-center justify-between px-[4%] h-[68px] bg-forest/95 backdrop-blur-md border-b border-white/5 transition-all duration-300 scrolled"
+      class="fixed top-0 left-0 right-0 z-[1000] flex items-center justify-between px-[4%] h-[68px] bg-primary/95 backdrop-blur-md border-b border-textLight/5 transition-all duration-300 scrolled"
     >
       <a href="#" class="shrink-0">
         <img
@@ -175,7 +135,7 @@
           <a
             href="#hero"
             data-key="nav.home"
-            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >Home</a
           >
         </li>
@@ -183,7 +143,7 @@
           <a
             href="#features"
             data-key="nav.features"
-            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >Features</a
           >
         </li>
@@ -191,7 +151,7 @@
           <a
             href="#how"
             data-key="nav.how"
-            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >How It Works</a
           >
         </li>
@@ -199,7 +159,7 @@
           <a
             href="#why"
             data-key="nav.why"
-            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >Why Choose Us</a
           >
         </li>
@@ -207,17 +167,17 @@
           <a
             href="#about"
             data-key="nav.about"
-            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+            class="text-white/75 hover:text-gold-light text-[0.88rem] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >About</a
           >
         </li>
       </ul>
       <div class="flex items-center gap-3 shrink-0">
         <div
-          class="flex bg-white/10 rounded-full overflow-hidden border border-white/15"
+          class="flex bg-background/10 rounded-full overflow-hidden border border-textLight/15"
         >
           <button
-            class="lang-btn px-3 py-1 text-[0.78rem] font-bold text-white bg-white/20"
+            class="lang-btn px-3 py-1 text-[0.78rem] font-bold text-white bg-background/20"
             onclick="setLang('en')"
           >
             EN
@@ -232,7 +192,7 @@
         <div class="hidden sm:flex items-center gap-2.5">
           <a
             href="{{ url_for('login') }}"
-            class="text-white/80 hover:text-white border border-white/20 hover:bg-white/10 px-4 py-1.5 rounded-md text-[0.88rem] font-medium transition-all"
+            class="text-white/80 hover:text-white border border-textLight/20 hover:bg-background/10 px-4 py-1.5 rounded-md text-[0.88rem] font-medium transition-all"
             data-key="nav.login"
             >Sign In</a
           >
@@ -241,57 +201,57 @@
           class="lg:hidden flex flex-col gap-1.5 p-1.5"
           onclick="toggleMenu()"
         >
-          <span class="w-6 h-0.5 bg-white rounded-full"></span>
-          <span class="w-6 h-0.5 bg-white rounded-full"></span>
-          <span class="w-6 h-0.5 bg-white rounded-full"></span>
+          <span class="w-6 h-0.5 bg-background rounded-full"></span>
+          <span class="w-6 h-0.5 bg-background rounded-full"></span>
+          <span class="w-6 h-0.5 bg-background rounded-full"></span>
         </button>
       </div>
     </nav>
 
     <!-- Mobile Menu -->
     <div
-      class="mobile-menu fixed top-[68px] inset-x-0 bg-forest p-6 flex flex-col gap-4 border-b border-white/5 z-[999] hidden"
+      class="mobile-menu fixed top-[68px] inset-x-0 bg-primary p-6 flex flex-col gap-4 border-b border-textLight/5 z-[999] hidden"
       id="mobileMenu"
     >
       <a
         href="#hero"
         onclick="toggleMenu()"
-        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-white/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-textLight/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
         data-key="nav.home"
         >Home</a
       >
       <a
         href="#features"
         onclick="toggleMenu()"
-        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-white/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-textLight/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
         data-key="nav.features"
         >Features</a
       >
       <a
         href="#how"
         onclick="toggleMenu()"
-        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-white/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-textLight/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
         data-key="nav.how"
         >How It Works</a
       >
       <a
         href="#why"
         onclick="toggleMenu()"
-        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-white/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-textLight/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
         data-key="nav.why"
         >Why Choose Us</a
       >
       <a
         href="#about"
         onclick="toggleMenu()"
-        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-white/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-gold-light after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+        class="relative text-white/80 hover:text-gold-light text-lg py-2 border-b border-textLight/5 transition-colors after:absolute after:bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-accentLight after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
         data-key="nav.about"
         >About</a
       >
       <div class="flex gap-3 mt-4">
         <a
           href="{{ url_for('login') }}"
-          class="flex-1 text-center py-3 rounded-lg border border-white/30 text-white font-semibold"
+          class="flex-1 text-center py-3 rounded-lg border border-textLight/30 text-white font-semibold"
           onclick="
             toggleMenu();
             return false;
@@ -305,27 +265,28 @@
     <!-- HERO -->
     <section
       id="hero"
-      class="relative min-h-screen flex items-center justify-center bg-[linear-gradient(160deg,#0a2a1e_0%,#0F3D2E_55%,#1A5C44_100%)] overflow-hidden pt-[68px] px-[5%]"
+      class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primaryDark via-primary to-primaryLight overflow-hidden pt-[68px] px-[5%]"
     >
       <canvas
         id="neural"
         class="absolute inset-0 w-full h-full pointer-events-none"
       ></canvas>
+      
       <div class="relative z-10 text-center max-w-[800px]">
         <div
-          class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 mb-8 text-white/80 text-[0.8rem] font-semibold uppercase tracking-wider animate-fade-up"
+          class="inline-flex items-center gap-2 bg-background/10 border border-textLight/15 rounded-full px-4 py-1.5 mb-8 text-white/80 text-[0.8rem] font-semibold uppercase tracking-wider animate-fade-up"
         >
           <span>🌱</span>
-          <span data-key="hero.badge">AI-Powered Agriculture Platform</span>
+          <span data-key="hero.badge">AI-Powered Agriculture Platform </span>
         </div>
         <h1
-          class="font-syne text-[clamp(2.4rem,5.5vw,4rem)] font-extrabold text-white leading-[1.1] mb-6 animate-fade-up [animation-delay:0.15s]"
+          class="font-heading text-[clamp(2.4rem,5.5vw,4rem)] font-extrabold text-white leading-[1.1] mb-6 animate-fade-up [animation-delay:0.15s]"
         >
           <span data-key="hero.title1">Grow Smarter with</span><br />
           <em
             data-key="hero.title2"
             class="not-italic bg-gradient-to-r from-[#adc8a0] via-[#78bc78] to-[#adc8a0] bg-clip-text text-transparent"
-            >Artificial Intelligence</em
+            >Artificial Intelligence [AI]</em
           >
         </h1>
         <p
@@ -341,13 +302,13 @@
         >
           <a
             href="{{ url_for('register') }}"
-            class="bg-gold-btn hover:bg-gold-light text-white px-8 py-3.5 rounded-lg font-bold shadow-[0_4px_18px_rgba(185,148,16,0.28)] hover:shadow-[0_8px_28px_rgba(185,148,16,0.38)] hover:-translate-y-1 transition-all flex items-center gap-2"
+            class="bg-accent hover:bg-accentLight text-white px-8 py-3.5 rounded-lg font-bold shadow-[0_4px_18px_rgba(185,148,16,0.28)] hover:shadow-[0_8px_28px_rgba(185,148,16,0.38)] hover:-translate-y-1 transition-all flex items-center gap-2"
           >
-            <span data-key="hero.btn_start">Get Started Free</span> →
+            <span data-key="hero.btn_start">Register Now</span> →
           </a>
           <a
             href="#features"
-            class="border border-white/30 hover:border-white/60 hover:bg-white/5 text-white px-7 py-3.5 rounded-lg font-medium transition-all hover:-translate-y-1"
+            class="border border-textLight/30 hover:border-textLight/60 hover:bg-background/5 text-white px-7 py-3.5 rounded-lg font-medium transition-all hover:-translate-y-1"
           >
             <span data-key="hero.btn_explore">Explore Features</span>
           </a>
@@ -356,24 +317,24 @@
     </section>
 
     <!-- FEATURES -->
-    <section id="features" class="py-24 px-[5%] bg-white">
+    <section id="features" class="py-24 px-[5%] bg-background">
       <div class="text-center mb-16 reveal">
         <div
-          class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-forest bg-forest/10 border border-forest/15 px-3.5 py-1.5 rounded-full mb-4"
+          class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/15 px-3.5 py-1.5 rounded-full mb-4"
           data-key="features.tag"
         >
           Platform Features
         </div>
         <h2
-          class="font-syne text-[clamp(1.8rem,4vw,2.7rem)] font-extrabold text-text-dark leading-tight mb-4"
+          class="font-heading text-[clamp(1.8rem,4vw,2.7rem)] font-extrabold text-textDark leading-tight mb-4"
         >
-          <em class="not-italic text-forest" data-key="features.title1"
+          <em class="not-italic text-primary" data-key="features.title1"
             >AI Tools</em
           >
           <span data-key="features.title2">Built for Farmers</span>
         </h2>
         <p
-          class="text-text-mid max-w-[540px] mx-auto"
+          class="text-textMid max-w-[540px] mx-auto"
           data-key="features.subtitle"
         >
           Every tool designed to maximise your harvest, reduce losses, and
@@ -385,24 +346,24 @@
       >
         <!-- Card Template -->
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             🌾
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.0.title"
           >
             Crop Recommendation
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.0.desc"
           >
             AI-powered suggestions based on soil type, climate, and local
@@ -410,48 +371,48 @@
           </p>
         </div>
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             📈
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.1.title"
           >
             Crop Yield Prediction
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.1.desc"
           >
             Forecast harvest output with high accuracy using real-time data.
           </p>
         </div>
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             🔬
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.2.title"
           >
             Plant Disease Detection
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.2.desc"
           >
             Upload a crop photo — AI instantly identifies diseases with
@@ -459,72 +420,72 @@
           </p>
         </div>
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             💊
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.3.title"
           >
             Fertilizer Guide
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.3.desc"
           >
             Personalized fertilizer recommendations to optimize soil health.
           </p>
         </div>
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             📊
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.4.title"
           >
             Market Price Tracking
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.4.desc"
           >
             Live mandi prices and trends so you sell at the best price.
           </p>
         </div>
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             💰
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.5.title"
           >
             Profit Analyzer
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.5.desc"
           >
             Calculate and optimize your farming profits with detailed
@@ -532,24 +493,24 @@
           </p>
         </div>
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             🏛️
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.6.title"
           >
             Government Schemes
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.6.desc"
           >
             Access information about government subsidies, loans, and farming
@@ -557,24 +518,24 @@
           </p>
         </div>
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             👥
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.7.title"
           >
             Farmer Communities
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.7.desc"
           >
             Connect with fellow farmers, share experiences, and learn from the
@@ -582,24 +543,24 @@
           </p>
         </div>
         <div
-          class="feature-card reveal group relative bg-cream border border-cream-dark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
+          class="feature-card reveal group relative bg-background border border-backgroundDark rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover overflow-hidden"
         >
           <div
-            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-forest/10 to-forest/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform"
           >
             🤖
           </div>
           <h3
-            class="font-syne font-bold text-[0.97rem] mb-2"
+            class="font-heading font-bold text-[0.97rem] mb-2"
             data-key="features.items.8.title"
           >
             AI Farming Assistant
           </h3>
           <p
-            class="text-[0.86rem] text-text-mid leading-relaxed"
+            class="text-[0.86rem] text-textMid leading-relaxed"
             data-key="features.items.8.desc"
           >
             24/7 AI chatbot answering all farming questions in Hindi and
@@ -616,13 +577,13 @@
     >
       <div class="mb-16 reveal">
         <div
-          class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-white/60 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-full mb-4"
+          class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-white/60 bg-background/10 border border-textLight/15 px-3.5 py-1.5 rounded-full mb-4"
           data-key="how.tag"
         >
           Simple Process
         </div>
         <h2
-          class="font-syne text-[clamp(1.8rem,4vw,2.7rem)] font-extrabold text-white leading-tight mb-4"
+          class="font-heading text-[clamp(1.8rem,4vw,2.7rem)] font-extrabold text-white leading-tight mb-4"
         >
           <span data-key="how.title1">How</span>
           <em class="not-italic text-white/90" data-key="how.title2"
@@ -639,16 +600,16 @@
         class="steps-container max-w-[1100px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10"
       >
         <div
-          class="step-card reveal p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white-[0.09] hover:-translate-y-1 transition-all"
+          class="step-card reveal p-8 bg-background/5 border border-textLight/10 rounded-2xl backdrop-blur-md hover:bg-background-[0.09] hover:-translate-y-1 transition-all"
         >
           <div
-            class="w-14 h-14 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-syne font-extrabold text-xl mx-auto mb-5"
+            class="w-14 h-14 rounded-full bg-background/10 text-white border border-textLight/20 flex items-center justify-center font-heading font-extrabold text-xl mx-auto mb-5"
           >
             01
           </div>
           <div class="text-3xl mb-4">📝</div>
           <h3
-            class="font-syne font-bold text-white mb-2"
+            class="font-heading font-bold text-white mb-2"
             data-key="how.steps.0.title"
           >
             Enter Farm Details
@@ -662,16 +623,16 @@
           </p>
         </div>
         <div
-          class="step-card reveal p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white-[0.09] hover:-translate-y-1 transition-all"
+          class="step-card reveal p-8 bg-background/5 border border-textLight/10 rounded-2xl backdrop-blur-md hover:bg-background-[0.09] hover:-translate-y-1 transition-all"
         >
           <div
-            class="w-14 h-14 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-syne font-extrabold text-xl mx-auto mb-5"
+            class="w-14 h-14 rounded-full bg-background/10 text-white border border-textLight/20 flex items-center justify-center font-heading font-extrabold text-xl mx-auto mb-5"
           >
             02
           </div>
           <div class="text-3xl mb-4">🧠</div>
           <h3
-            class="font-syne font-bold text-white mb-2"
+            class="font-heading font-bold text-white mb-2"
             data-key="how.steps.1.title"
           >
             AI Data Analysis
@@ -685,16 +646,16 @@
           </p>
         </div>
         <div
-          class="step-card reveal p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white-[0.09] hover:-translate-y-1 transition-all"
+          class="step-card reveal p-8 bg-background/5 border border-textLight/10 rounded-2xl backdrop-blur-md hover:bg-background-[0.09] hover:-translate-y-1 transition-all"
         >
           <div
-            class="w-14 h-14 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-syne font-extrabold text-xl mx-auto mb-5"
+            class="w-14 h-14 rounded-full bg-background/10 text-white border border-textLight/20 flex items-center justify-center font-heading font-extrabold text-xl mx-auto mb-5"
           >
             03
           </div>
           <div class="text-3xl mb-4">⚡</div>
           <h3
-            class="font-syne font-bold text-white mb-2"
+            class="font-heading font-bold text-white mb-2"
             data-key="how.steps.2.title"
           >
             Smart Recommendations
@@ -708,16 +669,16 @@
           </p>
         </div>
         <div
-          class="step-card reveal p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white-[0.09] hover:-translate-y-1 transition-all"
+          class="step-card reveal p-8 bg-background/5 border border-textLight/10 rounded-2xl backdrop-blur-md hover:bg-background-[0.09] hover:-translate-y-1 transition-all"
         >
           <div
-            class="w-14 h-14 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-syne font-extrabold text-xl mx-auto mb-5"
+            class="w-14 h-14 rounded-full bg-background/10 text-white border border-textLight/20 flex items-center justify-center font-heading font-extrabold text-xl mx-auto mb-5"
           >
             04
           </div>
           <div class="text-3xl mb-4">🚀</div>
           <h3
-            class="font-syne font-bold text-white mb-2"
+            class="font-heading font-bold text-white mb-2"
             data-key="how.steps.3.title"
           >
             Grow & Profit
@@ -734,43 +695,43 @@
     </section>
 
     <!-- WHY CHOOSE -->
-    <section id="why" class="py-24 px-[5%] bg-cream">
+    <section id="why" class="py-24 px-[5%] bg-background">
       <div class="text-center mb-16 reveal">
         <div
-          class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-forest bg-forest/10 px-3.5 py-1.5 rounded-full mb-4"
+          class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-primary bg-primary/10 px-3.5 py-1.5 rounded-full mb-4"
           data-key="why.tag"
         >
           Our Edge
         </div>
         <h2
-          class="font-syne text-[clamp(1.8rem,4vw,2.7rem)] font-extrabold text-text-dark leading-tight mb-4"
+          class="font-heading text-[clamp(1.8rem,4vw,2.7rem)] font-extrabold text-textDark leading-tight mb-4"
         >
           <span data-key="why.title1">Why Farmers</span>
-          <em class="not-italic text-forest" data-key="why.title2"
+          <em class="not-italic text-primary" data-key="why.title2"
             >Choose Us</em
           >
         </h2>
-        <p class="text-text-mid max-w-[540px] mx-auto" data-key="why.subtitle">
+        <p class="text-textMid max-w-[540px] mx-auto" data-key="why.subtitle">
           We don't just provide data — we transform how farmers think, decide,
           and grow.
         </p>
       </div>
       <div class="max-w-[1100px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
         <div
-          class="reveal md:col-span-2 flex flex-col items-center justify-center bg-gradient-to-br from-forest to-forest-light rounded-2xl p-12 text-center text-white relative overflow-hidden"
+          class="reveal md:col-span-2 flex flex-col items-center justify-center bg-gradient-to-br from-primary to-primaryLight rounded-2xl p-12 text-center text-white relative overflow-hidden"
         >
           <div
             class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.04),transparent_60%)]"
           ></div>
           <div class="text-5xl mb-4 relative z-10">🌿</div>
           <h3
-            class="font-syne font-extrabold text-2xl mb-2 relative z-10"
+            class="font-heading font-extrabold text-2xl mb-2 relative z-10"
             data-key="why.center.title"
           >
             India's Most Trusted Agri-AI Platform
           </h3>
           <p
-            class="text-white/65 text-[0.92rem] relative z-10"
+            class="text-[0.92rem] relative z-10"
             data-key="why.center.subtitle"
           >
             Built by agriculturalists, data scientists, and farmers — for
@@ -779,25 +740,25 @@
         </div>
         <!-- Mini Benefits -->
         <div
-          class="reveal flex gap-5 bg-white border border-cream-dark p-7 rounded-2xl hover:-translate-y-1 hover:shadow-card-hover group relative"
+          class="reveal flex gap-5 bg-background border border-backgroundDark p-7 rounded-2xl hover:-translate-y-1 hover:shadow-card-hover group relative"
         >
           <div
-            class="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 shrink-0 rounded-xl bg-forest/10 flex items-center justify-center text-2xl"
+            class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-2xl"
           >
             🎯
           </div>
           <div>
             <h4
-              class="font-syne font-bold text-[0.92rem] mb-1"
+              class="font-heading font-bold text-[0.92rem] mb-1"
               data-key="why.benefits.0.title"
             >
               Hyper-Accurate AI
             </h4>
             <p
-              class="text-[0.82rem] text-text-mid leading-relaxed"
+              class="text-[0.82rem] text-textMid leading-relaxed"
               data-key="why.benefits.0.desc"
             >
               Models trained on 10M+ Indian farm data points for 92%+ prediction
@@ -806,25 +767,25 @@
           </div>
         </div>
         <div
-          class="reveal flex gap-5 bg-white border border-cream-dark p-7 rounded-2xl hover:-translate-y-1 hover:shadow-card-hover group relative"
+          class="reveal flex gap-5 bg-background border border-backgroundDark p-7 rounded-2xl hover:-translate-y-1 hover:shadow-card-hover group relative"
         >
           <div
-            class="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 shrink-0 rounded-xl bg-forest/10 flex items-center justify-center text-2xl"
+            class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-2xl"
           >
             📱
           </div>
           <div>
             <h4
-              class="font-syne font-bold text-[0.92rem] mb-1"
+              class="font-heading font-bold text-[0.92rem] mb-1"
               data-key="why.benefits.1.title"
             >
               Works on Any Phone
             </h4>
             <p
-              class="text-[0.82rem] text-text-mid leading-relaxed"
+              class="text-[0.82rem] text-textMid leading-relaxed"
               data-key="why.benefits.1.desc"
             >
               Low-bandwidth design so rural farmers can access all features
@@ -833,25 +794,25 @@
           </div>
         </div>
         <div
-          class="reveal flex gap-5 bg-white border border-cream-dark p-7 rounded-2xl hover:-translate-y-1 hover:shadow-card-hover group relative"
+          class="reveal flex gap-5 bg-background border border-backgroundDark p-7 rounded-2xl hover:-translate-y-1 hover:shadow-card-hover group relative"
         >
           <div
-            class="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 shrink-0 rounded-xl bg-forest/10 flex items-center justify-center text-2xl"
+            class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-2xl"
           >
             🛡️
           </div>
           <div>
             <h4
-              class="font-syne font-bold text-[0.92rem] mb-1"
+              class="font-heading font-bold text-[0.92rem] mb-1"
               data-key="why.benefits.2.title"
             >
               Early Disease Alerts
             </h4>
             <p
-              class="text-[0.82rem] text-text-mid leading-relaxed"
+              class="text-[0.82rem] text-textMid leading-relaxed"
               data-key="why.benefits.2.desc"
             >
               Detect crop diseases 2–3 weeks before visible symptoms.
@@ -859,25 +820,25 @@
           </div>
         </div>
         <div
-          class="reveal flex gap-5 bg-white border border-cream-dark p-7 rounded-2xl hover:-translate-y-1 hover:shadow-card-hover group relative"
+          class="reveal flex gap-5 bg-background border border-backgroundDark p-7 rounded-2xl hover:-translate-y-1 hover:shadow-card-hover group relative"
         >
           <div
-            class="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-forest to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-primary to-gold-btn opacity-0 group-hover:opacity-100 transition-opacity"
           ></div>
           <div
-            class="w-12 h-12 shrink-0 rounded-xl bg-forest/10 flex items-center justify-center text-2xl"
+            class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-2xl"
           >
             💸
           </div>
           <div>
             <h4
-              class="font-syne font-bold text-[0.92rem] mb-1"
+              class="font-heading font-bold text-[0.92rem] mb-1"
               data-key="why.benefits.3.title"
             >
               Higher Market Returns
             </h4>
             <p
-              class="text-[0.82rem] text-text-mid leading-relaxed"
+              class="text-[0.82rem] text-textMid leading-relaxed"
               data-key="why.benefits.3.desc"
             >
               Market intelligence helps farmers sell at peak prices, boosting
@@ -889,23 +850,23 @@
     </section>
 
     <!-- ABOUT -->
-    <section id="about" class="py-24 px-[5%] bg-white">
+    <section id="about" class="py-24 px-[5%] bg-background">
       <div
         class="max-w-[1100px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center"
       >
         <div class="reveal">
           <div
-            class="bg-gradient-to-br from-forest to-forest-light rounded-3xl p-12 text-white relative overflow-hidden shadow-2xl"
+            class="bg-gradient-to-br from-primary to-primaryLight rounded-3xl p-12 text-white relative overflow-hidden shadow-2xl"
           >
             <div
-              class="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-white/5"
+              class="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-background/5"
             ></div>
             <div
-              class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/5"
+              class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-background/5"
             ></div>
             <div class="text-6xl mb-6 relative z-10">🌾</div>
             <h3
-              class="font-syne font-extrabold text-2xl mb-4 relative z-10"
+              class="font-heading font-extrabold text-2xl mb-4 relative z-10"
               data-key="about.card.title"
             >
               Bridging Technology & Agriculture
@@ -919,9 +880,9 @@
             </p>
             <div class="flex gap-4 flex-wrap relative z-10">
               <div
-                class="flex-1 min-w-[100px] bg-white/10 border border-white/15 p-4 rounded-xl text-center"
+                class="flex-1 min-w-[100px] bg-background/10 border border-textLight/15 p-4 rounded-xl text-center"
               >
-                <div class="font-syne font-extrabold text-xl">50K+</div>
+                <div class="font-heading font-extrabold text-xl">50K+</div>
                 <div
                   class="text-[0.68rem] text-white/50 uppercase tracking-widest mt-1"
                 >
@@ -929,9 +890,9 @@
                 </div>
               </div>
               <div
-                class="flex-1 min-w-[100px] bg-white/10 border border-white/15 p-4 rounded-xl text-center"
+                class="flex-1 min-w-[100px] bg-background/10 border border-textLight/15 p-4 rounded-xl text-center"
               >
-                <div class="font-syne font-extrabold text-xl">15+</div>
+                <div class="font-heading font-extrabold text-xl">10+</div>
                 <div
                   class="text-[0.68rem] text-white/50 uppercase tracking-widest mt-1"
                 >
@@ -939,9 +900,9 @@
                 </div>
               </div>
               <div
-                class="flex-1 min-w-[100px] bg-white/10 border border-white/15 p-4 rounded-xl text-center"
+                class="flex-1 min-w-[100px] bg-background/10 border border-textLight/15 p-4 rounded-xl text-center"
               >
-                <div class="font-syne font-extrabold text-xl">92%</div>
+                <div class="font-heading font-extrabold text-xl">92%</div>
                 <div
                   class="text-[0.68rem] text-white/50 uppercase tracking-widest mt-1"
                 >
@@ -953,43 +914,43 @@
         </div>
         <div class="reveal">
           <div
-            class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-forest bg-forest/10 border border-forest/15 px-3.5 py-1.5 rounded-full mb-5"
+            class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/15 px-3.5 py-1.5 rounded-full mb-5"
             data-key="about.tag"
           >
             Our Mission
           </div>
           <h2
-            class="font-syne text-[clamp(1.8rem,4vw,2.7rem)] font-extrabold text-text-dark leading-tight mb-6"
+            class="font-heading text-[clamp(1.8rem,4vw,2.7rem)] font-extrabold text-textDark leading-tight mb-6"
           >
             <span data-key="about.title1">Empowering</span>
-            <em class="not-italic text-forest" data-key="about.title2"
+            <em class="not-italic text-primary" data-key="about.title2"
               >Every Farmer</em
             ><br /><span data-key="about.title3">with AI</span>
           </h2>
-          <p class="text-text-mid mb-8 text-lg" data-key="about.subtitle">
+          <p class="text-textMid mb-8 text-lg" data-key="about.subtitle">
             We combine satellite imagery, IoT sensors, weather data, and machine
             learning to deliver actionable insights.
           </p>
           <div class="flex flex-wrap gap-2.5 mb-10">
             <span
-              class="bg-forest/10 border border-forest/15 text-forest px-4 py-1.5 rounded-full text-[0.8rem] font-bold"
+              class="bg-primary/10 border border-primary/15 text-primary px-4 py-1.5 rounded-full text-[0.8rem] font-bold"
               data-key="about.pills.0"
               >🌱 Sustainable</span
             >
             <span
-              class="bg-forest/10 border border-forest/15 text-forest px-4 py-1.5 rounded-full text-[0.8rem] font-bold"
+              class="bg-primary/10 border border-primary/15 text-primary px-4 py-1.5 rounded-full text-[0.8rem] font-bold"
               data-key="about.pills.1"
               >📡 Data-Driven</span
             >
             <span
-              class="bg-forest/10 border border-forest/15 text-forest px-4 py-1.5 rounded-full text-[0.8rem] font-bold"
+              class="bg-primary/10 border border-primary/15 text-primary px-4 py-1.5 rounded-full text-[0.8rem] font-bold"
               data-key="about.pills.2"
               >🇮🇳 Made for India</span
             >
           </div>
           <a
             href="#"
-            class="inline-flex bg-forest hover:bg-forest-light text-white px-8 py-3.5 rounded-lg font-bold transition-all hover:-translate-y-1"
+            class="inline-flex bg-primary hover:bg-primaryLight text-white px-8 py-3.5 rounded-lg font-bold transition-all hover:-translate-y-1"
           >
             <span data-key="about.cta">Start for Free</span> →
           </a>
@@ -1003,20 +964,20 @@
       class="py-24 px-[5%] bg-[linear-gradient(135deg,#0a2a1e,#0F3D2E,#1a5c44)] relative overflow-hidden text-center text-white"
     >
       <div
-        class="absolute -top-20 -right-20 w-[350px] h-[350px] rounded-full bg-white/5"
+        class="absolute -top-20 -right-20 w-[350px] h-[350px] rounded-full bg-background/5"
       ></div>
       <div
-        class="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-white/5"
+        class="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-background/5"
       ></div>
       <div class="max-w-[780px] mx-auto reveal relative z-10">
         <div
-          class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-white/60 bg-white/10 border border-white/10 px-4 py-1.5 rounded-full mb-5"
+          class="inline-block text-[0.72rem] font-bold tracking-widest uppercase text-white/60 bg-background/10 border border-textLight/10 px-4 py-1.5 rounded-full mb-5"
           data-key="cta.tag"
         >
           Join 50,000+ Farmers
         </div>
         <h2
-          class="font-syne text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold leading-[1.15] mb-4"
+          class="font-heading text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold leading-[1.15] mb-4"
         >
           <span data-key="cta.title1">Ready to Transform</span><br />
           <em
@@ -1035,17 +996,17 @@
         <div class="flex flex-wrap justify-center gap-4">
           <a
             href="/login"
-            class="px-8 py-3.5 border border-white/30 hover:border-white/60 hover:bg-white/5 rounded-lg font-medium transition-all hover:-translate-y-1"
+            class="px-8 py-3.5 border border-textLight/30 hover:border-textLight/60 hover:bg-background/5 rounded-lg font-medium transition-all hover:-translate-y-1"
             ><span data-key="nav_login">Sign In</span></a
           >
           <a
             href="/register"
-            class="px-8 py-3.5 border border-white/30 hover:border-white/60 hover:bg-white/5 rounded-lg font-medium transition-all hover:-translate-y-1"
+            class="px-8 py-3.5 border border-textLight/30 hover:border-textLight/60 hover:bg-background/5 rounded-lg font-medium transition-all hover:-translate-y-1"
             >Sign Up</a
           >
           <a
             href="/register"
-            class="px-8 py-3.5 bg-gold-btn hover:bg-gold-light text-white rounded-lg font-bold shadow-lg hover:-translate-y-1 transition-all"
+            class="px-8 py-3.5 bg-accent hover:bg-accentLight text-white rounded-lg font-bold shadow-lg hover:-translate-y-1 transition-all"
             >🌱 <span data-key="cta.btn">Create Free Account</span></a
           >
         </div>
@@ -1056,7 +1017,7 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-forest-deep text-white/55 py-20 px-[5%]">
+    <footer class="bg-primaryDark text-white/55 py-20 px-[5%]">
       <div
         class="max-w-[1100px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-16"
       >
@@ -1078,7 +1039,7 @@
         </div>
         <div class="lg:col-span-1">
           <h4
-            class="font-syne font-bold text-white text-[0.84rem] tracking-wider uppercase mb-5"
+            class="font-heading font-bold text-white text-[0.84rem] tracking-wider uppercase mb-5"
             data-key="footer.nav"
           >
             Navigation
@@ -1109,7 +1070,7 @@
         </div>
         <div class="lg:col-span-1">
           <h4
-            class="font-syne font-bold text-white text-[0.84rem] tracking-wider uppercase mb-5"
+            class="font-heading font-bold text-white text-[0.84rem] tracking-wider uppercase mb-5"
             data-key="footer.features"
           >
             Features
@@ -1140,7 +1101,7 @@
         </div>
         <div class="lg:col-span-2">
           <h4
-            class="font-syne font-bold text-white text-[0.84rem] tracking-wider uppercase mb-5"
+            class="font-heading font-bold text-white text-[0.84rem] tracking-wider uppercase mb-5"
             data-key="footer.contact"
           >
             Contact
@@ -1153,7 +1114,7 @@
         </div>
       </div>
       <div
-        class="max-w-[1100px] mx-auto pt-8 border-t border-white/10 flex flex-wrap justify-between items-center gap-4 text-[0.79rem] text-white/30"
+        class="max-w-[1100px] mx-auto pt-8 border-t border-textLight/10 flex flex-wrap justify-between items-center gap-4 text-[0.79rem] text-white/30"
       >
         <span data-key="footer.copyright"
           >© 2025 Labhansh.ai. All rights reserved.</span
@@ -1165,6 +1126,6 @@
       </div>
     </footer>
 
-    <script src="static/js/index.js"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
   </body>
 </html>

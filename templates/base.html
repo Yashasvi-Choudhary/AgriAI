@@ -4,60 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Labhansh.ai – Smart Agriculture</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="{{ url_for('static', filename='css/output.css') }}"
+      rel="stylesheet"
+    />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
 
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              "green-deep": "#1a4d2e",
-              "green-mid": "#2d7a4f",
-              "green-soft": "#4aaa74",
-              "green-pale": "#e8f5ed",
-              gold: "#c9963a",
-              "gold-light": "#f0c46a",
-              "gold-pale": "#fdf3e0",
-              cream: "#f8f6f0",
-              "text-dark": "#1c2b1e",
-              "text-mid": "#4a5e4f",
-              "text-light": "#8a9e8f",
-              "border-clr": "#dce9df",
-            },
-            fontFamily: {
-              sans: ["DM Sans", "sans-serif"],
-              serif: ["Playfair Display", "serif"],
-            },
-            animation: {
-              "fade-in": "fadeIn 0.3s ease",
-              "slide-up": "slideUp 0.4s cubic-bezier(.22,.68,0,1.2)",
-              "fade-in-up": "fadeInUp 0.5s ease both",
-            },
-            keyframes: {
-              fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },
-              slideUp: {
-                from: { opacity: "0", transform: "translateY(30px)" },
-                to: { opacity: "1", transform: "translateY(0)" },
-              },
-              fadeInUp: {
-                from: { opacity: "0", transform: "translateY(18px)" },
-                to: { opacity: "1", transform: "translateY(0)" },
-              },
-            },
-          },
-        },
-      };
-    </script>
-
     <style type="text/tailwindcss">
       @layer base {
         body {
-          @apply bg-cream text-text-dark font-sans min-h-screen overflow-x-hidden;
+          @apply bg-background text-textDark font-sans min-h-screen overflow-x-hidden;
         }
         body::before {
           content: "";
@@ -78,7 +39,7 @@
       }
       @layer utilities {
         .nav-item.active {
-          @apply text-gold-light bg-white/10 border-l-[3px] border-gold font-semibold;
+          @apply text-accentLight bg-white/10 border-l-[3px] border-accent font-semibold;
         }
         .sidebar.open {
           @apply !translate-x-0;
@@ -129,9 +90,7 @@
     {% block content %}{% endblock %}
 
     <!-- Mobile Nav -->
-    {% include "layout/mobile_nav.html" %} 
-    
-    {% block scripts %}
+    {% include "layout/mobile_nav.html" %} {% block scripts %}
     <script src="{{ url_for('static', filename='js/global.js') }}"></script>
     {% endblock %}
   </body>
