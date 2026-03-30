@@ -6,20 +6,39 @@ let i18n = {};
 // ─────────────────────────────
 async function loadLang(lang) {
   try {
-    // Detect page (dashboard, login, etc.)
     const page = document.body.dataset.page || "dashboard";
 
-    const res = await fetch(`/static/locales/${lang}/${page}.json`);
-    i18n = await res.json();
+    const url = `/static/locales/${lang}/${page}.json`;
+
+    const res = await fetch(url);
+
+    // ❗ fallback if file missing
+    if (!res.ok) {
+      console.warn("Translation file missing, falling back to English:", url);
+
+      if (lang !== "en") {
+        return await loadLang("en");
+      }
+      return;
+    }
+
+    const data = await res.json();
+
+    i18n = data;
 
     applyLang();
+
     localStorage.setItem("Labhansh.ai_lang", lang);
+
+    // optional: update html lang attribute
+    document.documentElement.lang = lang;
   } catch (err) {
     console.error("Language load error:", err);
   }
 }
 
 function applyLang() {
+  // text translation
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (i18n[key]) el.textContent = i18n[key];
@@ -30,13 +49,29 @@ function applyLang() {
     if (i18n[key]) el.placeholder = i18n[key];
   });
 
-  document
-    .querySelectorAll(".lang-btn")
-    .forEach((b) => b.classList.remove("active"));
+  // ✅ FIXED BUTTON UI
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.classList.remove(
+      "bg-accent",
+      "text-white",
+      "font-semibold"
+    );
 
-  document
-    .querySelector(`.lang-btn[onclick="setLang('${currentLang}')"]`)
-    ?.classList.add("active");
+    btn.classList.add("text-white/50"); // default
+  });
+
+  const activeBtn = document.querySelector(
+    `.lang-btn[onclick="setLang('${currentLang}')"]`
+  );
+
+  if (activeBtn) {
+    activeBtn.classList.add(
+      "bg-accent",
+      "text-white",
+      "font-semibold"
+    );
+    activeBtn.classList.remove("text-white/50");
+  }
 }
 
 function setLang(lang) {

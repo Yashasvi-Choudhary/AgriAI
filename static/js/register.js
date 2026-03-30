@@ -4,13 +4,6 @@ let currentLang = "en";
 // Added confirm password
 const fields = ["fullname", "email", "phone", "password", "confirm_password"];
 
-// --- Initialization ---
-async function init() {
-  await setLang(currentLang);
-  initCanvas();
-  initFormEvents();
-}
-
 // --- Language Controller ---
 async function setLang(lang) {
   currentLang = lang;
@@ -24,16 +17,24 @@ async function setLang(lang) {
 
   ["en", "hi"].forEach((l) => {
     const btn = document.getElementById(`btn-${l}`);
-    btn.style.background = lang === l ? "#c8a84b" : "transparent";
-    btn.style.color = lang === l ? "#071c13" : "#9bbfa8";
+
+    if (lang === l) {
+      btn.classList.add("bg-accent/20", "text-accentLight");
+      btn.classList.remove("text-textLight");
+    } else {
+      btn.classList.remove("bg-accent/20", "text-accentLight");
+      btn.classList.add("text-textLight");
+    }
   });
 
   document.querySelectorAll("[data-i18n]").forEach((el) => {
-    el.textContent = translations[el.dataset.i18n] || el.dataset.i18n;
+    const key = el.dataset.i18n;
+    el.textContent = translations[key] || key;
   });
 
   document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
-    el.placeholder = translations[el.dataset.i18nPh] || el.dataset.i18nPh;
+    const key = el.dataset.i18nPh;
+    el.placeholder = translations[key] || key;
   });
 }
 
@@ -188,96 +189,106 @@ async function handleSubmit(e) {
 // --- Password Toggle ---
 function togglePwd(id, btn) {
   const input = document.getElementById(id);
-  const icon = btn.querySelector("i");
 
-  if (input.type === "password") {
-    input.type = "text";
-    icon.setAttribute("data-lucide", "eye-off");
-  } else {
-    input.type = "password";
-    icon.setAttribute("data-lucide", "eye");
-  }
+  // IMPORTANT: select span (not i)
+  const icon = btn.querySelector("[data-lucide]");
 
-  lucide.createIcons(); // refresh icon
+  const isHidden = input.type === "password";
+
+  // Toggle password
+  input.type = isHidden ? "text" : "password";
+
+  // Change icon
+  icon.setAttribute("data-lucide", isHidden ? "eye-off" : "eye");
+
+  // 🔥 FULL re-render (safe & simple)
+  lucide.createIcons();
 }
 
 // --- Canvas ---
-function initCanvas() {
+(function () {
   const canvas = document.getElementById("neural");
-  if (!canvas) return;
-
   const ctx = canvas.getContext("2d");
-  let W, H;
-  let nodes = [];
-
-  const COUNT = 80;
-  const DIST = 145;
+  let W,
+    H,
+    nodes = [],
+    animId;
 
   function resize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
   }
 
-  function initNodes() {
+  function createNodes(n) {
     nodes = [];
-    for (let i = 0; i < COUNT; i++) {
+    for (let i = 0; i < n; i++) {
       nodes.push({
         x: Math.random() * W,
         y: Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        r: Math.random() * 1.5 + 0.5,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: Math.random() * 2 + 1,
       });
     }
   }
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-
-    nodes.forEach((n) => {
-      n.x += n.vx;
-      n.y += n.vy;
-
-      if (n.x < 0 || n.x > W) n.vx *= -1;
-      if (n.y < 0 || n.y > H) n.vy *= -1;
-    });
-
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const dx = nodes[i].x - nodes[j].x;
         const dy = nodes[i].y - nodes[j].y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-
-        if (d < DIST) {
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 130) {
           ctx.beginPath();
           ctx.moveTo(nodes[i].x, nodes[i].y);
           ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.strokeStyle = `rgba(255,255,255,${(1 - d / DIST) * 0.15})`;
+
+          ctx.strokeStyle = `rgba(255,255,255,${(1 - dist / 130) * 0.15})`;
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         }
       }
     }
-
     nodes.forEach((n) => {
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255,255,255,0.3)";
+
+      ctx.fillStyle = "rgba(255,255,255,0.35)";
       ctx.fill();
     });
-
-    requestAnimationFrame(draw);
   }
 
-  const observer = new ResizeObserver(() => {
+  function update() {
+    nodes.forEach((n) => {
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    });
+  }
+
+  function loop() {
+    update();
+    draw();
+    animId = requestAnimationFrame(loop);
+  }
+
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(animId);
     resize();
-    initNodes();
+    createNodes(60);
+    loop();
   });
 
-  observer.observe(canvas.parentElement);
-
   resize();
-  initNodes();
-  draw();
-}
+  createNodes(60);
+  loop();
+})();
 
-init();
+/* ───────────── INIT ───────────── */
+document.addEventListener("DOMContentLoaded", async () => {
+  await setLang(currentLang);
+  initFormEvents();
+  lucide.createIcons();
+});

@@ -4,21 +4,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "rgb(15 61 46)",
-        primaryLight: "rgb(26 92 68)",
-        primaryDark: "rgb(10 42 30)",
+        primary: "rgb(15 61 46 / <alpha-value>)",
+        primaryLight: "rgb(26 92 68 / <alpha-value>)",
+        primaryDark: "rgb(10 42 30 / <alpha-value>)",
 
-        accent: "rgb(184 150 46)",
-        accentLight: "rgb(212 175 55)",
+        accent: "rgb(184 150 46 / <alpha-value>)",
+        accentLight: "rgb(225 191 99  / <alpha-value>)",
 
-        background: "rgb(245 247 243)",
-        backgroundDark: "rgb(232 237 228)",
+        background: "rgb(245 247 243 / <alpha-value>)",
+        backgroundDark: "rgb(232 237 228 / <alpha-value>)",
 
-        textDark: "rgb(13 31 23)",
-        textMid: "rgb(58 82 70)",
-        textLight: "rgb(122 154 136)",
+        textDark: "rgb(13 31 23 / <alpha-value>)",
+        textMid: "rgb(58 82 70 / <alpha-value>)",
+        textLight: "rgb(122 154 136 / <alpha-value>)",
       },
-
       fontFamily: {
         sans: ["DM Sans", "sans-serif"],
         heading: ["Syne", "sans-serif"], // for headings

@@ -51,15 +51,9 @@
           @apply block;
         }
         .lang-btn.active {
-          @apply bg-gold text-white;
+          @apply bg-accent text-white;
         }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
+
         .d1 {
           animation-delay: 0.06s;
         }
@@ -89,9 +83,14 @@
     <!-- MAIN CONTENT -->
     {% block content %}{% endblock %}
 
+     {% include "layout/footer.html" %} 
+
     <!-- Mobile Nav -->
     {% include "layout/mobile_nav.html" %} {% block scripts %}
     <script src="{{ url_for('static', filename='js/global.js') }}"></script>
+
+   
+
     {% endblock %}
   </body>
 </html>

@@ -53,14 +53,15 @@ function setLang(l) {
   /* button styling */
 
   document.querySelectorAll(".lang-btn").forEach((btn) => {
-    btn.classList.remove("bg-white/20", "font-bold");
+    btn.classList.remove("bg-accent", "text-black", "font-bold");
+
     btn.classList.add("text-white/60");
 
     if (
       (l === "en" && btn.textContent.trim() === "EN") ||
       (l === "hi" && btn.textContent.trim() === "हि")
     ) {
-      btn.classList.add("bg-white/20", "font-bold");
+      btn.classList.add("bg-accent", "text-primaryDark", "font-bold");
       btn.classList.remove("text-white/60");
     }
   });
@@ -103,12 +104,12 @@ function switchTab(tab) {
   const regTab = document.getElementById("tabRegister");
 
   loginTab.className = isLogin
-    ? "flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all bg-white text-forest shadow-sm"
-    : "flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all text-text-mid hover:text-forest";
+    ? "flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all bg-accent/20 text-primary shadow-sm"
+    : "flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all text-textMid hover:text-primary";
 
   regTab.className = !isLogin
-    ? "flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all bg-white text-forest shadow-sm"
-    : "flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all text-text-mid hover:text-forest";
+    ? "flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all bg-accent/20 text-primary shadow-sm"
+    : "flex-1 text-center py-2 rounded-lg cursor-pointer font-semibold text-[0.91rem] transition-all text-textMid hover:text-primary";
 
   document.getElementById("modalSubText").textContent = isLogin
     ? "Welcome back! Sign in to your account"

@@ -32,15 +32,17 @@ async function applyLang() {
   ["en", "hi"].forEach((l) => {
     const btn = document.getElementById("btn-" + l);
     if (lang === l) {
-      btn.classList.add("bg-[#c8a84b]/20", "text-[#c8a84b]", "font-semibold");
-      btn.classList.remove("text-[#9bbfa8]");
+      btn.classList.add("bg-accent/20", "text-accentLight", "font-semibold");
+      btn.classList.remove("text-textLight");
     } else {
       btn.classList.remove(
-        "bg-[#c8a84b]/20",
-        "text-[#c8a84b]",
+        "bg-accent/20",
+        "text-accentLight",
         "font-semibold",
+        "transition-all",
+        "duration-200",
       );
-      btn.classList.add("text-[#9bbfa8]");
+      btn.classList.add("text-textLight");
     }
   });
 
@@ -163,8 +165,9 @@ function togglePwd(inputId, btn) {
           ctx.beginPath();
           ctx.moveTo(nodes[i].x, nodes[i].y);
           ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.strokeStyle = `rgba(200,168,75,${0.09 * (1 - dist / 130)})`;
-          ctx.lineWidth = 0.7;
+
+          ctx.strokeStyle = `rgba(255,255,255,${(1 - dist / 130) * 0.15})`;
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         }
       }
@@ -172,7 +175,8 @@ function togglePwd(inputId, btn) {
     nodes.forEach((n) => {
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(200,168,75,0.25)";
+
+      ctx.fillStyle = "rgba(255,255,255,0.35)";
       ctx.fill();
     });
   }

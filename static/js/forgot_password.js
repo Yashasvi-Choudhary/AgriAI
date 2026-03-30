@@ -14,29 +14,33 @@ function t(key) {
 async function applyLang() {
   await loadLang(lang);
 
-  document.querySelectorAll("[data-i18n]").forEach(el => {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.textContent = t(el.dataset.i18n);
   });
 
-  document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+  document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
     el.placeholder = t(el.dataset.i18nPh);
   });
 
-  ["en","hi"].forEach(l => {
-    const btn = document.getElementById("btn-"+l);
+  ["en", "hi"].forEach((l) => {
+    const btn = document.getElementById("btn-" + l);
     if (lang === l) {
-      btn.classList.add("bg-[#c8a84b]/20","text-[#c8a84b]","font-semibold");
-      btn.classList.remove("text-[#9bbfa8]");
+      btn.classList.add("bg-accent/20", "text-accentLight", "font-semibold");
+      btn.classList.remove("text-textLight");
     } else {
-      btn.classList.remove("bg-[#c8a84b]/20","text-[#c8a84b]","font-semibold");
-      btn.classList.add("text-[#9bbfa8]");
+      btn.classList.remove(
+        "bg-accent/20",
+        "text-accentLight",
+        "font-semibold",
+      );
+      btn.classList.add("text-textLight");
     }
   });
 
   if (touched) validateField();
 }
 
-function setLang(l){
+function setLang(l) {
   lang = l;
   localStorage.setItem("Labhansh.ai_lang", l);
   applyLang();
@@ -46,67 +50,66 @@ function setLang(l){
 let touched = false;
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validateEmail(val){
+function validateEmail(val) {
   if (!val.trim()) return t("e_email_req");
   if (!emailRe.test(val)) return t("e_email_inv");
   return null;
 }
 
-function showFieldErr(msg){
+function showFieldErr(msg) {
   const span = document.getElementById("err-email");
   const input = document.getElementById("email");
 
-  if(msg){
+  if (msg) {
     span.textContent = msg;
-    span.classList.remove("opacity-0","h-0");
+    span.classList.remove("opacity-0", "h-0");
     span.classList.add("opacity-100");
 
     // 🔴 SAME AS LOGIN
-    input.classList.add("!border-red-500/60","!ring-2","!ring-red-500/10");
+    input.classList.add("!border-red-500/60", "!ring-2", "!ring-red-500/10");
   } else {
     span.textContent = "";
-    span.classList.add("opacity-0","h-0");
+    span.classList.add("opacity-0", "h-0");
     span.classList.remove("opacity-100");
 
-    input.classList.remove("!border-red-500/60","!ring-2","!ring-red-500/10");
+    input.classList.remove("!border-red-500/60", "!ring-2", "!ring-red-500/10");
   }
 
   return msg;
 }
 
-function validateField(){
-  return showFieldErr(
-    validateEmail(document.getElementById("email").value)
-  );
+function validateField() {
+  return showFieldErr(validateEmail(document.getElementById("email").value));
 }
 
 /* ───────────── EVENTS ───────────── */
-function initEvents(){
+function initEvents() {
   const emailEl = document.getElementById("email");
 
-  emailEl.addEventListener("focus", ()=> touched = true);
+  emailEl.addEventListener("focus", () => (touched = true));
 
-  emailEl.addEventListener("blur", ()=>{
-    if(touched) validateField();
+  emailEl.addEventListener("blur", () => {
+    if (touched) validateField();
   });
 
-  emailEl.addEventListener("input", ()=>{
-    if(touched){
+  emailEl.addEventListener("input", () => {
+    if (touched) {
       const span = document.getElementById("err-email");
-      if(!span.classList.contains("h-0")) validateField();
+      if (!span.classList.contains("h-0")) validateField();
     }
   });
 
-  document.getElementById("forgot-form")
+  document
+    .getElementById("forgot-form")
     .addEventListener("submit", handleSubmit);
 }
 
 /* ───────────── SUBMIT ───────────── */
-async function handleSubmit(e){
+async function handleSubmit(e) {
   e.preventDefault();
 
   touched = true;
-  if(validateField()) return;
+  if (validateField()) return;
 
   const formErr = document.getElementById("form-error");
   const btn = document.getElementById("btn-submit");
@@ -117,13 +120,13 @@ async function handleSubmit(e){
   label.classList.add("hidden");
   spinner.classList.remove("hidden");
 
-  try{
-    const res = await fetch("/forgot-password",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
+  try {
+    const res = await fetch("/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: document.getElementById("email").value.trim()
-      })
+        email: document.getElementById("email").value.trim(),
+      }),
     });
 
     await res.json();
@@ -131,7 +134,6 @@ async function handleSubmit(e){
     const overlay = document.getElementById("success-overlay");
     overlay.classList.remove("hidden");
     overlay.classList.add("flex");
-
   } catch {
     formErr.textContent = "Network error. Please check your connection.";
     formErr.classList.remove("hidden");
@@ -143,77 +145,88 @@ async function handleSubmit(e){
 }
 
 /* ───────────── CANVAS ───────────── */
-(function(){
+(function () {
   const canvas = document.getElementById("neural");
   const ctx = canvas.getContext("2d");
-  let W,H,nodes=[],animId;
+  let W,
+    H,
+    nodes = [],
+    animId;
 
-  function resize(){
+  function resize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
   }
 
-  function createNodes(n){
-    nodes=[];
-    for(let i=0;i<n;i++){
+  function createNodes(n) {
+    nodes = [];
+    for (let i = 0; i < n; i++) {
       nodes.push({
-        x:Math.random()*W,
-        y:Math.random()*H,
-        vx:(Math.random()-0.5)*0.4,
-        vy:(Math.random()-0.5)*0.4,
-        r:Math.random()*2+1
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: Math.random() * 2 + 1,
       });
     }
   }
 
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    for(let i=0;i<nodes.length;i++){
-      for(let j=i+1;j<nodes.length;j++){
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
         const dx = nodes[i].x - nodes[j].x;
         const dy = nodes[i].y - nodes[j].y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if(dist<130){
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 130) {
           ctx.beginPath();
-          ctx.moveTo(nodes[i].x,nodes[i].y);
-          ctx.lineTo(nodes[j].x,nodes[j].y);
-          ctx.strokeStyle=`rgba(200,168,75,${0.09*(1-dist/130)})`;
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+
+          ctx.strokeStyle = `rgba(255,255,255,${(1 - dist / 130) * 0.15})`;
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         }
       }
     }
-    nodes.forEach(n=>{
+    nodes.forEach((n) => {
       ctx.beginPath();
-      ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
-      ctx.fillStyle="rgba(200,168,75,0.25)";
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+
+      ctx.fillStyle = "rgba(255,255,255,0.35)";
       ctx.fill();
     });
   }
 
-  function update(){
-    nodes.forEach(n=>{
-      n.x+=n.vx;
-      n.y+=n.vy;
-      if(n.x<0||n.x>W) n.vx*=-1;
-      if(n.y<0||n.y>H) n.vy*=-1;
+  function update() {
+    nodes.forEach((n) => {
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
     });
   }
 
-  function loop(){
-    update(); draw();
-    animId=requestAnimationFrame(loop);
+  function loop() {
+    update();
+    draw();
+    animId = requestAnimationFrame(loop);
   }
 
-  window.addEventListener("resize",()=>{
+  window.addEventListener("resize", () => {
     cancelAnimationFrame(animId);
-    resize(); createNodes(60); loop();
+    resize();
+    createNodes(60);
+    loop();
   });
 
-  resize(); createNodes(60); loop();
+  resize();
+  createNodes(60);
+  loop();
 })();
 
 /* ───────────── INIT ───────────── */
-document.addEventListener("DOMContentLoaded", ()=>{
+document.addEventListener("DOMContentLoaded", () => {
   applyLang();
   initEvents();
   lucide.createIcons();

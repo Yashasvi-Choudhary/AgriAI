@@ -8,16 +8,13 @@
       href="{{ url_for('static', filename='css/output.css') }}"
       rel="stylesheet"
     />
- 
+
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-      .font-display {
-        font-family: "Playfair Display", serif;
-      }
       #neural {
         position: fixed;
         inset: 0;
@@ -57,7 +54,9 @@
       }
     </style>
   </head>
-  <body class="bg-background text-textDark min-h-screen overflow-x-hidden">
+  <body
+    class="bg-gradient-to-br from-primaryDark via-primary to-primaryLight text-textDark min-h-screen overflow-x-hidden"
+  >
     <canvas id="neural"></canvas>
     <div class="soil-overlay"></div>
 
@@ -193,7 +192,7 @@
                 onclick="togglePwd('password', this)"
                 class="absolute right-4 text-textLight hover:text-accent"
               >
-                <i data-lucide="eye" class="w-5 h-5"></i>
+                <span data-lucide="eye" class="w-5 h-5"></span>
               </button>
             </div>
             <span
@@ -217,17 +216,17 @@
               <input
                 type="password"
                 id="confirm_password"
-                class="w-full pl-4 pr-11 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all"
+                class="w-full pl-4 pr-11 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_cpwd"
               />
-
               <button
                 type="button"
                 onclick="togglePwd('confirm_password', this)"
                 class="absolute right-4 text-textLight hover:text-accent"
               >
-                <i data-lucide="eye" class="w-5 h-5"></i>
+                <span data-lucide="eye" class="w-5 h-5"></span>
               </button>
+              
             </div>
 
             <span
@@ -287,6 +286,6 @@
       </div>
     </div>
 
-<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
   </body>
 </html>

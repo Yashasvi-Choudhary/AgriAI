@@ -11,20 +11,17 @@ content %}
     class="bg-white rounded-3xl p-8 sm:p-10 max-w-[400px] w-full text-center shadow-[0_32px_80px_rgba(26,77,46,0.25)] animate-slide-up"
   >
     <div
-      class="w-20 h-20 bg-gradient-to-br from-green-pale to-gold-pale rounded-full flex items-center justify-center mx-auto mb-5 text-4xl"
+      class="w-20 h-20 bg-gradient-to-br from-primary/20 to-accentLight/30 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl"
     >
       📍
     </div>
     <h2
-      class="font-display text-[1.5rem] bg-primary mb-2"
+      class="font-display text-[1.5rem] text-primary mb-2"
       data-i18n="popup_title"
     >
       Enable Location Access
     </h2>
-    <p
-      class="text-textMid text-sm leading-relaxed mb-7"
-      data-i18n="popup_desc"
-    >
+    <p class="text-textMid text-sm leading-relaxed mb-7" data-i18n="popup_desc">
       Allow Labhansh.ai to access your location for personalised weather
       updates, crop recommendations, and local market prices.
     </p>
@@ -50,10 +47,10 @@ content %}
         id="locInput"
         placeholder="Enter your village / district..."
         data-i18n-placeholder="manual_placeholder"
-        class="w-full p-3 border-[1.5px] border-backgroundDark rounded-xl text-sm text-text-dark bg-cream outline-none focus:border-green-soft transition-colors"
+        class="w-full p-3 border-[1.5px] border-backgroundDark rounded-xl text-sm text-textDark bg-background outline-none focus:border-primaryLight transition-colors"
       />
       <button
-        class="mt-2.5 w-full p-3 bg-primary text-white rounded-xl font-semibold hover:bg-green-mid transition-colors"
+        class="mt-2.5 w-full p-3 bg-primary text-white rounded-xl font-semibold hover:bg-primaryLight transition-colors"
         onclick="confirmManual()"
         data-i18n="manual_confirm"
       >
@@ -71,11 +68,7 @@ content %}
     <!-- ─── HERO GREETING (replaces boring title) ─── -->
     <div class="mb-6 animate-fade-in-up d1">
       <div
-        class="w-full rounded-2xl px-6 py-4 flex items-center justify-between gap-4 relative overflow-hidden"
-        style="
-          background: linear-gradient(120deg, #e8f5ed 0%, #fdf3e0 100%);
-          border: 1.5px solid #dce9df;
-        "
+        class="w-full rounded-2xl px-6 py-4 flex items-center justify-between gap-4 relative overflow-hidden bg-gradient-to-br from-primary/20 via-background to-accentLight/30 border-[1.5px] border-backgroundDark"
       >
         <div>
           <p
@@ -84,9 +77,9 @@ content %}
             नमस्ते 🙏
           </p>
           <h1
-            class="font-display text-[1.5rem] md:text-[1.75rem] bg-primary leading-tight"
+            class="font-display text-[1.5rem] md:text-[1.75rem] text-primary leading-tight"
           >
-            Good to see you, <em class="text-gold not-italic">Hello Ji</em>
+            Good to see you, <em class="text-accent not-italic">Hello Ji</em>
           </h1>
           <p class="text-textMid text-[0.82rem] mt-0.5">
             Your fields are ready to be monitored. Let's grow smarter today. 🌱
@@ -108,23 +101,13 @@ content %}
       🌤 Today's Weather
     </p>
     <div
-      class="w-full rounded-3xl p-5 md:p-7 text-white relative overflow-hidden mb-6 shadow-[0_16px_56px_rgba(26,77,46,0.28)] animate-fade-in-up d2"
-      style="
-        background: linear-gradient(
-          135deg,
-          #1a4d2e 0%,
-          #2d7a4f 55%,
-          #3a9060 100%
-        );
-      "
+      class="w-full rounded-3xl p-5 md:p-7 text-white relative overflow-hidden mb-6 shadow-[0_16px_56px_rgba(26,77,46,0.28)] bg-gradient-to-br from-primary via-primaryLight to-primaryLight/80"
     >
       <div
-        class="absolute -top-14 -right-10 w-56 h-56 rounded-full pointer-events-none"
-        style="background: rgba(255, 255, 255, 0.05)"
+        class="absolute -top-14 -right-10 w-56 h-56 rounded-full pointer-events-none bg-white/5"
       ></div>
       <div
-        class="absolute -bottom-8 right-16 w-40 h-40 rounded-full pointer-events-none"
-        style="background: rgba(255, 255, 255, 0.04)"
+        class="absolute -bottom-8 right-16 w-40 h-40 rounded-full pointer-events-none bg-white/5"
       ></div>
 
       <div
@@ -140,7 +123,7 @@ content %}
               style="font-size: clamp(2.8rem, 7vw, 4.5rem)"
               id="wTemp"
             >
-              24°C
+              28°C
             </div>
             <div class="pb-1">
               <div class="text-white/80 font-medium text-sm" data-i18n="w_desc">
@@ -157,10 +140,7 @@ content %}
         </div>
       </div>
 
-      <div
-        class="grid grid-cols-3 gap-2 rounded-2xl p-3"
-        style="background: rgba(255, 255, 255, 0.1)"
-      >
+      <div class="grid grid-cols-3 gap-2 rounded-2xl p-3 bg-white/10">
         <div class="text-center py-1">
           <div class="text-xl mb-0.5">💧</div>
           <div class="font-semibold text-sm">74%</div>
@@ -196,18 +176,18 @@ content %}
       class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 animate-fade-in-up d3"
     >
       <div
-        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-accent-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         ></div>
         <div
-          class="relative w-11 h-11 bg-gradient-to-br from-accent-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+          class="relative w-11 h-11 bg-gradient-to-br from-accent/20 to-accentLight rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
         >
           🍃
         </div>
         <span
-          class="relative text-[0.8rem] font-bold text-text-dark block"
+          class="relative text-[0.8rem] font-bold text-textDark block"
           data-i18n="qa_scan"
           >Scan Crop</span
         >
@@ -218,18 +198,18 @@ content %}
         >
       </div>
       <div
-        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-accent-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         ></div>
         <div
-          class="relative w-11 h-11 bg-gradient-to-br from-accent-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+          class="relative w-11 h-11 bg-gradient-to-br from-accent/20 to-accentLight rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
         >
           📈
         </div>
         <span
-          class="relative text-[0.8rem] font-bold text-text-dark block"
+          class="relative text-[0.8rem] font-bold text-textDark block"
           data-i18n="qa_market"
           >Market Price</span
         >
@@ -240,18 +220,18 @@ content %}
         >
       </div>
       <div
-        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-accent-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         ></div>
         <div
-          class="relative w-11 h-11 bg-gradient-to-br from-accent-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+          class="relative w-11 h-11 bg-gradient-to-br from-accent/20 to-accentLight rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
         >
           🤖
         </div>
         <span
-          class="relative text-[0.8rem] font-bold text-text-dark block"
+          class="relative text-[0.8rem] font-bold text-textDark block"
           data-i18n="qa_ai"
           >Ask AI</span
         >
@@ -262,18 +242,18 @@ content %}
         >
       </div>
       <div
-        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-accent-pale to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         ></div>
         <div
-          class="relative w-11 h-11 bg-gradient-to-br from-accent-pale to-[#fce9b0] rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+          class="relative w-11 h-11 bg-gradient-to-br from-accent/20 to-accentLight rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
         >
           🏛️
         </div>
         <span
-          class="relative text-[0.8rem] font-bold text-text-dark block"
+          class="relative text-[0.8rem] font-bold text-textDark block"
           data-i18n="qa_schemes"
           >Schemes</span
         >
@@ -297,7 +277,7 @@ content %}
     >
       <div class="flex justify-between items-center mb-4">
         <h3
-          class="font-bold text-text-dark text-[0.95rem]"
+          class="font-bold text-textDark text-[0.95rem]"
           data-i18n="rain_title"
         >
           Rainfall Prediction
@@ -458,7 +438,6 @@ content %}
 </div>
 <!-- /main wrapper -->
 
-{% endblock %} {% block scripts %}
-{{ super() }}
+{% endblock %} {% block scripts %} {{ super() }}
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
