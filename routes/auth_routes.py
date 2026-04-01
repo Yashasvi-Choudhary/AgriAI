@@ -1,16 +1,17 @@
 from flask import Blueprint, render_template, request, redirect
 import sqlite3
+from datetime import datetime
 
 auth = Blueprint('auth', __name__)
 
 def connect_db():
     return sqlite3.connect("database.db")
 
-# ===== REGISTER =====
+# REGISTER
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
+        name = request.form['username']
         email = request.form['email']
         password = request.form['password']
 
@@ -18,8 +19,8 @@ def register():
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-            (username, email, password)
+            "INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, ?)",
+            (name, email, password, datetime.now())
         )
 
         conn.commit()
@@ -30,7 +31,7 @@ def register():
     return render_template('auth/register.html')
 
 
-# ===== LOGIN =====
+# LOGIN
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -51,6 +52,6 @@ def login():
         if user:
             return "Login Successful 🎉"
         else:
-            return "Invalid Email or Password ❌"
+            return "Invalid Credentials ❌"
 
     return render_template('auth/login.html')
