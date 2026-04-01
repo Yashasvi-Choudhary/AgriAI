@@ -1,0 +1,45 @@
+<!-- ══════════════════════════════════
+       MOBILE BOTTOM NAV
+  ══════════════════════════════════ -->
+<nav
+  class="md:hidden fixed bottom-0 left-0 right-0 z-[100] border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
+  style="background: rgba(26, 77, 46, 0.97); backdrop-filter: blur(16px)"
+>
+  <div class="flex justify-around items-center py-1.5">
+    <button
+      class="flex flex-col items-center gap-0.5 px-3 py-2 text-gold-light rounded-xl"
+    >
+      <span class="text-xl">🏠</span
+      ><span class="text-[0.58rem] font-sans" data-i18n="nav_dashboard"
+        >Home</span
+      >
+    </button>
+    <button
+      class="flex flex-col items-center gap-0.5 px-3 py-2 text-white/40 hover:text-gold-light rounded-xl transition-colors"
+    >
+      <span class="text-xl">🌱</span
+      ><span class="text-[0.58rem] font-sans" data-i18n="nav_crop">Crop</span>
+    </button>
+    <button
+      class="flex flex-col items-center gap-0.5 px-3 py-2 text-white/40 hover:text-gold-light rounded-xl transition-colors"
+    >
+      <span class="text-xl">📈</span
+      ><span class="text-[0.58rem] font-sans" data-i18n="nav_market"
+        >Market</span
+      >
+    </button>
+    <button
+      class="flex flex-col items-center gap-0.5 px-3 py-2 text-white/40 hover:text-gold-light rounded-xl transition-colors"
+    >
+      <span class="text-xl">🤖</span
+      ><span class="text-[0.58rem] font-sans" data-i18n="nav_ai">AI</span>
+    </button>
+    <button
+      class="flex flex-col items-center gap-0.5 px-3 py-2 text-white/40 hover:text-gold-light rounded-xl transition-colors"
+      onclick="toggleSidebar()"
+    >
+      <span class="text-xl">☰</span
+      ><span class="text-[0.58rem] font-sans">Menu</span>
+    </button>
+  </div>
+</nav>

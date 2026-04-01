@@ -1,0 +1,179 @@
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "how": "How It Works",
+    "why": "Why Choose Us",
+    "about": "About",
+    "login": "Sign In",
+    "register": "Get Started"
+  },
+
+  "hero": {
+    "badge": "AI-Powered Agriculture Platform",
+    "title1": "Grow Smarter with",
+    "title2": "Artificial Intelligence",
+    "subtitle": "Labhansh.ai empowers every farmer with data-driven crop recommendations, disease detection, and market insights — making precision agriculture accessible to all.",
+    "btn_start": "Get Started Free",
+    "btn_explore": "Explore Features"
+  },
+
+  "stats": {
+    "farmers": "Farmers",
+    "accuracy": "AI Accuracy",
+    "yield": "Yield Increase",
+    "states": "States Covered"
+  },
+
+  "features": {
+    "tag": "Platform Features",
+    "title1": "AI Tools",
+    "title2": "Built for Farmers",
+    "subtitle": "Every tool designed to maximise your harvest, reduce losses, and increase profitability.",
+
+    "items": [
+      {
+        "title": "Crop Recommendation",
+        "desc": "AI-powered suggestions based on soil type, climate, and local conditions."
+      },
+      {
+        "title": "Crop Yield Prediction",
+        "desc": "Forecast harvest output with high accuracy using real-time data."
+      },
+      {
+        "title": "Plant Disease Detection",
+        "desc": "Upload a crop photo — AI instantly identifies diseases with treatment advice."
+      },
+      {
+        "title": "Fertilizer Guide",
+        "desc": "Personalized fertilizer recommendations to optimize soil health."
+      },
+      {
+        "title": "Market Price Tracking",
+        "desc": "Live mandi prices and trends so you sell at the best price."
+      },
+      {
+        "title": "Profit Analyzer",
+        "desc": "Calculate and optimize your farming profits with detailed cost-benefit analysis."
+      },
+      {
+        "title": "Government Schemes",
+        "desc": "Access information about government subsidies, loans, and farming schemes."
+      },
+      {
+        "title": "Farmer Communities",
+        "desc": "Connect with fellow farmers, share experiences, and learn from the community."
+      },
+      {
+        "title": "AI Farming Assistant",
+        "desc": "24/7 AI chatbot answering all farming questions in Hindi and English."
+      }
+    ]
+  },
+
+  "how": {
+    "tag": "Simple Process",
+    "title1": "How",
+    "title2": "Labhansh.ai",
+    "title3": "Works",
+    "subtitle": "From data to decision in four intelligent steps — making farming smarter for everyone.",
+
+    "steps": [
+      {
+        "title": "Enter Farm Details",
+        "desc": "Input field location, soil type, crop history and available resources."
+      },
+      {
+        "title": "AI Data Analysis",
+        "desc": "AI models analyze soil, weather, satellite data, and market trends in real time."
+      },
+      {
+        "title": "Smart Recommendations",
+        "desc": "Receive personalized crop, fertilizer, and pesticide recommendations instantly."
+      },
+      {
+        "title": "Grow & Profit",
+        "desc": "Implement insights, track progress, and watch your yields grow each season."
+      }
+    ]
+  },
+
+  "why": {
+    "tag": "Our Edge",
+    "title1": "Why Farmers",
+    "title2": "Choose Us",
+    "subtitle": "We don't just provide data — we transform how farmers think, decide, and grow.",
+
+    "center": {
+      "title": "India's Most Trusted Agri-AI Platform",
+      "subtitle": "Built by agriculturalists, data scientists, and farmers — for farmers across India"
+    },
+
+    "benefits": [
+      {
+        "title": "Hyper-Accurate AI",
+        "desc": "Models trained on 10M+ Indian farm data points for 92%+ prediction accuracy."
+      },
+      {
+        "title": "Works on Any Phone",
+        "desc": "Low-bandwidth design so rural farmers can access all features offline too."
+      },
+      {
+        "title": "Early Disease Alerts",
+        "desc": "Detect crop diseases 2–3 weeks before visible symptoms."
+      },
+      {
+        "title": "Higher Market Returns",
+        "desc": "Market intelligence helps farmers sell at peak prices, boosting income 20–35%."
+      }
+    ]
+  },
+
+  "about": {
+    "tag": "Our Mission",
+    "title1": "Empowering",
+    "title2": "Every Farmer",
+    "title3": "with AI",
+    "subtitle": "We combine satellite imagery, IoT sensors, weather data, and machine learning to deliver actionable insights — improving productivity, profitability, and sustainability.",
+
+    "card": {
+      "title": "Bridging Technology & Agriculture",
+      "desc": "Labhansh.ai was born from a simple belief: every farmer deserves access to precision intelligence — regardless of farm size or location."
+    },
+
+    "pills": ["Sustainable", "Data-Driven", "Made for India"],
+    "cta": "Start for Free"
+  },
+
+  "cta": {
+    "tag": "Join 50,000+ Farmers",
+    "title1": "Ready to Transform",
+    "title2": "Your Farming?",
+    "subtitle": "Create your free account today and start getting AI-powered insights for your farm. No credit card required.",
+    "btn": "Create Free Account",
+    "note": "Free forever for small farmers · No credit card · Available in Hindi"
+  },
+
+  "footer": {
+    "desc": "Transforming Indian agriculture with the power of artificial intelligence. Smarter farming, better harvests, greater profits.",
+    "nav": "Navigation",
+    "features": "Features",
+    "contact": "Contact",
+    "address": "Indore, Madhya Pradesh, India",
+    "copyright": "© 2025 Labhansh.ai. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+
+  "modal": {
+    "welcome": "Welcome back! Sign in to your account",
+    "login_label": "Phone / Email",
+    "password_label": "Password",
+    "signin_btn": "Sign In to Dashboard →",
+    "name_label": "Full Name",
+    "phone_label": "Phone Number",
+    "state_label": "State",
+    "password_reg_label": "Password",
+    "register_btn": "Create Free Account →"
+  }
+}

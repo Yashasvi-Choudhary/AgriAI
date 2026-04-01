@@ -1,1 +1,192 @@
-<!-- Navigation bar -->
+<!-- ══════════════════════════════════
+       HEADER — DEEP GREEN BACKGROUND
+       Logo left · Weather chips center · Controls right
+  ══════════════════════════════════ -->
+<header
+  class="fixed top-0 left-0 md:left-[240px] right-0 h-[64px] z-[90] flex items-center px-4 md:px-6 gap-3 transition-all bg-[rgb(14,47,30)] border-b border-white/10 shadow-md"
+>
+  <!-- Subtle inner glow at top -->
+  <div
+    class="absolute top-0 left-0 right-0 h-[1px]"
+    style="
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(240, 196, 106, 0.4),
+        transparent
+      );
+    "
+  ></div>
+
+  <!-- LEFT: Hamburger + Logo image -->
+  <div class="flex items-center gap-3 shrink-0">
+    <!-- Hamburger -->
+    <button
+      class="md:hidden flex flex-col gap-[5px] p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+      onclick="toggleSidebar()"
+      aria-label="Menu"
+    >
+      <span class="block w-5 h-0.5 bg-white rounded-full"></span>
+      <span class="block w-5 h-0.5 bg-white rounded-full"></span>
+      <span class="block w-5 h-0.5 bg-white rounded-full"></span>
+    </button>
+
+    <!-- Logo Wrapper -->
+    <a href="#" class="shrink-0 flex items-center">
+      <!-- 🖥️ Desktop Logo -->
+      <img
+        src="/static/images/logo.png"
+        alt="Labhansh.ai"
+        class="hidden md:block h-10 w-auto"
+      />
+
+      <!-- 📱 Mobile Favicon -->
+      <img
+        src="/static/images/favicon.png"
+        alt="Labhansh.ai"
+        class="block md:hidden h-8 w-8"
+      />
+    </a>
+  </div>
+
+  <!-- CENTER: Compact weather chips -->
+  <div class="flex-1 flex items-center justify-center gap-2">
+    <!-- Desktop chips -->
+    <div class="hidden md:flex items-center gap-2">
+      <!-- Temp chip -->
+      <div
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem] font-semibold"
+        style="background: rgba(255, 255, 255, 0.12)"
+      >
+        <span>⛅</span>
+        <span class="text-white" id="headerTemp">28°C</span>
+        <span class="text-white/50 text-[0.7rem]">Cloudy</span>
+      </div>
+      <!-- Humidity chip -->
+      <div
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem]"
+        style="background: rgba(255, 255, 255, 0.1)"
+      >
+        <span>💧</span><span class="text-white/80">74%</span>
+      </div>
+      <!-- Wind chip -->
+      <div
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem]"
+        style="background: rgba(255, 255, 255, 0.1)"
+      >
+        <span>🌬️</span><span class="text-white/80">12 km/h</span>
+      </div>
+      <!-- Rain chip -->
+      <div
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem]"
+        style="background: rgba(255, 255, 255, 0.1)"
+      >
+        <span>🌧️</span><span class="text-white/80">68%</span>
+      </div>
+      <!-- Location chip -->
+      <div
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem]"
+        style="
+          background: rgba(240, 196, 106, 0.18);
+          border: 1px solid rgba(240, 196, 106, 0.3);
+        "
+      >
+        <span>📍</span
+        ><span class="text-gold-light font-semibold" id="headerLoc"
+          >Raipur</span
+        >
+      </div>
+    </div>
+    <!-- Mobile: single compact chip -->
+    <div
+      class="md:hidden flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm"
+      style="background: rgba(255, 255, 255, 0.12)"
+    >
+      <span>⛅</span><span class="text-white font-semibold">28°C · Raipur</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Lang + Notif + Profile -->
+  <div class="flex items-center gap-2 shrink-0">
+    <!-- Language toggle -->
+    <div
+      class="flex rounded-lg overflow-hidden"
+      style="border: 1px solid rgba(255, 255, 255, 0.2)"
+    >
+      <button
+        class="lang-btn active px-2.5 py-1.5 text-[0.74rem] font-semibold transition-colors"
+        onclick="setLang('en')"
+      >
+        EN
+      </button>
+      <button
+        class="lang-btn px-2.5 py-1.5 text-white/50 text-[0.74rem] font-medium transition-colors hover:bg-white/10"
+        onclick="setLang('hi')"
+      >
+        हि
+      </button>
+    </div>
+
+    <!-- Notification -->
+    <div
+      class="relative w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer hover:bg-white/15 transition-all"
+      style="background: rgba(255, 255, 255, 0.1)"
+    >
+      <span class="text-[1rem]">🔔</span>
+      <span
+        class="absolute -top-1 -right-1 w-[17px] h-[17px] bg-gold rounded-full border-2 flex items-center justify-center text-white text-[0.5rem] font-bold"
+        style="border-color: #1a4d2e"
+        >3</span
+      >
+    </div>
+
+    <!-- Profile -->
+    <div class="profile-wrap relative">
+      <div
+        class="flex items-center gap-2 rounded-xl px-2.5 py-[0.4rem] cursor-pointer hover:bg-white/15 transition-all"
+        style="
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+        "
+        onclick="toggleDropdown()"
+      >
+        <div
+          class="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-white text-[0.68rem] font-bold"
+        >
+          RK
+        </div>
+        <span class="hidden sm:inline text-[0.8rem] text-white font-medium"
+          >Ramesh</span
+        >
+        <span class="text-white/50 text-[0.62rem]">▾</span>
+      </div>
+      <div
+        class="dropdown hidden absolute top-[calc(100%+8px)] right-0 bg-white border border-border-clr rounded-2xl p-2 w-[180px] shadow-[0_16px_48px_rgba(26,77,46,0.18)] z-[200] animate-fade-in"
+        id="profileDropdown"
+      >
+        <div class="px-3 py-2 mb-1 border-b border-border-clr">
+          <p class="text-text-dark font-semibold text-[0.82rem]">
+            Ramesh Kumar
+          </p>
+          <p class="text-text-light text-[0.68rem]">farmer@labhansh.ai</p>
+        </div>
+        <a
+          href="#"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-text-mid text-[0.82rem] hover:bg-green-pale hover:text-green-deep transition-all"
+          >👤 <span data-i18n="dd_profile">View Profile</span></a
+        >
+        <a
+          href="#"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-text-mid text-[0.82rem] hover:bg-green-pale hover:text-green-deep transition-all"
+          >⚙️ <span data-i18n="dd_settings">Settings</span></a
+        >
+        <hr class="border-t border-border-clr my-1" />
+        <a
+          href="#"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[#e05c5c] text-[0.82rem] hover:bg-red-50 transition-all"
+          >🚪 <span data-i18n="dd_logout">Logout</span></a
+        >
+      </div>
+    </div>
+  </div>
+</header>
