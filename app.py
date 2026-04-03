@@ -15,14 +15,8 @@ create_tables()
 def index():
     return render_template('index.html')
 
-@app.route('/register')
-def register():
-    return render_template('auth/register.html')
 
 
-@app.route('/login')
-def login():
-    return render_template('auth/login.html')
 
 # 🔹 REGISTER
 @app.route('/register', methods=['GET', 'POST'])
