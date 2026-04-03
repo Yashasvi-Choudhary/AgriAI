@@ -2,87 +2,478 @@
 {% extends "base.html" %} {% block title %}Crop Recommendation{% endblock %} {%
 block content %}
 
-<div class="md:pl-[240px] pt-[64px] min-h-screen flex flex-col">
-  <main class="flex-1 w-full px-4 py-6 md:px-7 md:py-8">
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="font-display text-[1.6rem] text-primary">
-        🌱 Crop Recommendation
-      </h1>
-      <p class="text-textMid text-sm">
-        Get the best crops based on your soil and weather conditions.
-      </p>
+<div class="bg-background min-h-screen py-10">
+  <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+    <!-- ── PAGE HEADER ── -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-1.5">
+        <div
+          class="flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 bg-gradient-to-br from-primary to-primaryDark shadow-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 3C7 3 3 7.5 3 12c0 2.5 1.2 4.8 3 6.3V21h12v-2.7c1.8-1.5 3-3.8 3-6.3 0-4.5-4-9-9-9z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h1
+            class="text-2xl sm:text-3xl font-bold leading-tight text-textDark font-heading"
+            data-i18n="crop_title"
+          ></h1>
+          <p
+            class="text-sm mt-0.5 text-textLight"
+            data-i18n="crop_subtitle"
+          ></p>
+        </div>
+      </div>
     </div>
 
-    <!-- Form Card -->
+    <!-- ── FORM CARD ── -->
     <div
-      class="bg-white rounded-3xl p-6 border-[1.5px] border-backgroundDark shadow-sm max-w-xl"
+      class="bg-white rounded-2xl border p-6 sm:p-8 mb-7 border-backgroundDark shadow-sm"
     >
-      <form id="cropForm">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+        <h2
+          class="text-xs font-bold uppercase tracking-widest text-textMid"
+          data-i18n="crop_form_section_title"
+        ></h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
         <!-- Soil Type -->
-        <div class="mb-4">
-          <label class="text-sm font-semibold text-textDark">Soil Type</label>
-          <select class="w-full mt-1 p-3 border rounded-xl">
-            <option>Clay</option>
-            <option>Sandy</option>
-            <option>Loamy</option>
-          </select>
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_soil_type"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3C7 3 3 7.5 3 12c0 2.5 1.2 4.8 3 6.3V21h12v-2.7c1.8-1.5 3-3.8 3-6.3 0-4.5-4-9-9-9z"
+                />
+              </svg>
+            </span>
+            <select
+              id="soil_type"
+              name="soil_type"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-9 text-sm appearance-none bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+            >
+              <option
+                value=""
+                disabled
+                selected
+                data-i18n="crop_soil_placeholder"
+              ></option>
+              <option value="alluvial" data-i18n="crop_soil_alluvial"></option>
+              <option value="black" data-i18n="crop_soil_black"></option>
+              <option value="red" data-i18n="crop_soil_red"></option>
+              <option value="laterite" data-i18n="crop_soil_laterite"></option>
+              <option value="arid" data-i18n="crop_soil_arid"></option>
+              <option value="saline" data-i18n="crop_soil_saline"></option>
+              <option value="peaty" data-i18n="crop_soil_peaty"></option>
+              <option value="forest" data-i18n="crop_soil_forest"></option>
+            </select>
+            <span
+              class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- pH Level -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_ph"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="ph_level"
+              name="ph_level"
+              min="0"
+              max="14"
+              step="0.1"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_ph_placeholder"
+            />
+          </div>
         </div>
 
         <!-- Temperature -->
-        <div class="mb-4">
-          <label class="text-sm font-semibold text-textDark"
-            >Temperature (°C)</label
-          >
-          <input
-            type="number"
-            class="w-full mt-1 p-3 border rounded-xl"
-            placeholder="e.g. 25"
-          />
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_temperature"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 19V7a3 3 0 016 0v12m-3 0a3 3 0 110-6 3 3 0 010 6z"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="temperature"
+              name="temperature"
+              min="-20"
+              max="60"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_temp_placeholder"
+            />
+          </div>
         </div>
 
         <!-- Humidity -->
-        <div class="mb-4">
-          <label class="text-sm font-semibold text-textDark"
-            >Humidity (%)</label
-          >
-          <input
-            type="number"
-            class="w-full mt-1 p-3 border rounded-xl"
-            placeholder="e.g. 60"
-          />
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_humidity"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3C8 8 5 12 5 16a7 7 0 0014 0c0-4-3-8-7-13z"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="humidity"
+              name="humidity"
+              min="0"
+              max="100"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_humidity_placeholder"
+            />
+          </div>
         </div>
 
-        <!-- Submit Button -->
-        <button
-          type="button"
-          onclick="showResult()"
-          class="w-full mt-3 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primaryLight transition"
-        >
-          Get Recommendation
-        </button>
-      </form>
-    </div>
+        <!-- Rainfall -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_rainfall"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="rainfall"
+              name="rainfall"
+              min="0"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_rainfall_placeholder"
+            />
+          </div>
+        </div>
 
-    <!-- Result Section -->
-    <div
-      id="resultBox"
-      class="mt-6 hidden bg-green-50 border border-green-200 rounded-2xl p-5 max-w-xl"
-    >
-      <h3 class="font-bold text-green-700 text-lg mb-1">Recommended Crop 🌾</h3>
-      <p id="resultText" class="text-green-800 text-sm">
-        Wheat is suitable for your conditions.
-      </p>
+        <!-- Soil Moisture -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_soil_moisture"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3C8 8 5 12 5 16a7 7 0 0014 0c0-4-3-8-7-13z"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="soil_moisture"
+              name="soil_moisture"
+              min="0"
+              max="100"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_moisture_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Nitrogen -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_nitrogen"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
+              >N</span
+            >
+            <input
+              type="number"
+              id="nitrogen"
+              name="nitrogen"
+              min="0"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_nitrogen_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Phosphorus -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_phosphorus"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
+              >P</span
+            >
+            <input
+              type="number"
+              id="phosphorus"
+              name="phosphorus"
+              min="0"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_phosphorus_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Potassium -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_potassium"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
+              >K</span
+            >
+            <input
+              type="number"
+              id="potassium"
+              name="potassium"
+              min="0"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_potassium_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- spacer -->
+        <div class="hidden sm:block"></div>
+
+        <!-- Latitude -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_latitude"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="latitude"
+              name="latitude"
+              step="0.0001"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_latitude_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Longitude -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="crop_label_longitude"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="longitude"
+              name="longitude"
+              step="0.0001"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="crop_longitude_placeholder"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="mt-8">
+        <button
+          id="recommendBtn"
+          type="button"
+          onclick="getCropRecommendation()"
+          class="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-lg shadow-primaryDark/20"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+            />
+          </svg>
+          <span id="btnText" data-i18n="crop_btn_analyze"></span>
+        </button>
+      </div>
     </div>
-  </main>
+    <!-- /form card -->
+  </div>
 </div>
 
-{% endblock %} {% block scripts %} {{ super() }}
-
-<script>
-  function showResult() {
-    document.getElementById("resultBox").classList.remove("hidden");
-  }
-</script>
-
-{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/crop-recommendation.js') }}"></script>
+{% endblock %} {% endblock %}

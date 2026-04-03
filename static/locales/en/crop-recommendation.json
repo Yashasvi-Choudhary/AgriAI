@@ -1,0 +1,68 @@
+{
+  "crop_page_title":            "Crop Recommendation – Labhansh.ai",
+  "crop_title":                 "Crop Recommendation",
+  "crop_subtitle":              "AI-powered crop suggestions based on your soil and climate data",
+
+  "crop_form_section_title":    "Soil & Climate Parameters",
+
+  "crop_label_soil_type":       "Soil Type",
+  "crop_soil_placeholder":      "Select soil type",
+  "crop_soil_alluvial":         "Alluvial",
+  "crop_soil_black":            "Black (Regur)",
+  "crop_soil_red":              "Red & Yellow",
+  "crop_soil_laterite":         "Laterite",
+  "crop_soil_arid":             "Arid (Desert)",
+  "crop_soil_saline":           "Saline & Alkaline",
+  "crop_soil_peaty":            "Peaty & Marshy",
+  "crop_soil_forest":           "Forest & Mountain",
+
+  "crop_label_ph":              "pH Level",
+  "crop_ph_placeholder":        "6.5",
+
+  "crop_label_temperature":     "Temperature (°C)",
+  "crop_temp_placeholder":      "28",
+
+  "crop_label_humidity":        "Humidity (%)",
+  "crop_humidity_placeholder":  "80",
+
+  "crop_label_rainfall":        "Rainfall (mm)",
+  "crop_rainfall_placeholder":  "200",
+
+  "crop_label_soil_moisture":   "Soil Moisture (%)",
+  "crop_moisture_placeholder":  "40",
+
+  "crop_label_nitrogen":        "Nitrogen (N)",
+  "crop_nitrogen_placeholder":  "50",
+
+  "crop_label_phosphorus":      "Phosphorus (P)",
+  "crop_phosphorus_placeholder":"40",
+
+  "crop_label_potassium":       "Potassium (K)",
+  "crop_potassium_placeholder": "45",
+
+  "crop_label_latitude":        "Latitude",
+  "crop_latitude_placeholder":  "28.6139",
+
+  "crop_label_longitude":       "Longitude",
+  "crop_longitude_placeholder": "77.2090",
+
+  "crop_btn_analyze":           "Get Crop Recommendation",
+  "crop_btn_analyzing":         "Analyzing…",
+
+  "crop_empty_title":           "Your recommendation will appear here",
+  "crop_empty_subtitle":        "Fill in the form and click analyze",
+
+  "crop_loading_text":          "Analyzing your data",
+  "crop_loading_subtitle":      "Our AI is matching soil & climate conditions",
+
+  "crop_result_heading":        "Result",
+  "crop_result_badge":          "Best Match",
+  "crop_result_rank":           "Best Match",
+  "crop_result_confidence_label": "Confidence",
+
+  "crop_error_title":           "Something went wrong",
+  "crop_error_retry":           "Try Again",
+  "crop_error_no_result":       "No recommendations received.",
+
+  "crop_alert_soil":            "Please select a soil type before proceeding."
+}

@@ -1,0 +1,68 @@
+{
+  "crop_page_title": "फसल अनुशंसा – Labhansh.ai",
+  "crop_title": "फसल अनुशंसा",
+  "crop_subtitle": "आपकी मिट्टी और जलवायु डेटा के आधार पर AI-संचालित फसल सुझाव",
+
+  "crop_form_section_title": "मिट्टी और जलवायु मापदंड",
+
+  "crop_label_soil_type": "मिट्टी का प्रकार",
+  "crop_soil_placeholder": "मिट्टी का प्रकार चुनें",
+  "crop_soil_alluvial": "जलोढ़ (Alluvial)",
+  "crop_soil_black": "काली मिट्टी (Regur)",
+  "crop_soil_red": "लाल और पीली मिट्टी",
+  "crop_soil_laterite": "लैटेराइट",
+  "crop_soil_arid": "शुष्क (रेगिस्तानी)",
+  "crop_soil_saline": "लवणीय और क्षारीय",
+  "crop_soil_peaty": "पीटयुक्त और दलदली",
+  "crop_soil_forest": "वन और पर्वतीय",
+
+  "crop_label_ph": "pH स्तर",
+  "crop_ph_placeholder": "6.5",
+
+  "crop_label_temperature": "तापमान (°C)",
+  "crop_temp_placeholder": "28",
+
+  "crop_label_humidity": "आर्द्रता (%)",
+  "crop_humidity_placeholder": "80",
+
+  "crop_label_rainfall": "वर्षा (मिमी)",
+  "crop_rainfall_placeholder": "200",
+
+  "crop_label_soil_moisture": "मिट्टी की नमी (%)",
+  "crop_moisture_placeholder": "40",
+
+  "crop_label_nitrogen": "नाइट्रोजन (N)",
+  "crop_nitrogen_placeholder": "50",
+
+  "crop_label_phosphorus": "फॉस्फोरस (P)",
+  "crop_phosphorus_placeholder": "40",
+
+  "crop_label_potassium": "पोटैशियम (K)",
+  "crop_potassium_placeholder": "45",
+
+  "crop_label_latitude": "अक्षांश",
+  "crop_latitude_placeholder": "28.6139",
+
+  "crop_label_longitude": "देशांतर",
+  "crop_longitude_placeholder": "77.2090",
+
+  "crop_btn_analyze": "फसल अनुशंसा प्राप्त करें",
+  "crop_btn_analyzing": "विश्लेषण हो रहा है…",
+
+  "crop_empty_title": "आपकी अनुशंसा यहाँ दिखेगी",
+  "crop_empty_subtitle": "फ़ॉर्म भरें और विश्लेषण पर क्लिक करें",
+
+  "crop_loading_text": "आपका डेटा विश्लेषित किया जा रहा है",
+  "crop_loading_subtitle": "हमारी AI मिट्टी और जलवायु परिस्थितियों का मिलान कर रही है",
+
+  "crop_result_heading": "परिणाम",
+  "crop_result_badge": "सर्वश्रेष्ठ मिलान",
+  "crop_result_rank": "सर्वश्रेष्ठ मिलान",
+  "crop_result_confidence_label": "विश्वसनीयता",
+
+  "crop_error_title": "कुछ गड़बड़ हो गई",
+  "crop_error_retry": "पुनः प्रयास करें",
+  "crop_error_no_result": "कोई अनुशंसा प्राप्त नहीं हुई।",
+
+  "crop_alert_soil": "कृपया आगे बढ़ने से पहले मिट्टी का प्रकार चुनें।"
+}
