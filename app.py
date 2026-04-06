@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect
 from database import create_tables
 import sqlite3
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.secret_key = "super_secret_key_123"
 
 # Create DB tables
 create_tables()
@@ -39,7 +40,7 @@ def register():
         hashed_password = generate_password_hash(password)
 
         try:
-            conn = sqlite3.connect('labhansh.db')
+            conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
 
             cursor.execute(
@@ -70,7 +71,7 @@ def login():
         if not email or not password:
             return jsonify({"success": False, "message": "All fields required"})
 
-        conn = sqlite3.connect('labhansh.db')
+        conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
         cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
@@ -82,6 +83,7 @@ def login():
             stored_password = user[4]
 
             if check_password_hash(stored_password, password):
+                session['user'] = user[0]   # ✅ STORE USER ID IN SESSION
                 return jsonify({"success": True, "message": "Login successful"})
             else:
                 return jsonify({"success": False, "message": "Wrong password"})
@@ -98,7 +100,7 @@ def forgot_password():
         data = request.get_json()
         email = data.get('email')
 
-        conn = sqlite3.connect('labhansh.db')
+        conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
         cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
@@ -139,7 +141,7 @@ def reset_password():
 
         hashed_password = generate_password_hash(new_password)
 
-        conn = sqlite3.connect('labhansh.db')
+        conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
         cursor.execute(
@@ -163,15 +165,25 @@ def reset_password():
 
     return render_template('auth/reset_password.html')
 
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect('/login')
 
-# 🔹 DASHBOARD
+
 @app.route('/dashboard')
 def dashboard():
+    if 'user' not in session:
+        return redirect('/login')
+
     return render_template('dashboard/dashboard.html')
 
 
 @app.route("/crop-recommendation")
 def crop_recommendation():
+    if 'user' not in session:
+        return redirect('/login')
+
     return render_template("dashboard/crop-recommendation.html")
 
 if __name__ == '__main__':

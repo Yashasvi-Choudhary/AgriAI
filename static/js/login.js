@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const form = document.getElementById("login-form");
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     Object.keys(touched).forEach((k) => (touched[k] = true));
@@ -226,7 +226,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (errs.length) return;
 
-    // 🔥 Fake loading (optional but better UX)
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
     const btn = document.getElementById("btn-submit");
     const spinner = document.getElementById("spinner");
     const label = btn.querySelector(".btn-label");
@@ -235,8 +237,31 @@ document.addEventListener("DOMContentLoaded", () => {
     label.classList.add("hidden");
     spinner.classList.remove("hidden");
 
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 1000);
+    try {
+      const res = await fetch("/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      console.log("LOGIN RESPONSE:", data); // debug
+
+      if (data.success) {
+        window.location.href = "/dashboard";
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    } finally {
+      btn.disabled = false;
+      label.classList.remove("hidden");
+      spinner.classList.add("hidden");
+    }
   });
 });

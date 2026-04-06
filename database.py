@@ -13,7 +13,9 @@ def create_tables():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         email TEXT UNIQUE,
+        phone TEXT,
         password TEXT,
+        reset_token TEXT,
         created_at TEXT
     )
     """)
