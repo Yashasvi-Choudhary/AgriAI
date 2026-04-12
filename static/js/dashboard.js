@@ -63,3 +63,42 @@ function closepopup() {
     p.style.display = "none";
   }, 150);
 }
+
+
+async function loadUser() {
+  try {
+    const res = await fetch("/auth//api/user");
+    const data = await res.json();
+
+    if (!data.success) {
+      window.location.href = "/login";
+      return;
+    }
+
+    // name
+    document.querySelectorAll(".user-name").forEach(el => {
+      el.textContent = data.name;
+    });
+
+    // email
+    document.querySelectorAll(".user-email").forEach(el => {
+      el.textContent = data.email;
+    });
+
+    // initials
+    const initials = data.name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase();
+
+    document.querySelectorAll(".user-initials").forEach(el => {
+      el.textContent = initials;
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadUser);

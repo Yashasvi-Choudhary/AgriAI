@@ -52,6 +52,23 @@
       .animate-card {
         animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
+      /* ✅ Clean Autofill Fix (NO border issue) */
+      input:-webkit-autofill {
+        -webkit-text-fill-color: white !important;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+
+      /* Keep same background as your input */
+      input:-webkit-autofill {
+        box-shadow: 0 0 0px 1000px rgba(16, 42, 28, 0.6) inset !important;
+        -webkit-box-shadow: 0 0 0px 1000px rgba(16, 42, 28, 0.6) inset !important;
+      }
+
+      /* Fix focus border mismatch */
+      input:focus {
+        outline: none !important;
+        box-shadow: none !important;
+      }
     </style>
   </head>
   <body
@@ -118,7 +135,7 @@
               <input
                 type="text"
                 id="fullname"
-                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
+                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border text-white border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_name"
               />
             </div>
@@ -139,7 +156,7 @@
               <input
                 type="email"
                 id="email"
-                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
+                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border text-white border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_email"
               />
             </div>
@@ -163,7 +180,7 @@
                 maxlength="10"
                 pattern="[0-9]{10}"
                 inputmode="numeric"
-                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
+                class="w-full pl-4 pr-4 py-3 bg-primaryDark/60 border text-white border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_phone"
               />
             </div>
@@ -184,7 +201,7 @@
               <input
                 type="password"
                 id="password"
-                class="w-full pl-4 pr-11 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
+                class="w-full pl-4 pr-11 py-3 bg-primaryDark/60 border text-white border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_pwd"
               />
               <button
@@ -216,7 +233,7 @@
               <input
                 type="password"
                 id="confirm_password"
-                class="w-full pl-4 pr-11 py-3 bg-primaryDark/60 border border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
+                class="w-full pl-4 pr-11 py-3 bg-primaryDark/60 border text-white border-textLight/20 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder-textLight/40"
                 data-i18n-ph="ph_cpwd"
               />
               <button
@@ -226,7 +243,6 @@
               >
                 <span data-lucide="eye" class="w-5 h-5"></span>
               </button>
-              
             </div>
 
             <span

@@ -1,14 +1,13 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
 auth_bp = Blueprint('auth', __name__)
 
-DB_NAME = "labhansh.db"
+DB_NAME = "database.db"
 
 
-# 🔹 Helper: DB connection
 def get_db():
     return sqlite3.connect(DB_NAME)
 
@@ -18,13 +17,12 @@ def get_db():
 def register():
     data = request.get_json()
 
-    # ⚠️ frontend keys match karo
-    name = data.get('fullname')   # IMPORTANT CHANGE
+    fullname = data.get('fullname')
     email = data.get('email')
     phone = data.get('phone')
     password = data.get('password')
 
-    if not name or not email or not phone or not password:
+    if not all([fullname, email, phone, password]):
         return jsonify({"success": False, "message": "All fields required"})
 
     hashed_password = generate_password_hash(password)
@@ -36,21 +34,15 @@ def register():
         cursor.execute("""
             INSERT INTO users (name, email, phone, password)
             VALUES (?, ?, ?, ?)
-        """, (name, email, phone, hashed_password))
+        """, (fullname, email, phone, hashed_password))
 
         conn.commit()
         conn.close()
 
-        return jsonify({
-            "success": True,
-            "message": "Registration successful"
-        })
+        return jsonify({"success": True, "message": "Registration successful"})
 
     except sqlite3.IntegrityError:
-        return jsonify({
-            "success": False,
-            "message": "Email already exists"
-        })
+        return jsonify({"success": False, "message": "Email already exists"})
 
 
 # 🔹 LOGIN API
@@ -70,30 +62,25 @@ def login():
     conn.close()
 
     if not user:
-        return jsonify({
-            "success": False,
-            "message": "User not found"
-        })
+        return jsonify({"success": False, "message": "User not found"})
 
-    stored_password = user[4]
+    if check_password_hash(user[4], password):
+        session['user'] = user[0]   # ✅ ADD THIS
 
-    if check_password_hash(stored_password, password):
         return jsonify({
             "success": True,
             "message": "Login successful",
             "user": {
+                "id": user[0],
                 "name": user[1],
                 "email": user[2]
             }
         })
     else:
-        return jsonify({
-            "success": False,
-            "message": "Wrong password"
-        })
+        return jsonify({"success": False, "message": "Wrong password"})
 
 
-# 🔹 FORGOT PASSWORD API
+# 🔹 FORGOT PASSWORD
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     data = request.get_json()
@@ -107,31 +94,24 @@ def forgot_password():
 
     if not user:
         conn.close()
-        return jsonify({
-            "success": False,
-            "message": "Email not registered"
-        })
+        return jsonify({"success": False, "message": "Email not registered"})
 
-    # 🔥 generate reset token
     token = str(uuid.uuid4())
 
-    cursor.execute("""
-        UPDATE users SET reset_token = ? WHERE email = ?
-    """, (token, email))
+    cursor.execute(
+        "UPDATE users SET reset_token = ? WHERE email = ?",
+        (token, email)
+    )
 
     conn.commit()
     conn.close()
 
-    # 👉 Real app me email bhejna hota hai
-    print(f"Reset link: http://localhost:5000/reset-password?token={token}")
+    print(f"Reset link: http://127.0.0.1:5000/reset-password?token={token}")
 
-    return jsonify({
-        "success": True,
-        "message": "Reset link sent"
-    })
+    return jsonify({"success": True, "message": "Reset link sent"})
 
 
-# 🔹 RESET PASSWORD API
+# 🔹 RESET PASSWORD
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.get_json()
@@ -140,27 +120,19 @@ def reset_password():
     new_password = data.get('password')
 
     if not token or not new_password:
-        return jsonify({
-            "success": False,
-            "message": "Invalid request"
-        })
+        return jsonify({"success": False, "message": "Invalid request"})
 
     hashed_password = generate_password_hash(new_password)
 
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT * FROM users WHERE reset_token = ?
-    """, (token,))
+    cursor.execute("SELECT * FROM users WHERE reset_token = ?", (token,))
     user = cursor.fetchone()
 
     if not user:
         conn.close()
-        return jsonify({
-            "success": False,
-            "message": "Invalid or expired token"
-        })
+        return jsonify({"success": False, "message": "Invalid token"})
 
     cursor.execute("""
         UPDATE users 
@@ -171,7 +143,24 @@ def reset_password():
     conn.commit()
     conn.close()
 
+    return jsonify({"success": True, "message": "Password reset successful"})
+
+
+
+@auth_bp.route('/api/user')
+def get_user():
+    if "user" not in session:
+        return jsonify({"success": False}), 401
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT name, email FROM users WHERE id=?", (session["user"],))
+    user = cur.fetchone()
+    conn.close()
+
     return jsonify({
         "success": True,
-        "message": "Password reset successful"
+        "name": user[0],
+        "email": user[1]
     })
