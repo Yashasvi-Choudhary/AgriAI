@@ -12,6 +12,7 @@
   "e_email_req": "Email address is required",
   "e_email_inv": "Please enter a valid email address",
   "e_pwd_req": "Password is required",
+  "e_pwd_len": "Password must be at least 6 characters",
   "server_error": "Server error. Please try again.",
   "invalid_credentials": "Invalid email or password"
   

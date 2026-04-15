@@ -79,6 +79,7 @@ function validateEmail(val) {
 
 function validatePassword(val) {
   if (!val) return t("e_pwd_req");
+  if (val.length < 6) return t("e_pwd_len"); // 🔥 ADD THIS
   return null;
 }
 
