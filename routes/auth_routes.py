@@ -62,7 +62,7 @@ def login():
     conn.close()
 
     if not user:
-        return jsonify({"success": False, "message": "User not found"})
+        return jsonify({"success": False, "message": "invalid_credentials"})
 
     if check_password_hash(user[4], password):
         session['user'] = user[0]   # ✅ ADD THIS
@@ -77,7 +77,7 @@ def login():
             }
         })
     else:
-        return jsonify({"success": False, "message": "Wrong password"})
+        return jsonify({"success": False, "message": "invalid_credentials"})
 
 
 # 🔹 FORGOT PASSWORD

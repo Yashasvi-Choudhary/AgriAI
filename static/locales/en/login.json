@@ -11,5 +11,8 @@
   "register_link": "Sign Up",
   "e_email_req": "Email address is required",
   "e_email_inv": "Please enter a valid email address",
-  "e_pwd_req": "Password is required"
+  "e_pwd_req": "Password is required",
+  "server_error": "Server error. Please try again.",
+  "invalid_credentials": "Invalid email or password"
+  
 }
