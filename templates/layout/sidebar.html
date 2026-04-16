@@ -16,7 +16,9 @@
     class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-accent/50 to-transparent"
   ></div>
 
-  <nav class="flex-1 overflow-y-auto overflow-x-hidden  scrollbar-hide pt-7 pb-4 h-full">
+  <nav
+    class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide pt-7 pb-4 h-full"
+  >
     <div class="px-5 mb-2">
       <span
         class="text-[0.6rem] tracking-[2.5px] uppercase text-white/40 font-semibold"
@@ -24,14 +26,15 @@
         >Main</span
       >
     </div>
-
-    <div
-      class="nav-item active flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">🏠</span
-      ><span data-i18n="nav_dashboard">Dashboard</span>
-    </div>
+    <a href="{{ url_for('dashboard') }}">
+      <div
+        class="nav-item active flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">🏠</span
+        ><span data-i18n="nav_dashboard">Dashboard</span>
+      </div>
+    </a>
     <a href="{{ url_for('crop_recommendation') }}">
       <div
         class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
@@ -133,7 +136,9 @@
         H
       </div>
       <div class="flex-1 min-w-0">
-        <p class="user-name text-white text-[0.8rem] font-semibold truncate">Hello Ji</p>
+        <p class="user-name text-white text-[0.8rem] font-semibold truncate">
+          Hello Ji
+        </p>
         <p class="text-white/50 text-[0.67rem] truncate">Raipur, CG</p>
       </div>
       <span

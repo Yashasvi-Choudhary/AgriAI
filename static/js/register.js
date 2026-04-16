@@ -1,22 +1,23 @@
 let translations = {};
 let currentLang = "en";
 
-// Added confirm password
 const fields = ["fullname", "email", "phone", "password", "confirm_password"];
 
-// --- Language Controller ---
+/* ───────── LANGUAGE ───────── */
 async function setLang(lang) {
   currentLang = lang;
 
   try {
-    const response = await fetch(`/static/locales/${lang}/register.json`);
-    translations = await response.json();
+    const res = await fetch(`/static/locales/${lang}/register.json`);
+    translations = await res.json();
   } catch (e) {
     console.error("Translation load error:", e);
+    translations = {};
   }
 
   ["en", "hi"].forEach((l) => {
     const btn = document.getElementById(`btn-${l}`);
+    if (!btn) return;
 
     if (lang === l) {
       btn.classList.add("bg-accent/20", "text-accentLight");
@@ -28,17 +29,15 @@ async function setLang(lang) {
   });
 
   document.querySelectorAll("[data-i18n]").forEach((el) => {
-    const key = el.dataset.i18n;
-    el.textContent = translations[key] || key;
+    el.textContent = translations[el.dataset.i18n] || el.dataset.i18n;
   });
 
   document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
-    const key = el.dataset.i18nPh;
-    el.placeholder = translations[key] || key;
+    el.placeholder = translations[el.dataset.i18nPh] || el.dataset.i18nPh;
   });
 }
 
-// --- Validation ---
+/* ───────── VALIDATION ───────── */
 function validateField(field, value) {
   const password = document.getElementById("password").value;
 
@@ -68,32 +67,51 @@ function validateField(field, value) {
   }
 }
 
+/* ───────── FIELD ERROR UI ───────── */
 function showError(field, errorKey) {
   const el = document.getElementById(`err-${field}`);
   const input = document.getElementById(field);
 
+  if (!el || !input) return;
+
   if (errorKey) {
-    // Show error text
     el.textContent = translations[errorKey] || errorKey;
     el.style.opacity = "1";
     el.style.height = "auto";
 
-    // 🔴 ADD RED BORDER (same as login page)
     input.classList.add("!border-red-500/60", "!ring-2", "!ring-red-500/10");
   } else {
-    // Hide error text
+    el.textContent = "";
     el.style.opacity = "0";
     el.style.height = "0";
 
-    // ✅ REMOVE RED BORDER
     input.classList.remove("!border-red-500/60", "!ring-2", "!ring-red-500/10");
   }
 }
 
-// --- Events ---
+/* ───────── FORM ERROR (GLOBAL) ───────── */
+function showFormError(key) {
+  const el = document.getElementById("form-error");
+  if (!el) return;
+
+  el.textContent = translations[key] || key;
+  el.classList.remove("opacity-0");
+  el.classList.add("opacity-100");
+}
+
+function clearFormError() {
+  const el = document.getElementById("form-error");
+  if (!el) return;
+
+  el.textContent = "";
+  el.classList.add("opacity-0");
+}
+
+/* ───────── EVENTS ───────── */
 function initFormEvents() {
   fields.forEach((field) => {
     const input = document.getElementById(field);
+    if (!input) return;
 
     input.addEventListener("focus", () => {
       input.dataset.touched = "true";
@@ -112,10 +130,10 @@ function initFormEvents() {
         if (!err) showError(field, "");
       }
 
-      // 🔥 Special case: revalidate confirm password when password changes
+      // revalidate confirm password when password changes
       if (field === "password") {
         const cpwd = document.getElementById("confirm_password");
-        if (cpwd.value) {
+        if (cpwd && cpwd.value) {
           const err = validateField("confirm_password", cpwd.value);
           showError("confirm_password", err);
         }
@@ -126,15 +144,19 @@ function initFormEvents() {
   document.getElementById("reg-form").addEventListener("submit", handleSubmit);
 }
 
-// --- Submit ---
+/* ───────── SUBMIT ───────── */
 async function handleSubmit(e) {
   e.preventDefault();
+  clearFormError();
 
   let valid = true;
   const data = {};
 
   fields.forEach((field) => {
-    const value = document.getElementById(field).value;
+    const input = document.getElementById(field);
+    if (!input) return;
+
+    const value = input.value;
     const error = validateField(field, value);
 
     data[field] = value;
@@ -151,12 +173,12 @@ async function handleSubmit(e) {
   const label = btn.querySelector(".btn-label");
   const spinner = document.getElementById("spinner");
 
+  btn.disabled = true;
   label.classList.add("hidden");
   spinner.classList.remove("hidden");
-  btn.disabled = true;
 
   try {
-    const res = await fetch("/register", {
+    const res = await fetch("/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -174,40 +196,41 @@ async function handleSubmit(e) {
         window.location.href = "/login";
       }, 3000);
     } else {
-      alert(result.message || "Registration failed");
+      if (result.message === "Email already exists") {
+        showFormError("email_exists");
+      } else if (result.message === "All fields required") {
+        showFormError("all_fields_required");
+      } else {
+        showFormError("server_error");
+      }
     }
   } catch (err) {
     console.error(err);
-    alert("Server error");
+    showFormError("server_error");
   } finally {
+    btn.disabled = false;
     label.classList.remove("hidden");
     spinner.classList.add("hidden");
-    btn.disabled = false;
   }
 }
 
-// --- Password Toggle ---
+/* ───────── PASSWORD TOGGLE ───────── */
 function togglePwd(id, btn) {
   const input = document.getElementById(id);
-
-  // IMPORTANT: select span (not i)
   const icon = btn.querySelector("[data-lucide]");
 
   const isHidden = input.type === "password";
-
-  // Toggle password
   input.type = isHidden ? "text" : "password";
 
-  // Change icon
   icon.setAttribute("data-lucide", isHidden ? "eye-off" : "eye");
-
-  // 🔥 FULL re-render (safe & simple)
   lucide.createIcons();
 }
 
-// --- Canvas ---
+/* ───────── CANVAS ───────── */
 (function () {
   const canvas = document.getElementById("neural");
+  if (!canvas) return;
+
   const ctx = canvas.getContext("2d");
   let W,
     H,
@@ -234,26 +257,26 @@ function togglePwd(id, btn) {
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
+
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const dx = nodes[i].x - nodes[j].x;
         const dy = nodes[i].y - nodes[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
+
         if (dist < 130) {
           ctx.beginPath();
           ctx.moveTo(nodes[i].x, nodes[i].y);
           ctx.lineTo(nodes[j].x, nodes[j].y);
-
           ctx.strokeStyle = `rgba(255,255,255,${(1 - dist / 130) * 0.15})`;
-          ctx.lineWidth = 0.6;
           ctx.stroke();
         }
       }
     }
+
     nodes.forEach((n) => {
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-
       ctx.fillStyle = "rgba(255,255,255,0.35)";
       ctx.fill();
     });
@@ -263,6 +286,7 @@ function togglePwd(id, btn) {
     nodes.forEach((n) => {
       n.x += n.vx;
       n.y += n.vy;
+
       if (n.x < 0 || n.x > W) n.vx *= -1;
       if (n.y < 0 || n.y > H) n.vy *= -1;
     });
@@ -286,7 +310,7 @@ function togglePwd(id, btn) {
   loop();
 })();
 
-/* ───────────── INIT ───────────── */
+/* ───────── INIT ───────── */
 document.addEventListener("DOMContentLoaded", async () => {
   await setLang(currentLang);
   initFormEvents();

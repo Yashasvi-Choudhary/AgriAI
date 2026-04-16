@@ -27,5 +27,8 @@
   "e_pwd_req": "Password is required",
   "e_pwd_short": "Password must be at least 6 characters",
   "e_cpwd_req": "Confirm password is required",
-  "e_cpwd_match": "Passwords do not match"
+  "e_cpwd_match": "Passwords do not match",
+  "email_exists": "Email already exists",
+  "all_fields_required": "All fields are required",
+  "server_error": "Server error. Please try again."
 }

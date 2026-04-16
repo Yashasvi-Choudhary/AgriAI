@@ -2,7 +2,7 @@
 {% extends "base.html" %} {% block title %}Crop Recommendation{% endblock %} {%
 block content %}
 
-<div class="bg-background min-h-screen py-10">
+<div class="bg-background min-h-screen py-10 relative">
   <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
     <!-- ── PAGE HEADER ── -->
     <div class="mb-8">
@@ -364,85 +364,8 @@ block content %}
         <!-- spacer -->
         <div class="hidden sm:block"></div>
 
-        <!-- Latitude -->
-        <div>
-          <label
-            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-            data-i18n="crop_label_latitude"
-          ></label>
-          <div class="relative">
-            <span
-              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-            </span>
-            <input
-              type="number"
-              id="latitude"
-              name="latitude"
-              step="0.0001"
-              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              data-i18n-placeholder="crop_latitude_placeholder"
-            />
-          </div>
-        </div>
-
-        <!-- Longitude -->
-        <div>
-          <label
-            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-            data-i18n="crop_label_longitude"
-          ></label>
-          <div class="relative">
-            <span
-              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-            </span>
-            <input
-              type="number"
-              id="longitude"
-              name="longitude"
-              step="0.0001"
-              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              data-i18n-placeholder="crop_longitude_placeholder"
-            />
-          </div>
-        </div>
+        
+        
       </div>
 
       <!-- Submit Button -->

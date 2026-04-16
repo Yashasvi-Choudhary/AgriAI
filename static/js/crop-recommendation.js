@@ -1,22 +1,4 @@
-/**
- * lang.js  –  Global i18n system for Labhansh.ai
- *
- * How it works:
- *  1. Reads selected language from localStorage (key: "lang"), default = "en"
- *  2. Fetches /static/lang/{lang}.json
- *  3. Replaces text of every [data-i18n] element
- *  4. Replaces placeholder of every [data-i18n-placeholder] element
- *  5. Replaces <option> text for select dropdowns
- *  6. Updates <html lang="..."> attribute
- *  7. Stores translations in window.__i18n for JS access
- *
- * Language switch (from navbar):
- *  Call  window.setLang('hi')  or  window.setLang('en')
- *  – this saves to localStorage and re-applies translations without reload.
- */
-/* ─────────────────────────────────────────
-       Emoji map & helpers
-    ───────────────────────────────────────── */
+
 const EMOJIS = {
   rice: "🌾",
   wheat: "🌾",
