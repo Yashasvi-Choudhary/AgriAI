@@ -1,0 +1,83 @@
+{
+  "yield_title": "फसल उपज पूर्वानुमान",
+  "yield_subtitle": "AI-आधारित विश्लेषण से अपनी फसल उत्पादन का अनुमान लगाएं",
+
+  "yield_form_section_title": "फसल और खेत की जानकारी दर्ज करें",
+  "yield_auto_section_title": "स्वचालित रूप से प्राप्त डेटा",
+
+  "yield_label_crop_type": "फसल का प्रकार",
+  "yield_crop_placeholder": "फसल चुनें…",
+  "yield_crop_wheat": "गेहूँ",
+  "yield_crop_rice": "धान (चावल)",
+  "yield_crop_maize": "मक्का",
+  "yield_crop_cotton": "कपास",
+  "yield_crop_sugarcane": "गन्ना",
+
+  "yield_label_area": "भूमि क्षेत्रफल",
+  "yield_area_placeholder": "क्षेत्रफल दर्ज करें",
+  "yield_unit_acre": "एकड़",
+  "yield_unit_hectare": "हेक्टेयर",
+
+  "yield_label_nitrogen": "नाइट्रोजन (N) — mg/kg",
+  "yield_nitrogen_placeholder": "जैसे 40",
+  "yield_label_phosphorus": "फॉस्फोरस (P) — mg/kg",
+  "yield_phosphorus_placeholder": "जैसे 20",
+  "yield_label_potassium": "पोटैशियम (K) — mg/kg",
+  "yield_potassium_placeholder": "जैसे 30",
+
+  "yield_label_ph": "मिट्टी का pH स्तर",
+  "yield_ph_placeholder": "जैसे 6.5 (0–14)",
+
+  "yield_label_location": "स्थान (स्वतः पता चला)",
+  "yield_location_detecting": "स्थान का पता लगाया जा रहा है…",
+  "yield_location_unavailable": "स्थान उपलब्ध नहीं",
+
+  "yield_label_weather": "वर्तमान मौसम",
+  "yield_weather_loading": "मौसम की जानकारी प्राप्त हो रही है…",
+  "yield_weather_error": "मौसम की जानकारी उपलब्ध नहीं",
+
+  "yield_btn_predict": "उपज का अनुमान लगाएं",
+  "yield_btn_predicting": "अनुमान लगाया जा रहा है…",
+
+  "yield_empty_state": "ऊपर दिया गया फॉर्म भरें और परिणाम देखने के लिए 'उपज का अनुमान लगाएं' पर क्लिक करें।",
+  "yield_loading_text": "पूर्वानुमान मॉडल चल रहा है, कृपया प्रतीक्षा करें…",
+
+  "yield_error_title": "पूर्वानुमान विफल रहा",
+  "yield_error_no_result": "सर्वर से कोई उपज पूर्वानुमान प्राप्त नहीं हुआ।",
+  "yield_alert_crop": "आगे बढ़ने से पहले कृपया फसल का प्रकार चुनें।",
+  "yield_alert_area": "कृपया भूमि क्षेत्रफल दर्ज करें।",
+
+  "yield_result_section_title": "पूर्वानुमान परिणाम",
+  "yield_result_label": "अनुमानित उपज",
+  "yield_result_unit": "क्विंटल / एकड़",
+  "yield_result_for": "के लिए अनुमान",
+
+  "yield_productivity_high": "उच्च उत्पादकता",
+  "yield_productivity_medium": "मध्यम उत्पादकता",
+  "yield_productivity_low": "कम उत्पादकता",
+
+  "yield_weather_impact_title": "मौसम का प्रभाव",
+  "yield_insight_temp": "तापमान",
+  "yield_insight_humidity": "आर्द्रता",
+  "yield_insight_rainfall": "वर्षा",
+  "yield_weather_impact_note": "इस फसल के लिए मौसम की स्थिति उचित लग रही है।",
+
+  "yield_soil_health_title": "मिट्टी का स्वास्थ्य",
+  "yield_insight_n": "नाइट्रोजन (N)",
+  "yield_insight_p": "फॉस्फोरस (P)",
+  "yield_insight_k": "पोटैशियम (K)",
+  "yield_insight_ph": "pH स्तर",
+
+  "yield_comparison_title": "आपकी उपज बनाम औसत उपज",
+  "yield_your_yield": "आपकी अनुमानित उपज",
+  "yield_avg_yield": "क्षेत्रीय औसत उपज",
+  "yield_comp_note": "आपकी अनुमानित उपज क्षेत्रीय औसत से {diff} क्विंटल/एकड़ है।",
+
+  "yield_suggestions_title": "सुधार के सुझाव",
+  "yield_suggest_n": "नाइट्रोजन (N) का स्तर बढ़ाएं — कम नाइट्रोजन उपज को 10–15% तक कम कर सकती है।",
+  "yield_suggest_p": "जड़ के विकास और दाने भरने के लिए फॉस्फोरस उर्वरक का प्रयोग करें।",
+  "yield_suggest_k": "पोटैशियम का स्तर आदर्श सीमा से कम है — म्यूरिएट ऑफ पोटाश का प्रयोग करने पर विचार करें।",
+  "yield_suggest_ph": "मिट्टी का pH आदर्श सीमा (5.5–7.5) से बाहर है। लाइमिंग या सल्फर उपचार पर विचार करें।",
+  "yield_suggest_below_avg": "आपकी उपज औसत से कम है — सिंचाई की समय-सारिणी और उर्वरक का समय पुनः जाँचें।",
+  "yield_suggest_good": "मिट्टी और मौसम की स्थिति अच्छी है। वर्तमान कृषि पद्धतियाँ जारी रखें।"
+}

@@ -1,0 +1,41 @@
+{
+  "disease_title": "पौधे की बीमारी की पहचान",
+  "disease_subtitle": "AI की मदद से बीमारी जानने के लिए पौधे की पत्ती की छवि अपलोड करें",
+
+  "disease_upload_section_title": "पत्ती की छवि अपलोड करें",
+
+  "disease_drop_title": "अपनी पत्ती की छवि यहाँ खींचें और छोड़ें",
+  "disease_drop_or": "या",
+  "disease_browse_btn": "फ़ाइल चुनें",
+  "disease_formats": "समर्थित प्रारूप: JPG, PNG, WEBP · अधिकतम आकार: 10 MB",
+
+  "disease_preview_section_title": "छवि पूर्वावलोकन",
+  "disease_change_image": "छवि बदलें",
+
+  "disease_btn_detect": "बीमारी पहचानें",
+  "disease_btn_detecting": "पहचाना जा रहा है…",
+
+  "disease_empty_state": "ऊपर पौधे की पत्ती की छवि अपलोड करें और परिणाम देखने के लिए 'बीमारी पहचानें' पर क्लिक करें।",
+  "disease_loading_text": "AI मॉडल से छवि का विश्लेषण किया जा रहा है, कृपया प्रतीक्षा करें…",
+
+  "disease_error_title": "पहचान विफल रही",
+  "disease_error_no_result": "सर्वर से कोई परिणाम प्राप्त नहीं हुआ।",
+
+  "disease_alert_no_image": "कृपया पहले पौधे की पत्ती की छवि अपलोड करें।",
+  "disease_alert_format": "कृपया एक वैध छवि अपलोड करें (JPG, PNG, WEBP)।",
+  "disease_alert_size": "फ़ाइल का आकार 10 MB से कम होना चाहिए।",
+
+  "disease_result_section_title": "पहचान परिणाम",
+
+  "disease_healthy_badge": "स्वस्थ पौधा",
+
+  "disease_confidence_label": "विश्वास स्कोर",
+  "disease_confidence_high": "उच्च विश्वास",
+  "disease_confidence_medium": "मध्यम विश्वास",
+  "disease_confidence_low": "कम विश्वास",
+
+  "disease_description_title": "इस बीमारी के बारे में",
+  "disease_treatment_title": "सुझाया गया उपचार",
+
+  "disease_detect_again": "दूसरी छवि पहचानें"
+}

@@ -55,6 +55,20 @@ def crop_recommendation():
     return render_template('dashboard/crop-recommendation.html')
 
 
+@app.route('/crop-yield-prediction')
+def yield_prediction():
+    if 'user' not in session:
+        return redirect('/login')
+
+    return render_template('dashboard/crop-yield-prediction.html')
+
+@app.route('/plant-disease-detection')  
+def plant_disease_detection():
+    if 'user' not in session:
+        return redirect('/login')
+    return render_template('dashboard/plant-disease-detection.html')
+
+
 @app.route('/logout')
 def logout():
     session.pop('user', None)

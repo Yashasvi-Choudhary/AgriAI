@@ -44,21 +44,24 @@
         <span data-i18n="nav_crop">Crop Recommendation</span>
       </div>
     </a>
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">🌾</span
-      ><span data-i18n="nav_yield">Yield Prediction</span>
-    </div>
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">🍃</span
-      ><span data-i18n="nav_disease">Disease Detection</span>
-    </div>
-
+    <a href="{{ url_for('yield_prediction') }}">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">🌾</span
+        ><span data-i18n="nav_yield">Yield Prediction</span>
+      </div>
+    </a>
+    <a href="{{ url_for('plant_disease_detection') }}">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">🍃</span
+        ><span data-i18n="nav_disease">Disease Detection</span>
+      </div>
+    </a>
     <div class="px-5 mt-5 mb-2">
       <span
         class="text-[0.6rem] tracking-[2.5px] uppercase text-white/40 font-semibold"
@@ -66,28 +69,33 @@
         >Tools</span
       >
     </div>
-
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">🧪</span
-      ><span data-i18n="nav_fert">Fertilizer Guide</span>
-    </div>
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">📊</span
-      ><span data-i18n="nav_profit">Profit Analyzer</span>
-    </div>
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">📈</span
-      ><span data-i18n="nav_market">Market Price</span>
-    </div>
+    <a href="">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">🧪</span
+        ><span data-i18n="nav_fert">Fertilizer Guide</span>
+      </div>
+    </a>
+    <a href="">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">📊</span
+        ><span data-i18n="nav_profit">Profit Analyzer</span>
+      </div>
+    </a>
+    <a href="">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">📈</span
+        ><span data-i18n="nav_market">Market Price</span>
+      </div>
+    </a>
 
     <div class="px-5 mt-5 mb-2">
       <span
@@ -96,28 +104,33 @@
         >Community</span
       >
     </div>
-
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">👥</span
-      ><span data-i18n="nav_community_link">Farmer Community</span>
-    </div>
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">🏛️</span
-      ><span data-i18n="nav_schemes">Govt. Schemes</span>
-    </div>
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">🤖</span
-      ><span data-i18n="nav_ai">AI Assistant</span>
-    </div>
+    <a href="">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">👥</span
+        ><span data-i18n="nav_community_link">Farmer Community</span>
+      </div>
+    </a>
+    <a href="">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">🏛️</span
+        ><span data-i18n="nav_schemes">Govt. Schemes</span>
+      </div>
+    </a>
+    <a href="">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">🤖</span
+        ><span data-i18n="nav_ai">AI Assistant</span>
+      </div>
+    </a>
     <div
       class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
       onclick="setActive(this)"

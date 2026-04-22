@@ -1,0 +1,625 @@
+<!-- Crop Yield Prediction page -->
+{% extends "base.html" %} {% block title %}Crop Yield Prediction{% endblock %}
+{% block content %}
+
+<div class="bg-background min-h-screen py-10 relative">
+  <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+    <!-- ── PAGE HEADER ── -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-1.5">
+        <div
+          class="flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 bg-gradient-to-br from-primary to-primaryDark shadow-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h1
+            class="text-2xl sm:text-3xl font-bold leading-tight text-textDark font-heading"
+            data-i18n="yield_title"
+          ></h1>
+          <p
+            class="text-sm mt-0.5 text-textLight"
+            data-i18n="yield_subtitle"
+          ></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FORM CARD ── -->
+    <div
+      class="bg-white rounded-2xl border p-6 sm:p-8 mb-7 border-backgroundDark shadow-sm"
+    >
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+        <h2
+          class="text-xs font-bold uppercase tracking-widest text-textMid"
+          data-i18n="yield_form_section_title"
+        ></h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+        <!-- Crop Type -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_crop_type"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3C7 3 3 7.5 3 12c0 2.5 1.2 4.8 3 6.3V21h12v-2.7c1.8-1.5 3-3.8 3-6.3 0-4.5-4-9-9-9z"
+                />
+              </svg>
+            </span>
+            <select
+              id="crop_type"
+              name="crop_type"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-9 text-sm appearance-none bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+            >
+              <option
+                value=""
+                disabled
+                selected
+                data-i18n="yield_crop_placeholder"
+              ></option>
+              <option value="wheat" data-i18n="yield_crop_wheat"></option>
+              <option value="rice" data-i18n="yield_crop_rice"></option>
+              <option value="maize" data-i18n="yield_crop_maize"></option>
+              <option value="cotton" data-i18n="yield_crop_cotton"></option>
+              <option
+                value="sugarcane"
+                data-i18n="yield_crop_sugarcane"
+              ></option>
+            </select>
+            <span
+              class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Land Area -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_area"
+          ></label>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <span
+                class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                  />
+                </svg>
+              </span>
+              <input
+                type="number"
+                id="land_area"
+                name="land_area"
+                min="0"
+                step="0.1"
+                class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                data-i18n-placeholder="yield_area_placeholder"
+              />
+            </div>
+            <!-- Unit Toggle -->
+            <div class="relative">
+              <select
+                id="area_unit"
+                name="area_unit"
+                class="h-full rounded-lg border border-backgroundDark py-2.5 pl-3 pr-8 text-sm appearance-none bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              >
+                <option value="acre" data-i18n="yield_unit_acre"></option>
+                <option value="hectare" data-i18n="yield_unit_hectare"></option>
+              </select>
+              <span
+                class="absolute inset-y-0 right-2 flex items-center pointer-events-none text-textLight"
+              >
+                <svg
+                  class="w-3 h-3"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nitrogen -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_nitrogen"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
+              >N</span
+            >
+            <input
+              type="number"
+              id="nitrogen"
+              name="nitrogen"
+              min="0"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="yield_nitrogen_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Phosphorus -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_phosphorus"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
+              >P</span
+            >
+            <input
+              type="number"
+              id="phosphorus"
+              name="phosphorus"
+              min="0"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="yield_phosphorus_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Potassium -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_potassium"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
+              >K</span
+            >
+            <input
+              type="number"
+              id="potassium"
+              name="potassium"
+              min="0"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="yield_potassium_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- pH Level -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_ph"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="ph_level"
+              name="ph_level"
+              min="0"
+              max="14"
+              step="0.1"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="yield_ph_placeholder"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="mt-8">
+        <button
+          id="predictBtn"
+          type="button"
+          onclick="getCropYieldPrediction()"
+          class="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-lg shadow-primaryDark/20"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+          <span id="btnText" data-i18n="yield_btn_predict"></span>
+          <!-- Spinner (hidden by default) -->
+          <svg
+            id="btnSpinner"
+            class="hidden w-4 h-4 animate-spin"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <!-- /form card -->
+
+    <!-- ── EMPTY STATE ── -->
+    <div
+      id="emptyState"
+      class="bg-white rounded-2xl border border-backgroundDark p-10 text-center shadow-sm"
+    >
+      <div class="text-5xl mb-3">📊</div>
+      <p
+        class="text-sm text-textLight font-medium"
+        data-i18n="yield_empty_state"
+      ></p>
+    </div>
+
+    <!-- ── LOADING STATE ── -->
+    <div
+      id="loadingState"
+      class="hidden bg-white rounded-2xl border border-backgroundDark p-10 text-center shadow-sm"
+    >
+      <div class="flex flex-col items-center gap-3">
+        <svg
+          class="w-8 h-8 animate-spin text-primary"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+        <p
+          class="text-sm text-textLight font-medium"
+          data-i18n="yield_loading_text"
+        ></p>
+      </div>
+    </div>
+
+    <!-- ── ERROR STATE ── -->
+    <div
+      id="errorState"
+      class="hidden bg-white rounded-2xl border border-red-200 p-8 shadow-sm"
+    >
+      <div class="flex items-start gap-3">
+        <div
+          class="flex-shrink-0 w-9 h-9 rounded-full bg-red-100 flex items-center justify-center"
+        >
+          <svg
+            class="w-5 h-5 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+        </div>
+        <div>
+          <p
+            class="text-sm font-semibold text-red-700"
+            data-i18n="yield_error_title"
+          ></p>
+          <p id="errorMsg" class="text-xs text-red-500 mt-1"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESULT DASHBOARD ── (hidden initially) -->
+    <div id="resultDashboard" class="hidden space-y-5">
+      <!-- Main Result Card with Glow -->
+      <div
+        class="relative bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm overflow-hidden"
+      >
+        <!-- Subtle glow behind the yield number -->
+        <div
+          class="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/10 blur-3xl rounded-full pointer-events-none"
+        ></div>
+
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+          <h2
+            class="text-xs font-bold uppercase tracking-widest text-textMid"
+            data-i18n="yield_result_section_title"
+          ></h2>
+        </div>
+
+        <div class="text-center py-4">
+          <p
+            class="text-xs font-semibold uppercase tracking-widest text-textLight mb-1"
+            data-i18n="yield_result_label"
+          ></p>
+          <div class="flex items-baseline justify-center gap-2">
+            <span
+              id="resultYieldValue"
+              class="text-5xl sm:text-6xl font-black text-primaryDark leading-none"
+              >--</span
+            >
+            <span
+              id="resultYieldUnit"
+              class="text-lg font-semibold text-textMid"
+              data-i18n="yield_result_unit"
+            ></span>
+          </div>
+          <p
+            id="resultCropName"
+            class="text-sm text-textLight mt-2 font-medium"
+          ></p>
+        </div>
+
+        <!-- Productivity Badge -->
+        <div class="flex justify-center mt-4">
+          <span
+            id="productivityBadge"
+            class="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-700"
+          >
+            <span id="productivityIcon">⬆️</span>
+            <span
+              id="productivityText"
+              data-i18n="yield_productivity_high"
+            ></span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Insights Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <!-- Weather Impact Card -->
+        <div
+          class="bg-white rounded-2xl border border-backgroundDark p-5 shadow-sm"
+        >
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-xl">🌦️</span>
+            <h3
+              class="text-xs font-bold uppercase tracking-widest text-textMid"
+              data-i18n="yield_weather_impact_title"
+            ></h3>
+          </div>
+          <div class="space-y-2.5">
+            <div class="flex justify-between items-center text-sm">
+              <span
+                class="text-textLight"
+                data-i18n="yield_insight_temp"
+              ></span>
+              <span id="insightTemp" class="font-semibold text-textDark"
+                >--</span
+              >
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span
+                class="text-textLight"
+                data-i18n="yield_insight_humidity"
+              ></span>
+              <span id="insightHumidity" class="font-semibold text-textDark"
+                >--</span
+              >
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span
+                class="text-textLight"
+                data-i18n="yield_insight_rainfall"
+              ></span>
+              <span id="insightRainfall" class="font-semibold text-textDark"
+                >--</span
+              >
+            </div>
+            <div
+              id="weatherImpactNote"
+              class="mt-2 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-700"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Soil Health Card -->
+        <div
+          class="bg-white rounded-2xl border border-backgroundDark p-5 shadow-sm"
+        >
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-xl">🧪</span>
+            <h3
+              class="text-xs font-bold uppercase tracking-widest text-textMid"
+              data-i18n="yield_soil_health_title"
+            ></h3>
+          </div>
+          <div class="space-y-2.5">
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-textLight" data-i18n="yield_insight_n"></span>
+              <span id="insightN" class="font-semibold text-textDark">--</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-textLight" data-i18n="yield_insight_p"></span>
+              <span id="insightP" class="font-semibold text-textDark">--</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-textLight" data-i18n="yield_insight_k"></span>
+              <span id="insightK" class="font-semibold text-textDark">--</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-textLight" data-i18n="yield_insight_ph"></span>
+              <span id="insightPh" class="font-semibold text-textDark">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison Bar Card -->
+        <div
+          class="bg-white rounded-2xl border border-backgroundDark p-5 sm:p-6 shadow-sm"
+        >
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+            <h3
+              class="text-xs font-bold uppercase tracking-widest text-textMid"
+              data-i18n="yield_comparison_title"
+            ></h3>
+          </div>
+
+          <!-- Your Yield -->
+          <div class="mb-4">
+            <div
+              class="flex justify-between text-xs font-semibold text-textMid mb-1.5"
+            >
+              <span data-i18n="yield_your_yield"></span>
+              <span id="compYourValue" class="text-primary">-- Q/acre</span>
+            </div>
+            <div
+              class="w-full h-3 rounded-full bg-backgroundDark overflow-hidden"
+            >
+              <div
+                id="compYourBar"
+                class="h-full rounded-full bg-gradient-to-r from-primaryLight to-primary transition-all duration-700"
+                style="width: 0%"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Average Yield -->
+          <div>
+            <div
+              class="flex justify-between text-xs font-semibold text-textMid mb-1.5"
+            >
+              <span data-i18n="yield_avg_yield"></span>
+              <span id="compAvgValue" class="text-textLight">-- Q/acre</span>
+            </div>
+            <div
+              class="w-full h-3 rounded-full bg-backgroundDark overflow-hidden"
+            >
+              <div
+                id="compAvgBar"
+                class="h-full rounded-full bg-textLight/40 transition-all duration-700"
+                style="width: 0%"
+              ></div>
+            </div>
+          </div>
+
+          <p id="compDiffNote" class="mt-4 text-xs text-textLight italic"></p>
+        </div>
+
+        <!-- Suggestions Card -->
+        <div
+          class="bg-white rounded-2xl border border-backgroundDark p-5 sm:p-6 shadow-sm"
+        >
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+            <h3
+              class="text-xs font-bold uppercase tracking-widest text-textMid"
+              data-i18n="yield_suggestions_title"
+            ></h3>
+          </div>
+          <ul id="suggestionsList" class="space-y-3">
+            <!-- Populated by JS -->
+          </ul>
+        </div>
+      </div>
+      <!-- /result dashboard -->
+    </div>
+  </div>
+
+  {% block scripts %}
+  <script src="{{ url_for('static', filename='js/crop-yield-prediction.js') }}"></script>
+  {% endblock %} {% endblock %}
+</div>

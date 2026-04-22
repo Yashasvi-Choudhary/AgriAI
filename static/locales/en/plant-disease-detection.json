@@ -1,0 +1,41 @@
+{
+  "disease_title": "Plant Disease Detection",
+  "disease_subtitle": "Upload a plant leaf image to detect diseases using AI",
+
+  "disease_upload_section_title": "Upload Leaf Image",
+
+  "disease_drop_title": "Drag & drop your leaf image here",
+  "disease_drop_or": "or",
+  "disease_browse_btn": "Browse File",
+  "disease_formats": "Supported formats: JPG, PNG, WEBP · Max size: 10 MB",
+
+  "disease_preview_section_title": "Image Preview",
+  "disease_change_image": "Change Image",
+
+  "disease_btn_detect": "Detect Disease",
+  "disease_btn_detecting": "Detecting…",
+
+  "disease_empty_state": "Upload a plant leaf image above and click Detect Disease to see results.",
+  "disease_loading_text": "Analysing image with AI model, please wait…",
+
+  "disease_error_title": "Detection Failed",
+  "disease_error_no_result": "No result received from the server.",
+
+  "disease_alert_no_image": "Please upload a plant leaf image first.",
+  "disease_alert_format": "Please upload a valid image (JPG, PNG, WEBP).",
+  "disease_alert_size": "File size must be under 10 MB.",
+
+  "disease_result_section_title": "Detection Result",
+
+  "disease_healthy_badge": "Healthy Plant",
+
+  "disease_confidence_label": "Confidence Score",
+  "disease_confidence_high": "High Confidence",
+  "disease_confidence_medium": "Medium Confidence",
+  "disease_confidence_low": "Low Confidence",
+
+  "disease_description_title": "About this Disease",
+  "disease_treatment_title": "Suggested Treatment",
+
+  "disease_detect_again": "Detect Another Image"
+}
