@@ -65,7 +65,12 @@ def login():
         return jsonify({"success": False, "message": "invalid_credentials"})
 
     if check_password_hash(user[4], password):
-        session['user'] = user[0]   # ✅ ADD THIS
+        session.permanent = True 
+        session['user'] = {
+            'id': user[0],
+            'name': user[1],
+            'email': user[2]
+        }  
 
         return jsonify({
             "success": True,

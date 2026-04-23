@@ -4,6 +4,14 @@ from routes.auth_routes import auth_bp
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_123"
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400
+
+@app.context_processor
+def inject_user():
+    user = session.get('user')
+    return dict(current_user=user)
 
 # ✅ Register Blueprint
 app.register_blueprint(auth_bp, url_prefix='/auth')

@@ -146,13 +146,18 @@
       <div
         class="user-initials w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accentLight flex items-center justify-center text-white text-xs font-bold shrink-0"
       >
-        H
+        {{ current_user.name[0] | upper if current_user and current_user.name
+        else 'U' }}
       </div>
       <div class="flex-1 min-w-0">
-        <p class="user-name text-white text-[0.8rem] font-semibold truncate">
-          Hello Ji
+        <p class="text-white text-[0.8rem] font-semibold truncate">
+          {{ current_user.name if current_user and current_user.name else
+          'Guest' }}
         </p>
-        <p class="text-white/50 text-[0.67rem] truncate">Raipur, CG</p>
+        <p class="text-white/50 text-[0.67rem] truncate">
+          {{ current_user.email if current_user and current_user.email else ''
+          }}
+        </p>
       </div>
       <span
         class="text-white/40 text-sm hover:text-white/60 cursor-pointer transition-colors"

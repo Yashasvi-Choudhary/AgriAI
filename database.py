@@ -1,26 +1,27 @@
 import sqlite3
 
 def connect_db():
-    return sqlite3.connect("database.db")
+    conn = sqlite3.connect("database.db")
+    conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign keys
+    return conn
 
 def create_tables():
     conn = connect_db()
     cursor = conn.cursor()
 
-    # USERS
+    # ---------------- USERS ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT UNIQUE,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
         phone TEXT,
-        password TEXT,
-        reset_token TEXT,
-        created_at TEXT
+        password TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
 
-    # FARM CONDITIONS
+    # ---------------- FARM CONDITIONS ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS farm_conditions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,21 +37,24 @@ def create_tables():
         potassium REAL,
         latitude REAL,
         longitude REAL,
-        created_at TEXT
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
 
-    # CROP
+    # ---------------- CROP ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS crop_recommendations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         recommended_crop TEXT,
-        confidence REAL
+        confidence REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
 
-    # FERTILIZER
+    # ---------------- FERTILIZER ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS fertilizer_recommendations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,54 +62,76 @@ def create_tables():
         recommended_fertilizer TEXT,
         dosage TEXT,
         confidence REAL,
-        created_at TEXT
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
 
-    # YIELD
+    # ---------------- YIELD ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS yield_predictions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         crop_type TEXT,
-        predicted_yield REAL
+        predicted_yield REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
 
-    # COMMUNITY POSTS
+    # ---------------- COMMUNITY POSTS ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS community_posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
-        title TEXT,
+        title TEXT NOT NULL,
         description TEXT,
-        created_at TEXT
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
 
-    # COMMENTS
+    # ---------------- COMMENTS ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS community_comments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         post_id INTEGER,
         user_id INTEGER,
-        comment TEXT,
-        created_at TEXT
+        comment TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(post_id) REFERENCES community_posts(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
 
-    # DISEASE
+    # ---------------- DISEASE ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS disease_detections (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         plant_name TEXT,
         disease_name TEXT,
-        confidence REAL
+        image_path TEXT,
+        confidence REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
 
-    # PROFIT
+  # ---------------- GOVERNMENT SCHEMES ----------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS government_schemes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        benefit TEXT,
+        website_link TEXT,
+        state TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # ---------------- PROFIT ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS profit_analysis (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -113,12 +139,19 @@ def create_tables():
         crop_type TEXT,
         land_area REAL,
         total_expense REAL,
-        predicted_profit REAL
+        predicted_yield REAL,
+        predicted_price REAL,
+        predicted_revenue REAL,
+        predicted_profit REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
 
     conn.commit()
     conn.close()
 
-create_tables()
-print("Database Ready ✅")
+    print("  Database Ready with Improvements!")
+
+if __name__ == "__main__":
+    create_tables()

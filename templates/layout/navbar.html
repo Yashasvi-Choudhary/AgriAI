@@ -117,48 +117,59 @@
         >3</span
       >
     </div>
+    
+    <!-- Profile button -->
+    <div
+      class="flex items-center gap-2 rounded-xl px-2.5 py-[0.4rem] cursor-pointer hover:bg-white/15 transition-all bg-white/10 border border-white/15"
+      onclick="toggleDropdown()"
+    >
+      <div
+        class="user-initials w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accentLight flex items-center justify-center text-white text-[0.68rem] font-bold"
+      >
+        {{ current_user.name[0] | upper if current_user and current_user.name
+        else 'U' }}
+      </div>
+      <span class="hidden sm:inline text-[0.8rem] text-white font-medium">
+        {{ current_user.name if current_user and current_user.name else 'Guest'
+        }}
+      </span>
+      <span class="text-white/50 text-[0.62rem]">▾</span>
+    </div>
 
-    <!-- Profile -->
-    <div class="profile-wrap relative">
-      <div
-        class="flex items-center gap-2 rounded-xl px-2.5 py-[0.4rem] cursor-pointer hover:bg-white/15 transition-all bg-white/10 border border-white/15"
-        onclick="toggleDropdown()"
-      >
-        <div
-          class="user-initials w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accentLight flex items-center justify-center text-white text-[0.68rem] font-bold"
-        >
-          H
-        </div>
-        <span class="hidden sm:inline text-[0.8rem] text-white font-medium"
-          ><span class="user-name"></span
-        ></span>
-        <span class="text-white/50 text-[0.62rem]">▾</span>
+    <!-- Dropdown -->
+    <div
+      class="dropdown hidden absolute top-[calc(100%+8px)] right-0 bg-white border border-border-clr rounded-2xl p-2 w-[180px] shadow-[0_16px_48px_rgba(26,77,46,0.18)] z-[200]"
+      id="profileDropdown"
+    >
+      <div class="px-3 py-2 mb-1 border-b border-border-clr">
+        <p class="text-textDark font-semibold text-[0.82rem]">
+          {{ current_user.name if current_user and current_user.name else
+          'Guest' }}
+        </p>
+        <p class="text-textLight text-[0.68rem]">
+          {{ current_user.email if current_user and current_user.email else ''
+          }}
+        </p>
       </div>
-      <div
-        class="dropdown hidden absolute top-[calc(100%+8px)] right-0 bg-white border border-border-clr rounded-2xl p-2 w-[180px] shadow-[0_16px_48px_rgba(26,77,46,0.18)] z-[200] animate-fade-in"
-        id="profileDropdown"
+      <a
+        href="#"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-textMid text-[0.82rem] hover:bg-primary/10 hover:text-primary transition-all"
       >
-        <div class="px-3 py-2 mb-1 border-b border-border-clr">
-          <p class="user-name text-textDark font-semibold text-[0.82rem]">Hello Ji</p>
-          <p class="user-email text-textLight text-[0.68rem]">farmer@labhansh.ai</p>
-        </div>
-        <a
-          href="#"
-          class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-textMid text-[0.82rem] hover:bg-primary/10 hover:text-primary transition-all"
-          >👤 <span data-i18n="dd_profile">View Profile</span></a
-        >
-        <a
-          href="#"
-          class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-textMid text-[0.82rem] hover:bg-primary/10 hover:text-primary transition-all"
-          >⚙️ <span data-i18n="dd_settings">Settings</span></a
-        >
-        <hr class="border-t border-border-clr my-1" />
-        <a
-          href="#"
-          class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[#e05c5c] text-[0.82rem] hover:bg-red-50 transition-all"
-          >🚪 <span data-i18n="dd_logout">Logout</span></a
-        >
-      </div>
+        👤 <span data-i18n="dd_profile">View Profile</span>
+      </a>
+      <a
+        href="#"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-textMid text-[0.82rem] hover:bg-primary/10 hover:text-primary transition-all"
+      >
+        ⚙️ <span data-i18n="dd_settings">Settings</span>
+      </a>
+      <hr class="border-t border-border-clr my-1" />
+      <a
+        href="/logout"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[#e05c5c] text-[0.82rem] hover:bg-red-50 transition-all"
+      >
+        🚪 <span data-i18n="dd_logout">Logout</span>
+      </a>
     </div>
   </div>
 </header>
