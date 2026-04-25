@@ -1,0 +1,83 @@
+{
+  "fert_title": "उर्वरक मार्गदर्शिका",
+  "fert_subtitle": "अपनी फसल के लिए सही उर्वरक सुझाव प्राप्त करें",
+
+  "fert_form_section_title": "खेत की जानकारी दर्ज करें",
+  "fert_nutrient_section_title": "मिट्टी पोषक तत्व स्तर (mg/kg)",
+
+  "fert_label_crop": "फसल का प्रकार",
+  "fert_crop_placeholder": "फसल चुनें…",
+  "fert_crop_wheat": "गेहूँ",
+  "fert_crop_rice": "धान (चावल)",
+  "fert_crop_maize": "मक्का",
+  "fert_crop_cotton": "कपास",
+  "fert_crop_sugarcane": "गन्ना",
+  "fert_crop_soybean": "सोयाबीन",
+  "fert_crop_groundnut": "मूंगफली",
+  "fert_crop_tomato": "टमाटर",
+
+  "fert_label_soil": "मिट्टी का प्रकार",
+  "fert_soil_placeholder": "मिट्टी का प्रकार चुनें…",
+  "fert_soil_alluvial": "जलोढ़ मिट्टी",
+  "fert_soil_black": "काली (रेगुर) मिट्टी",
+  "fert_soil_red": "लाल मिट्टी",
+  "fert_soil_laterite": "लेटराइट मिट्टी",
+  "fert_soil_sandy": "रेतीली मिट्टी",
+  "fert_soil_clay": "चिकनी मिट्टी",
+
+  "fert_label_ph": "pH स्तर",
+  "fert_ph_placeholder": "जैसे 6.5 (0–14)",
+
+  "fert_label_temperature": "तापमान (°C) — वैकल्पिक",
+  "fert_temp_placeholder": "जैसे 28",
+
+  "fert_label_moisture": "मिट्टी की नमी (%) — वैकल्पिक",
+  "fert_moisture_placeholder": "जैसे 45",
+
+  "fert_label_nitrogen": "नाइट्रोजन (N) — mg/kg",
+  "fert_nitrogen_placeholder": "जैसे 40",
+
+  "fert_label_phosphorus": "फॉस्फोरस (P) — mg/kg",
+  "fert_phosphorus_placeholder": "जैसे 20",
+
+  "fert_label_potassium": "पोटैशियम (K) — mg/kg",
+  "fert_potassium_placeholder": "जैसे 30",
+
+  "fert_btn": "उर्वरक सुझाव प्राप्त करें",
+  "fert_btn_loading": "विश्लेषण हो रहा है…",
+
+  "fert_empty_state": "ऊपर अपने खेत की जानकारी भरें और उर्वरक सुझाव पाने के लिए बटन दबाएं।",
+  "fert_loading_text": "मिट्टी के डेटा का विश्लेषण किया जा रहा है, कृपया प्रतीक्षा करें…",
+
+  "fert_error_title": "सुझाव प्राप्त करने में विफल",
+  "fert_error_generic": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
+  "fert_alert_crop": "आगे बढ़ने से पहले कृपया फसल का प्रकार चुनें।",
+  "fert_alert_soil": "आगे बढ़ने से पहले कृपया मिट्टी का प्रकार चुनें।",
+
+  "fert_nutrient_analysis_title": "पोषक तत्व विश्लेषण",
+  "fert_n_label": "नाइट्रोजन (N)",
+  "fert_p_label": "फॉस्फोरस (P)",
+  "fert_k_label": "पोटैशियम (K)",
+  "fert_level_low": "कम",
+  "fert_level_medium": "मध्यम",
+  "fert_level_high": "उच्च",
+
+  "fert_recommendations_title": "उर्वरक सुझाव",
+  "fert_no_recommendations": "दिए गए इनपुट के लिए कोई सुझाव उपलब्ध नहीं है।",
+  "fert_rec_qty": "मात्रा",
+  "fert_rec_usage": "उपयोग",
+
+  "fert_schedule_title": "उर्वरक प्रयोग अनुसूची",
+  "fert_stage_sowing": "बुवाई अवस्था",
+  "fert_timing_sowing": "बुवाई के समय",
+  "fert_stage_growth": "वृद्धि अवस्था",
+  "fert_timing_growth": "बुवाई के 30–45 दिन बाद",
+  "fert_stage_preharvest": "पूर्व-कटाई अवस्था",
+  "fert_timing_preharvest": "अपेक्षित कटाई से 15 दिन पहले",
+
+  "fert_tips_title": "स्मार्ट सुझाव",
+  "fert_tip_1": "उर्वरक लगाने से पहले हमेशा मिट्टी परीक्षण करें।",
+  "fert_tip_2": "वाष्पीकरण की हानि को कम करने के लिए सुबह या शाम को उर्वरक लगाएं।",
+  "fert_tip_3": "पोषक तत्वों के बहाव को रोकने के लिए भारी बारिश से पहले उर्वरक न डालें।",
+  "fert_tip_4": "सर्वोत्तम परिणामों के लिए रासायनिक उर्वरकों के साथ जैविक खाद का भी उपयोग करें।"
+}

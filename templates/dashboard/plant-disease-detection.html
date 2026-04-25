@@ -1,6 +1,6 @@
 <!-- Plant Disease Detection page -->
-{% extends "base.html" %} {% block title %}Plant Disease Detection{% endblock %}
-{% block content %}
+ {% extends "base.html" %}{% block page_name %}plant-disease-detection{% endblock %}
+{% block title %}Plant Disease Detection{% endblock %} {% block content %}
 
 <div class="bg-background py-10 relative">
   <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
@@ -462,6 +462,6 @@
   </div>
 </div>
 
-{% block scripts %}
+{% block scripts %} {{ super() }}
 <script src="{{ url_for('static', filename='js/plant-disease-detection.js') }}"></script>
 {% endblock %} {% endblock %}

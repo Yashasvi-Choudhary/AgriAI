@@ -160,12 +160,17 @@ def get_user():
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT name, email FROM users WHERE id=?", (session["user"],))
+    # ✅ FIX: access the id from the session dict correctly
+    cur.execute("SELECT id, name, email FROM users WHERE id=?", (session["user"]["id"],))
     user = cur.fetchone()
     conn.close()
 
+    if not user:
+        return jsonify({"success": False}), 401
+
     return jsonify({
         "success": True,
-        "name": user[0],
-        "email": user[1]
+        "id": user[0],      # ✅ now returned so JS can use it
+        "name": user[1],
+        "email": user[2]
     })

@@ -1,21 +1,69 @@
 document.addEventListener("DOMContentLoaded", () => {
-  initLocationPopup();
-  loadSavedLocation();
+  // Don't call initLocationPopup() here anymore.
+  // It must wait for user data to know WHICH user to check.
   loadUser();
 });
 
 // ─────────────────────────────
-// LOCATION POPUP (ONLY FIRST TIME)
+// USER DATA — runs first, then triggers popup
+// ─────────────────────────────
+async function loadUser() {
+  try {
+    const res = await fetch("/auth/api/user");
+    const data = await res.json();
+
+    if (!data.success) {
+      window.location.href = "/login";
+      return;
+    }
+
+    window._currentUserId = data.id;
+
+    document
+      .querySelectorAll(".user-name")
+      .forEach((el) => (el.textContent = data.name));
+    document
+      .querySelectorAll(".user-email")
+      .forEach((el) => (el.textContent = data.email));
+
+    const initials = data.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+    document
+      .querySelectorAll(".user-initials")
+      .forEach((el) => (el.textContent = initials));
+
+    // NOW it's safe to check location — we know who the user is
+    loadSavedLocation();
+    initLocationPopup();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// ─────────────────────────────
+// HELPERS — per-user localStorage keys
+// ─────────────────────────────
+function userKey(key) {
+  const uid = window._currentUserId || "guest";
+  return `${key}_${uid}`;
+}
+
+// ─────────────────────────────
+// LOCATION POPUP (ONLY FIRST TIME, PER USER)
 // ─────────────────────────────
 function initLocationPopup() {
   const popup = document.getElementById("locationPopup");
   if (!popup) return;
 
-  const locationSet = localStorage.getItem("location_set");
+  const locationSet = localStorage.getItem(userKey("location_set"));
 
   if (locationSet === "true") {
     popup.style.display = "none";
   } else {
+    // Show popup for this user
     popup.style.display = "flex";
   }
 }
@@ -24,11 +72,13 @@ function initLocationPopup() {
 // LOAD SAVED LOCATION EVERYWHERE
 // ─────────────────────────────
 function loadSavedLocation() {
-  const city = localStorage.getItem("location_name");
+  const city = localStorage.getItem(userKey("location_name"));
   if (!city) return;
 
-  document.getElementById("wLocation")?.textContent = city;
-  document.getElementById("headerLoc")?.textContent = city;
+  const wLoc = document.getElementById("wLocation");
+  const hLoc = document.getElementById("headerLoc");
+  if (wLoc) wLoc.textContent = city;
+  if (hLoc) hLoc.textContent = city;
 }
 
 // ─────────────────────────────
@@ -70,7 +120,7 @@ function allowLocation() {
 // NOT NOW → JUST CLOSE (DON'T SAVE)
 // ─────────────────────────────
 function denyLocation() {
-  closepopup();
+  closePopup();
 }
 
 // ─────────────────────────────
@@ -91,10 +141,7 @@ async function confirmManual() {
     const data = await res.json();
 
     if (data && data.length > 0) {
-      const lat = data[0].lat;
-      const lon = data[0].lon;
-
-      saveAndClose(value, lat, lon);
+      saveAndClose(value, parseFloat(data[0].lat), parseFloat(data[0].lon));
     } else {
       saveAndClose(value, null, null);
     }
@@ -107,26 +154,27 @@ async function confirmManual() {
 // SAVE LOCATION (MAIN LOGIC)
 // ─────────────────────────────
 function saveAndClose(city, lat, lon) {
-  localStorage.setItem("location_set", "true");
-  localStorage.setItem("location_name", city);
+  localStorage.setItem(userKey("location_set"), "true");
+  localStorage.setItem(userKey("location_name"), city);
 
   if (lat !== null && lon !== null) {
-    localStorage.setItem("lat", lat);
-    localStorage.setItem("lon", lon);
+    localStorage.setItem(userKey("lat"), lat);
+    localStorage.setItem(userKey("lon"), lon);
   }
 
   loadSavedLocation();
-  closepopup();
+  closePopup();
 }
 
 // ─────────────────────────────
 // CLOSE POPUP
 // ─────────────────────────────
-function closepopup() {
+function closePopup() {
   const p = document.getElementById("locationPopup");
   if (!p) return;
 
   p.style.opacity = "0";
+  p.style.transition = "opacity 0.15s ease";
   setTimeout(() => {
     p.style.display = "none";
     p.style.opacity = "1";
@@ -134,36 +182,14 @@ function closepopup() {
 }
 
 // ─────────────────────────────
-// USER DATA (GLOBAL)
+// PUBLIC HELPERS (usable from other pages)
 // ─────────────────────────────
-async function loadUser() {
-  try {
-    const res = await fetch("/auth/api/user");
-    const data = await res.json();
-
-    if (!data.success) {
-      window.location.href = "/login";
-      return;
-    }
-
-    document
-      .querySelectorAll(".user-name")
-      .forEach((el) => (el.textContent = data.name));
-
-    document
-      .querySelectorAll(".user-email")
-      .forEach((el) => (el.textContent = data.email));
-
-    const initials = data.name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-
-    document
-      .querySelectorAll(".user-initials")
-      .forEach((el) => (el.textContent = initials));
-  } catch (err) {
-    console.error(err);
-  }
+function getSavedLat() {
+  return localStorage.getItem(userKey("lat"));
+}
+function getSavedLon() {
+  return localStorage.getItem(userKey("lon"));
+}
+function getSavedCity() {
+  return localStorage.getItem(userKey("location_name"));
 }

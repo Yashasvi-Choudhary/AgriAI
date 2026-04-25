@@ -1,4 +1,3 @@
-
 const EMOJIS = {
   rice: "🌾",
   wheat: "🌾",
@@ -55,6 +54,7 @@ function renderResult(crop) {
 async function getCropRecommendation() {
   const btn = document.getElementById("recommendBtn");
   const btnText = document.getElementById("btnText");
+  const t = window.__i18n || {};
 
   const payload = {
     soil_type: document.getElementById("soil_type").value,
@@ -71,7 +71,6 @@ async function getCropRecommendation() {
   };
 
   if (!payload.soil_type) {
-    const t = window.__i18n || {};
     alert(
       t["crop_alert_soil"] || "Please select a soil type before proceeding.",
     );
@@ -80,7 +79,6 @@ async function getCropRecommendation() {
 
   btn.disabled = true;
   btn.style.opacity = "0.7";
-  const t = window.__i18n || {};
   btnText.textContent = t["crop_btn_analyzing"] || "Analyzing…";
   showState("loadingState");
 
@@ -93,6 +91,7 @@ async function getCropRecommendation() {
       },
       body: JSON.stringify(payload),
     });
+
     if (!res.ok) throw new Error("Server error " + res.status);
 
     const data = await res.json();
@@ -101,12 +100,13 @@ async function getCropRecommendation() {
       data.recommendations ||
       data.results ||
       (Array.isArray(data) ? data : null);
+
     if (!crops || !crops.length)
       throw new Error(
         t["crop_error_no_result"] || "No recommendations received.",
       );
 
-    renderResult(crops[0]); // show only the top result
+    renderResult(crops[0]);
   } catch (err) {
     document.getElementById("errorMsg").textContent =
       err.message || "Unexpected error.";
@@ -127,98 +127,3 @@ function getCsrf() {
     .find((x) => x.trim().startsWith("csrftoken="));
   return c ? c.trim().split("=")[1] : "";
 }
-
-(function () {
-  "use strict";
-
-  /* ── Supported languages ── */
-  const SUPPORTED = ["en", "hi"];
-  const DEFAULT = "en";
-
-  /* ── Read current lang ── */
-  function getCurrentLang() {
-    const saved = localStorage.getItem("lang");
-    return SUPPORTED.includes(saved) ? saved : DEFAULT;
-  }
-
-  /* ── Fetch JSON translation file ── */
-  async function loadTranslations(lang) {
-    try {
-      const res = await fetch(`/static/locales/${lang}/crop-recommendation.json`);
-      if (!res.ok) throw new Error(`Lang file not found: ${lang}.json`);
-      return await res.json();
-    } catch (err) {
-      console.warn("[lang.js]", err.message);
-      return {};
-    }
-  }
-
-  /* ── Apply translations to DOM ── */
-  function applyTranslations(translations) {
-    /* 1. Text content via data-i18n */
-    document.querySelectorAll("[data-i18n]").forEach((el) => {
-      const key = el.getAttribute("data-i18n");
-      if (translations[key] !== undefined) {
-        /* For inputs/selects use value; for everything else use textContent */
-        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-          el.value = translations[key];
-        } else if (el.tagName === "OPTION") {
-          el.textContent = translations[key];
-        } else {
-          el.textContent = translations[key];
-        }
-      }
-    });
-
-    /* 2. Placeholder attribute via data-i18n-placeholder */
-    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
-      const key = el.getAttribute("data-i18n-placeholder");
-      if (translations[key] !== undefined) {
-        el.setAttribute("placeholder", translations[key]);
-      }
-    });
-
-    /* 3. Page <title> */
-    const titleEl = document.querySelector("title[data-i18n]");
-    if (titleEl) {
-      const key = titleEl.getAttribute("data-i18n");
-      if (translations[key]) document.title = translations[key];
-    }
-
-    /* 4. html[lang] attribute */
-    document.documentElement.lang = getCurrentLang();
-
-    /* 5. Expose translations for inline JS usage */
-    window.__i18n = translations;
-  }
-
-  /* ── Main init ── */
-  async function init() {
-    const lang = getCurrentLang();
-    const translations = await loadTranslations(lang);
-    applyTranslations(translations);
-  }
-
-  /* ── Public API: called from navbar language switcher ── */
-  window.setLang = async function (lang) {
-    if (!SUPPORTED.includes(lang)) {
-      console.warn("[lang.js] Unsupported language:", lang);
-      return;
-    }
-    localStorage.setItem("lang", lang);
-    const translations = await loadTranslations(lang);
-    applyTranslations(translations);
-
-    /* Dispatch event so other scripts can react */
-    document.dispatchEvent(
-      new CustomEvent("langChanged", { detail: { lang } }),
-    );
-  };
-
-  /* ── Run on DOMContentLoaded ── */
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();

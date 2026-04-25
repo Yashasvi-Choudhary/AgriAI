@@ -23,8 +23,8 @@ function getProductivity(predicted, avg) {
 
 /* ── Show/hide UI panels ── */
 function showState(id) {
-  ["emptyState", "loadingState", "resultDashboard", "errorState"].forEach(
-    (s) => document.getElementById(s).classList.add("hidden")
+  ["emptyState", "loadingState", "resultDashboard", "errorState"].forEach((s) =>
+    document.getElementById(s).classList.add("hidden"),
   );
   document.getElementById(id).classList.remove("hidden");
 }
@@ -33,8 +33,14 @@ function showState(id) {
 function renderResult(data) {
   const t = window.__i18n || {};
 
-  const yieldVal = parseFloat(data.predicted_yield || data.yield || 0).toFixed(2);
-  const cropType = (data.crop_type || document.getElementById("crop_type").value || "").toLowerCase();
+  const yieldVal = parseFloat(data.predicted_yield || data.yield || 0).toFixed(
+    2,
+  );
+  const cropType = (
+    data.crop_type ||
+    document.getElementById("crop_type").value ||
+    ""
+  ).toLowerCase();
   const avg = AVG_YIELD[cropType] || 15;
   const productivity = getProductivity(parseFloat(yieldVal), avg);
 
@@ -43,7 +49,9 @@ function renderResult(data) {
   document.getElementById("resultCropName").textContent =
     (t["yield_result_for"] || "Predicted for") +
     " " +
-    (document.getElementById("crop_type").options[document.getElementById("crop_type").selectedIndex]?.text || cropType);
+    (document.getElementById("crop_type").options[
+      document.getElementById("crop_type").selectedIndex
+    ]?.text || cropType);
 
   /* Productivity badge */
   const badge = document.getElementById("productivityBadge");
@@ -56,7 +64,8 @@ function renderResult(data) {
   badge.className =
     "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider " +
     colorMap[productivity];
-  document.getElementById("productivityIcon").textContent = iconMap[productivity];
+  document.getElementById("productivityIcon").textContent =
+    iconMap[productivity];
   document.getElementById("productivityText").textContent =
     t[`yield_productivity_${productivity}`] || productivity.toUpperCase();
 
@@ -64,18 +73,28 @@ function renderResult(data) {
   const temp = document.getElementById("weather_temp").value || "--";
   const humidity = document.getElementById("weather_humidity").value || "--";
   const rainfall = document.getElementById("weather_rainfall").value || "--";
-  document.getElementById("insightTemp").textContent = temp !== "--" ? temp + " °C" : "--";
-  document.getElementById("insightHumidity").textContent = humidity !== "--" ? humidity + " %" : "--";
-  document.getElementById("insightRainfall").textContent = rainfall !== "--" ? rainfall + " mm" : "--";
+  document.getElementById("insightTemp").textContent =
+    temp !== "--" ? temp + " °C" : "--";
+  document.getElementById("insightHumidity").textContent =
+    humidity !== "--" ? humidity + " %" : "--";
+  document.getElementById("insightRainfall").textContent =
+    rainfall !== "--" ? rainfall + " mm" : "--";
 
-  const weatherNote = data.weather_impact || t["yield_weather_impact_note"] || "Weather conditions look suitable for this crop.";
+  const weatherNote =
+    data.weather_impact ||
+    t["yield_weather_impact_note"] ||
+    "Weather conditions look suitable for this crop.";
   document.getElementById("weatherImpactNote").textContent = weatherNote;
 
   /* Soil insights */
-  document.getElementById("insightN").textContent = document.getElementById("nitrogen").value || "--";
-  document.getElementById("insightP").textContent = document.getElementById("phosphorus").value || "--";
-  document.getElementById("insightK").textContent = document.getElementById("potassium").value || "--";
-  document.getElementById("insightPh").textContent = document.getElementById("ph_level").value || "--";
+  document.getElementById("insightN").textContent =
+    document.getElementById("nitrogen").value || "--";
+  document.getElementById("insightP").textContent =
+    document.getElementById("phosphorus").value || "--";
+  document.getElementById("insightK").textContent =
+    document.getElementById("potassium").value || "--";
+  document.getElementById("insightPh").textContent =
+    document.getElementById("ph_level").value || "--";
 
   /* Comparison bars */
   const maxVal = Math.max(parseFloat(yieldVal), avg) * 1.2;
@@ -93,13 +112,14 @@ function renderResult(data) {
 
   const diff = (parseFloat(yieldVal) - avg).toFixed(2);
   const diffSign = diff >= 0 ? "+" : "";
-  document.getElementById("compDiffNote").textContent =
-    t["yield_comp_note"]
-      ? t["yield_comp_note"].replace("{diff}", diffSign + diff)
-      : `Your predicted yield is ${diffSign}${diff} ${unit} compared to the regional average.`;
+  document.getElementById("compDiffNote").textContent = t["yield_comp_note"]
+    ? t["yield_comp_note"].replace("{diff}", diffSign + diff)
+    : `Your predicted yield is ${diffSign}${diff} ${unit} compared to the regional average.`;
 
   /* Suggestions */
-  const suggestions = data.suggestions || buildDefaultSuggestions(cropType, parseFloat(yieldVal), avg, t);
+  const suggestions =
+    data.suggestions ||
+    buildDefaultSuggestions(cropType, parseFloat(yieldVal), avg, t);
   const list = document.getElementById("suggestionsList");
   list.innerHTML = "";
   suggestions.forEach((s) => {
@@ -122,18 +142,36 @@ function buildDefaultSuggestions(crop, predicted, avg, t) {
   const ph = parseFloat(document.getElementById("ph_level").value);
 
   if (!isNaN(n) && n < 40)
-    suggestions.push(t["yield_suggest_n"] || "Increase Nitrogen (N) levels — low nitrogen can reduce yield by 10–15%.");
+    suggestions.push(
+      t["yield_suggest_n"] ||
+        "Increase Nitrogen (N) levels — low nitrogen can reduce yield by 10–15%.",
+    );
   if (!isNaN(p) && p < 20)
-    suggestions.push(t["yield_suggest_p"] || "Apply phosphorus fertiliser to boost root development and grain filling.");
+    suggestions.push(
+      t["yield_suggest_p"] ||
+        "Apply phosphorus fertiliser to boost root development and grain filling.",
+    );
   if (!isNaN(k) && k < 30)
-    suggestions.push(t["yield_suggest_k"] || "Potassium is below optimal range — consider muriate of potash application.");
+    suggestions.push(
+      t["yield_suggest_k"] ||
+        "Potassium is below optimal range — consider muriate of potash application.",
+    );
   if (!isNaN(ph) && (ph < 5.5 || ph > 7.5))
-    suggestions.push(t["yield_suggest_ph"] || "Soil pH is outside ideal range (5.5–7.5). Consider liming or sulphur treatment.");
+    suggestions.push(
+      t["yield_suggest_ph"] ||
+        "Soil pH is outside ideal range (5.5–7.5). Consider liming or sulphur treatment.",
+    );
   if (predicted < avg)
-    suggestions.push(t["yield_suggest_below_avg"] || "Your yield is below average — review irrigation schedule and fertiliser timing.");
+    suggestions.push(
+      t["yield_suggest_below_avg"] ||
+        "Your yield is below average — review irrigation schedule and fertiliser timing.",
+    );
 
   if (suggestions.length === 0)
-    suggestions.push(t["yield_suggest_good"] || "Soil and weather conditions look good. Maintain current farming practices.");
+    suggestions.push(
+      t["yield_suggest_good"] ||
+        "Soil and weather conditions look good. Maintain current farming practices.",
+    );
 
   return suggestions;
 }
@@ -161,7 +199,9 @@ async function getCropYieldPrediction() {
   };
 
   if (!payload.crop_type) {
-    alert(t["yield_alert_crop"] || "Please select a crop type before proceeding.");
+    alert(
+      t["yield_alert_crop"] || "Please select a crop type before proceeding.",
+    );
     return;
   }
   if (!payload.land_area) {
@@ -188,11 +228,14 @@ async function getCropYieldPrediction() {
 
     const data = await res.json();
     if (data.predicted_yield === undefined && data.yield === undefined)
-      throw new Error(t["yield_error_no_result"] || "No yield prediction received.");
+      throw new Error(
+        t["yield_error_no_result"] || "No yield prediction received.",
+      );
 
     renderResult(data);
   } catch (err) {
-    document.getElementById("errorMsg").textContent = err.message || "Unexpected error.";
+    document.getElementById("errorMsg").textContent =
+      err.message || "Unexpected error.";
     showState("errorState");
   } finally {
     btn.disabled = false;
@@ -225,7 +268,7 @@ function detectLocation() {
       /* Reverse geocode using nominatim */
       try {
         const r = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
         );
         const d = await r.json();
         const city =
@@ -246,7 +289,7 @@ function detectLocation() {
       const t = window.__i18n || {};
       document.getElementById("locationText").textContent =
         t["yield_location_unavailable"] || "Location unavailable";
-    }
+    },
   );
 }
 
@@ -257,9 +300,12 @@ async function fetchWeather(lat, lon) {
     const r = await fetch(url);
     const d = await r.json();
     const cur = d.current || {};
-    const temp = cur.temperature_2m !== undefined ? cur.temperature_2m.toFixed(1) : "--";
-    const hum = cur.relative_humidity_2m !== undefined ? cur.relative_humidity_2m : "--";
-    const rain = cur.precipitation !== undefined ? cur.precipitation.toFixed(1) : "--";
+    const temp =
+      cur.temperature_2m !== undefined ? cur.temperature_2m.toFixed(1) : "--";
+    const hum =
+      cur.relative_humidity_2m !== undefined ? cur.relative_humidity_2m : "--";
+    const rain =
+      cur.precipitation !== undefined ? cur.precipitation.toFixed(1) : "--";
 
     document.getElementById("weather_temp").value = temp;
     document.getElementById("weather_humidity").value = hum;
@@ -285,81 +331,3 @@ async function fetchWeather(lat, lon) {
       </div>`;
   }
 }
-
-/* ══════════════════════════════════════════
-   i18n module  (same pattern as crop-recommendation.js)
-   ══════════════════════════════════════════ */
-(function () {
-  "use strict";
-
-  const SUPPORTED = ["en", "hi"];
-  const DEFAULT = "en";
-
-  function getCurrentLang() {
-    const saved = localStorage.getItem("lang");
-    return SUPPORTED.includes(saved) ? saved : DEFAULT;
-  }
-
-  async function loadTranslations(lang) {
-    try {
-      const res = await fetch(`/static/locales/${lang}/crop-yield-prediction.json`);
-      if (!res.ok) throw new Error(`Lang file not found: ${lang}`);
-      return await res.json();
-    } catch (err) {
-      console.warn("[i18n]", err.message);
-      return {};
-    }
-  }
-
-  function applyTranslations(translations) {
-    document.querySelectorAll("[data-i18n]").forEach((el) => {
-      const key = el.getAttribute("data-i18n");
-      if (translations[key] !== undefined) {
-        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-          el.value = translations[key];
-        } else if (el.tagName === "OPTION") {
-          el.textContent = translations[key];
-        } else {
-          el.textContent = translations[key];
-        }
-      }
-    });
-
-    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
-      const key = el.getAttribute("data-i18n-placeholder");
-      if (translations[key] !== undefined)
-        el.setAttribute("placeholder", translations[key]);
-    });
-
-    const titleEl = document.querySelector("title[data-i18n]");
-    if (titleEl) {
-      const key = titleEl.getAttribute("data-i18n");
-      if (translations[key]) document.title = translations[key];
-    }
-
-    document.documentElement.lang = getCurrentLang();
-    window.__i18n = translations;
-  }
-
-  async function init() {
-    const lang = getCurrentLang();
-    const translations = await loadTranslations(lang);
-    applyTranslations(translations);
-    /* Start location + weather detection after translations are ready */
-    detectLocation();
-  }
-
-  window.setLang = async function (lang) {
-    if (!SUPPORTED.includes(lang)) return;
-    localStorage.setItem("lang", lang);
-    const translations = await loadTranslations(lang);
-    applyTranslations(translations);
-    document.dispatchEvent(new CustomEvent("langChanged", { detail: { lang } }));
-  };
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();

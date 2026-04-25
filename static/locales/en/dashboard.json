@@ -8,20 +8,7 @@
 
   "tagline": "Smart Agriculture",
 
-  "nav_main": "Main",
-  "nav_dashboard": "Dashboard",
-  "nav_crop": "Crop Recommendation",
-  "nav_yield": "Yield Prediction",
-  "nav_disease": "Disease Detection",
-  "nav_tools": "Tools",
-  "nav_fert": "Fertilizer Guide",
-  "nav_profit": "Profit Analyzer",
-  "nav_market": "Market Price",
-  "nav_community": "Community",
-  "nav_community_link": "Farmer Community",
-  "nav_schemes": "Govt. Schemes",
-  "nav_ai": "AI Assistant",
-  "nav_about": "About",
+
 
   "greeting": "Good morning,",
   "dd_profile": "View Profile",

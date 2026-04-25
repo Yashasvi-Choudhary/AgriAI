@@ -1,0 +1,16 @@
+{
+  "nav_main": "मुख्य",
+  "nav_dashboard": "डैशबोर्ड",
+  "nav_crop": "फसल सुझाव",
+  "nav_yield": "उपज अनुमान",
+  "nav_disease": "रोग पहचान",
+  "nav_tools": "उपकरण",
+  "nav_fert": "उर्वरक गाइड",
+  "nav_profit": "लाभ विश्लेषण",
+  "nav_market": "बाज़ार भाव",
+  "nav_community": "समुदाय",
+  "nav_community_link": "किसान समुदाय",
+  "nav_schemes": "सरकारी योजनाएं",
+  "nav_ai": "AI सहायक",
+  "nav_about": "हमारे बारे में"
+}

@@ -1,0 +1,83 @@
+{
+  "fert_title": "Fertilizer Guide",
+  "fert_subtitle": "Get the right fertilizer recommendation for your crop",
+
+  "fert_form_section_title": "Enter Farm Details",
+  "fert_nutrient_section_title": "Soil Nutrient Levels (mg/kg)",
+
+  "fert_label_crop": "Crop Type",
+  "fert_crop_placeholder": "Select a crop…",
+  "fert_crop_wheat": "Wheat",
+  "fert_crop_rice": "Rice",
+  "fert_crop_maize": "Maize (Corn)",
+  "fert_crop_cotton": "Cotton",
+  "fert_crop_sugarcane": "Sugarcane",
+  "fert_crop_soybean": "Soybean",
+  "fert_crop_groundnut": "Groundnut",
+  "fert_crop_tomato": "Tomato",
+
+  "fert_label_soil": "Soil Type",
+  "fert_soil_placeholder": "Select soil type…",
+  "fert_soil_alluvial": "Alluvial Soil",
+  "fert_soil_black": "Black (Regur) Soil",
+  "fert_soil_red": "Red Soil",
+  "fert_soil_laterite": "Laterite Soil",
+  "fert_soil_sandy": "Sandy Soil",
+  "fert_soil_clay": "Clay Soil",
+
+  "fert_label_ph": "pH Level",
+  "fert_ph_placeholder": "e.g. 6.5 (0–14)",
+
+  "fert_label_temperature": "Temperature (°C) — Optional",
+  "fert_temp_placeholder": "e.g. 28",
+
+  "fert_label_moisture": "Soil Moisture (%) — Optional",
+  "fert_moisture_placeholder": "e.g. 45",
+
+  "fert_label_nitrogen": "Nitrogen (N) — mg/kg",
+  "fert_nitrogen_placeholder": "e.g. 40",
+
+  "fert_label_phosphorus": "Phosphorus (P) — mg/kg",
+  "fert_phosphorus_placeholder": "e.g. 20",
+
+  "fert_label_potassium": "Potassium (K) — mg/kg",
+  "fert_potassium_placeholder": "e.g. 30",
+
+  "fert_btn": "Get Fertilizer Recommendation",
+  "fert_btn_loading": "Analysing…",
+
+  "fert_empty_state": "Fill in your farm details above and click the button to get fertilizer recommendations.",
+  "fert_loading_text": "Analysing soil data, please wait…",
+
+  "fert_error_title": "Recommendation Failed",
+  "fert_error_generic": "Something went wrong. Please try again.",
+  "fert_alert_crop": "Please select a crop type before proceeding.",
+  "fert_alert_soil": "Please select a soil type before proceeding.",
+
+  "fert_nutrient_analysis_title": "Nutrient Analysis",
+  "fert_n_label": "Nitrogen (N)",
+  "fert_p_label": "Phosphorus (P)",
+  "fert_k_label": "Potassium (K)",
+  "fert_level_low": "Low",
+  "fert_level_medium": "Medium",
+  "fert_level_high": "High",
+
+  "fert_recommendations_title": "Fertilizer Recommendations",
+  "fert_no_recommendations": "No recommendations available for the given inputs.",
+  "fert_rec_qty": "Quantity",
+  "fert_rec_usage": "Usage",
+
+  "fert_schedule_title": "Application Schedule",
+  "fert_stage_sowing": "Sowing Stage",
+  "fert_timing_sowing": "At the time of sowing",
+  "fert_stage_growth": "Growth Stage",
+  "fert_timing_growth": "30–45 days after sowing",
+  "fert_stage_preharvest": "Pre-Harvest Stage",
+  "fert_timing_preharvest": "15 days before expected harvest",
+
+  "fert_tips_title": "Smart Tips",
+  "fert_tip_1": "Always conduct a soil test before applying fertilizers.",
+  "fert_tip_2": "Apply fertilizers in the early morning or evening to reduce evaporation loss.",
+  "fert_tip_3": "Avoid applying fertilizers before heavy rain to prevent nutrient runoff.",
+  "fert_tip_4": "Use organic compost alongside chemical fertilizers for best results."
+}
