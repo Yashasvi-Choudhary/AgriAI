@@ -2,7 +2,7 @@
   "popup_title": "Enable Location Access",
   "popup_desc": "Allow Labhansh.ai to access your location for personalised weather updates, crop recommendations, and local market prices.",
   "popup_allow": "📍 Allow",
-  "popup_deny": "Not Now",
+  "popup_manual": "Enter Manually",
   "manual_placeholder": "Enter your village / district...",
   "manual_confirm": "Confirm Location",
 

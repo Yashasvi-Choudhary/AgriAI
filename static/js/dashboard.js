@@ -1,7 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // Don't call initLocationPopup() here anymore.
-  // It must wait for user data to know WHICH user to check.
-  loadUser();
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadUser(); // wait until user + location ready
+  loadHeaderWeather();
+  loadDashboardWeather(); // then load weather
 });
 
 // ─────────────────────────────
@@ -38,6 +38,7 @@ async function loadUser() {
     // NOW it's safe to check location — we know who the user is
     loadSavedLocation();
     initLocationPopup();
+    return true;
   } catch (err) {
     console.error(err);
   }
@@ -117,17 +118,14 @@ function allowLocation() {
 }
 
 // ─────────────────────────────
-// NOT NOW → JUST CLOSE (DON'T SAVE)
-// ─────────────────────────────
-function denyLocation() {
-  closePopup();
-}
-
-// ─────────────────────────────
 // MANUAL INPUT
 // ─────────────────────────────
 function showManual() {
-  document.getElementById("manualLoc")?.classList.remove("hidden");
+  const el = document.getElementById("manualLoc");
+  if (el) {
+    el.classList.remove("hidden");
+    el.style.display = "block";
+  }
 }
 
 async function confirmManual() {
@@ -153,16 +151,46 @@ async function confirmManual() {
 // ─────────────────────────────
 // SAVE LOCATION (MAIN LOGIC)
 // ─────────────────────────────
-function saveAndClose(city, lat, lon) {
+async function saveAndClose(city, lat, lon) {
+  console.log("Saving location:", city, lat, lon);
+
   localStorage.setItem(userKey("location_set"), "true");
   localStorage.setItem(userKey("location_name"), city);
 
   if (lat !== null && lon !== null) {
     localStorage.setItem(userKey("lat"), lat);
     localStorage.setItem(userKey("lon"), lon);
+
+    try {
+      const res = await fetch("/api/save-location", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ lat, lon, city }),
+      });
+
+      const data = await res.json();
+      console.log("Backend response:", data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
   }
 
   loadSavedLocation();
+
+  // 🔥 IMPORTANT: clear old cache
+  window.globalWeatherData = null;
+
+  // 🔥 reload weather everywhere
+  if (typeof loadHeaderWeather === "function") {
+    loadHeaderWeather();
+  }
+
+  if (typeof loadDashboardWeather === "function") {
+    loadDashboardWeather();
+  }
+
   closePopup();
 }
 
@@ -192,4 +220,34 @@ function getSavedLon() {
 }
 function getSavedCity() {
   return localStorage.getItem(userKey("location_name"));
+}
+
+//weather on dashboard
+
+async function loadDashboardWeather() {
+  const data = await fetchWeatherData();
+  if (!data) return;
+
+  // 🌡 Temperature
+  const tempEl = document.getElementById("wTemp");
+  if (tempEl) tempEl.textContent = data.temperature + "°C";
+
+  // 📍 Location
+  const locEl = document.getElementById("wLocation");
+  if (locEl) locEl.textContent = getSavedCity() || "Your Location";
+
+  // 💧 Humidity
+  const humEl = document.getElementById("wHumidity");
+  if (humEl) humEl.textContent = data.humidity + "%";
+
+  // 🌬 Wind
+  const windEl = document.getElementById("wWind");
+  if (windEl) windEl.textContent = data.windspeed + " km/h";
+
+  // 🌧 Rain
+  const rainEl = document.getElementById("wRain");
+  if (rainEl) rainEl.textContent = data.rainfall + "%";
+
+  const descEl = document.getElementById("wDesc");
+  if (descEl) descEl.textContent = data.description || "Clear";
 }

@@ -50,26 +50,26 @@
         class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem] font-semibold bg-white/10"
       >
         <span>⛅</span>
-        <span class="text-white" id="headerTemp">28°C</span>
-        <span class="text-white/50 text-[0.7rem]">Cloudy</span>
+        <span class="text-white" id="headerTemp">--</span>
+        <span class="text-white/50 text-[0.7rem]"  id="headerCondition" >--</span>
       </div>
       <!-- Humidity chip -->
       <div
         class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem] bg-white/10"
       >
-        <span>💧</span><span class="text-white/80">74%</span>
+        <span>💧</span><span class="text-white/80" id="headerHumidity">--</span>
       </div>
       <!-- Wind chip -->
       <div
         class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem] bg-white/10"
       >
-        <span>🌬️</span><span class="text-white/80">12 km/h</span>
+        <span>🌬️</span><span class="text-white/80" id="headerWind">--</span>
       </div>
       <!-- Rain chip -->
       <div
         class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem] bg-white/10"
       >
-        <span>🌧️</span><span class="text-white/80">68%</span>
+        <span>🌧️</span><span class="text-white/80"  id="headerRain">--</span>
       </div>
       <!-- Location chip -->
       <div
@@ -77,7 +77,7 @@
       >
         <span>📍</span
         ><span class="text-accentLight font-semibold" id="headerLoc"
-          >Raipur</span
+          >--</span
         >
       </div>
     </div>
@@ -85,7 +85,7 @@
     <div
       class="md:hidden flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm bg-white/10"
     >
-      <span>⛅</span><span class="text-white font-semibold">28°C · Raipur</span>
+      <span>⛅</span><span class="text-white font-semibold"  id="mobileWeather">28°C · Raipur</span>
     </div>
   </div>
 
@@ -107,35 +107,26 @@
         हि
       </button>
     </div>
-    <!-- Notification -->
-    <div
-      class="relative w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer hover:bg-white/15 transition-all bg-white/10"
-    >
-      <span class="text-[1rem]">🔔</span>
-      <span
-        class="absolute -top-1 -right-1 w-[17px] h-[17px] bg-accent rounded-full border-2 flex items-center justify-center text-white text-[0.5rem] font-bold border-primary"
-        >3</span
-      >
-    </div>
-    
-    <!-- Profile button -->
-    <div
-      class="flex items-center gap-2 rounded-xl px-2.5 py-[0.4rem] cursor-pointer hover:bg-white/15 transition-all bg-white/10 border border-white/15"
-      onclick="toggleDropdown()"
-    >
-      <div
-        class="user-initials w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accentLight flex items-center justify-center text-white text-[0.68rem] font-bold"
-      >
-        {{ current_user.name[0] | upper if current_user and current_user.name
-        else 'U' }}
-      </div>
-      <span class="hidden sm:inline text-[0.8rem] text-white font-medium">
-        {{ current_user.name if current_user and current_user.name else 'Guest'
-        }}
-      </span>
-      <span class="text-white/50 text-[0.62rem]">▾</span>
-    </div>
 
+    <!-- Profile button -->
+    <div class="profile-wrap relative">
+      <div
+        class="flex items-center gap-2 rounded-xl px-2.5 py-[0.4rem] cursor-pointer hover:bg-white/15 transition-all bg-white/10 border border-white/15"
+        onclick="toggleDropdown()"
+      >
+        <div
+          class="user-initials w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accentLight flex items-center justify-center text-white text-[0.68rem] font-bold"
+        >
+          {{ current_user.name[0] | upper if current_user and current_user.name
+          else 'U' }}
+        </div>
+        <span class="hidden sm:inline text-[0.8rem] text-white font-medium">
+          {{ current_user.name if current_user and current_user.name else
+          'Guest' }}
+        </span>
+        <span class="text-white/50 text-[0.62rem]">▾</span>
+      </div>
+    </div>
     <!-- Dropdown -->
     <div
       class="dropdown hidden absolute top-[calc(100%+8px)] right-0 bg-white border border-border-clr rounded-2xl p-2 w-[180px] shadow-[0_16px_48px_rgba(26,77,46,0.18)] z-[200]"
@@ -152,7 +143,7 @@
         </p>
       </div>
       <a
-        href="#"
+        href="{{ url_for('profile') }}"
         class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-textMid text-[0.82rem] hover:bg-primary/10 hover:text-primary transition-all"
       >
         👤 <span data-i18n="dd_profile">View Profile</span>

@@ -36,12 +36,13 @@ content %}
         📍 Allow
       </button>
       <button
-        class="flex-1 py-3.5 px-4 bg-transparent text-textMid border-[1.5px] border-backgroundDark rounded-xl font-medium hover:bg-primary/10 hover:bg-primary transition-all"
-        onclick="denyLocation()"
-        data-i18n="popup_deny"
+        class="flex-1 py-3.5 px-4 bg-transparent text-textMid border-[1.5px] border-primary rounded-xl font-medium hover:bg-primary/10 hover:bg-primary transition-all"
+        onclick="showManual()"
+        data-i18n="popup_manual"
       >
-        Not Now
+        Enter manually
       </button>
+      
     </div>
     <div class="mt-4 hidden" id="manualLoc">
       <input
@@ -121,7 +122,7 @@ content %}
       >
         <div>
           <div class="flex items-center gap-2 text-white/60 text-sm mb-2">
-            <span>📍</span><span id="wLocation">Raipur, Chhattisgarh</span>
+            <span>📍</span><span id="wLocation">--</span>
           </div>
           <div class="flex items-end gap-3">
             <div
@@ -133,7 +134,7 @@ content %}
             </div>
             <div class="pb-1">
               <div class="text-white/80 font-medium text-sm" data-i18n="w_desc">
-                Partly Cloudy
+               --
               </div>
               <div class="text-white/45 text-xs">Feels like 31°C</div>
             </div>
@@ -149,21 +150,21 @@ content %}
       <div class="grid grid-cols-3 gap-2 rounded-2xl p-3 bg-white/10">
         <div class="text-center py-1">
           <div class="text-xl mb-0.5">💧</div>
-          <div class="font-semibold text-sm">74%</div>
+          <div class="font-semibold text-sm" id="wHumidity">--%</div>
           <div class="text-white/50 text-[0.65rem]" data-i18n="w_humidity">
             Humidity
           </div>
         </div>
         <div class="text-center py-1 border-x border-white/15">
           <div class="text-xl mb-0.5">🌬️</div>
-          <div class="font-semibold text-sm">12 km/h</div>
+          <div class="font-semibold text-sm" id="wWind">-- km/h</div>
           <div class="text-white/50 text-[0.65rem]" data-i18n="w_wind">
             Wind
           </div>
         </div>
         <div class="text-center py-1">
           <div class="text-xl mb-0.5">🌧️</div>
-          <div class="font-semibold text-sm">68%</div>
+          <div class="font-semibold text-sm" id="wRain">--%</div>
           <div class="text-white/50 text-[0.65rem]" data-i18n="w_rain_chance">
             Rain Chance
           </div>

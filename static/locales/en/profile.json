@@ -1,0 +1,58 @@
+{
+  "profile_title": "Profile Settings",
+  "profile_subtitle": "Manage your personal information and account details",
+  "profile_section_info": "Personal Information",
+  "profile_section_security": "Account Security",
+  "profile_member_since": "Member since",
+
+  "profile_label_name": "Full Name",
+  "profile_label_email": "Email Address",
+  "profile_label_phone": "Phone",
+  "profile_label_location": "Location",
+  "profile_optional": "(optional)",
+
+  "profile_placeholder_name": "Your full name",
+  "profile_placeholder_email": "you@example.com",
+  "profile_placeholder_phone": "+91 98765 43210",
+  "profile_placeholder_location": "City, State",
+
+  "profile_btn_update": "Update Profile",
+  "profile_btn_saving": "Saving…",
+  "profile_btn_reset": "Reset",
+
+  "profile_active": "Active Account",
+
+  "profile_error_name_required": "Full name is required.",
+  "profile_error_email_required": "Email address is required.",
+  "profile_error_email_invalid": "Please enter a valid email address.",
+  "profile_error_save_failed": "Failed to save profile. Please try again.",
+  "profile_success_saved": "Profile saved successfully.",
+
+  "password_label_current": "Current Password",
+  "password_label_new": "New Password",
+  "password_label_confirm": "Confirm New Password",
+
+  "password_placeholder_current": "Enter your current password",
+  "password_placeholder_new": "Minimum 6 characters",
+  "password_placeholder_confirm": "Repeat your new password",
+
+  "password_btn_update": "Update Password",
+  "password_btn_updating": "Updating…",
+  "password_btn_cancel": "Cancel",
+
+  "password_strength_weak": "Weak",
+  "password_strength_fair": "Fair",
+  "password_strength_good": "Good",
+  "password_strength_strong": "Strong",
+
+  "password_match": "Passwords match ✓",
+  "password_no_match": "Passwords do not match",
+
+  "password_error_current_required": "Please enter your current password.",
+  "password_error_too_short": "Password must be at least 6 characters.",
+  "password_error_no_match": "New passwords do not match.",
+  "password_error_same_as_old": "New password must be different from current.",
+  "password_error_wrong_current": "Current password is incorrect.",
+  "password_error_failed": "Failed to update password. Please try again.",
+  "password_success": "Password updated successfully."
+}

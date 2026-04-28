@@ -2,6 +2,7 @@
    global.js — clean version, no opacity tricks needed
    The flash is eliminated by matching html background color.
    ============================================================ */
+const DEV_MODE = true;
 
 let currentLang = window.__lang || localStorage.getItem("lang") || "en";
 
@@ -67,11 +68,17 @@ function closeSidebar() {
 // PROFILE DROPDOWN
 // ─────────────────────────────────────────────────────────────
 function toggleDropdown() {
-  document.getElementById("profileDropdown")?.classList.toggle("show");
+  const dropdown = document.getElementById("profileDropdown");
+  dropdown.classList.toggle("hidden");
 }
+
+/* Close when clicking outside */
 document.addEventListener("click", function (e) {
-  if (!e.target.closest(".profile-wrap")) {
-    document.getElementById("profileDropdown")?.classList.remove("show");
+  const wrap = document.querySelector(".profile-wrap");
+  const dropdown = document.getElementById("profileDropdown");
+
+  if (!wrap.contains(e.target)) {
+    dropdown.classList.add("hidden");
   }
 });
 
@@ -89,8 +96,98 @@ function setActive(el) {
 // ─────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────
+function waitForUserAndLoadWeather() {
+  let tries = 0;
+
+  const interval = setInterval(() => {
+    const userId = window._currentUserId;
+
+    if (userId) {
+      console.log("User ready:", userId);
+      clearInterval(interval);
+      loadHeaderWeather();
+    }
+
+    tries++;
+    if (tries > 10) {
+      clearInterval(interval);
+      console.warn("User not found, weather not loaded");
+    }
+  }, 200);
+}
+
+window.globalWeatherData = null;
+
+async function fetchWeatherData() {
+
+// remove this when API is ready, for testing without hitting rate limits
+
+  if (DEV_MODE) {
+    console.log("⚠️ Dev mode: skipping API call");
+    return {
+      temperature: 28,
+      windspeed: 10,
+      humidity: 70,
+      rainfall: 50,
+      description: "Clear",
+    };
+  }
+  if (window.globalWeatherData) return window.globalWeatherData; // cache
+
+  const userId = window._currentUserId;
+  const lat = localStorage.getItem(`lat_${userId}`);
+  const lon = localStorage.getItem(`lon_${userId}`);
+
+  if (!lat || !lon) return null;
+
+  try {
+    const res = await fetch("/api/weather", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ lat, lon }),
+    });
+
+    const data = await res.json();
+
+    window.globalWeatherData = data; // cache it
+    return data;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
+async function loadHeaderWeather() {
+  const data = await fetchWeatherData();
+  if (!data) return;
+
+  const userId = window._currentUserId;
+  const city = localStorage.getItem(`location_name_${userId}`);
+
+  const tempEl = document.getElementById("headerTemp");
+  const windEl = document.getElementById("headerWind");
+  const locEl = document.getElementById("headerLoc");
+  const humidityEl = document.getElementById("headerHumidity");
+  const rainEl = document.getElementById("headerRain");
+  const condEl = document.getElementById("headerCondition");
+  const mobileEl = document.getElementById("mobileWeather");
+
+  if (tempEl) tempEl.textContent = data.temperature + "°C";
+  if (windEl) windEl.textContent = data.windspeed + " km/h";
+  if (locEl) locEl.textContent = city || "Your Location";
+
+  if (humidityEl) humidityEl.textContent = data.humidity + "%";
+  if (rainEl) rainEl.textContent = data.rainfall + "%";
+  if (condEl) condEl.textContent = data.description || "Clear";
+  if (mobileEl) {
+    mobileEl.textContent = `${data.temperature}°C · ${city}`;
+  }
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", applyLang);
+  document.addEventListener("DOMContentLoaded", waitForUserAndLoadWeather);
 } else {
-  applyLang();
+  waitForUserAndLoadWeather();
 }
