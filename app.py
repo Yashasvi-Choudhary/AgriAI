@@ -33,22 +33,25 @@ def inject_globals():
 
     path = request.path.strip("/")
     page_map = {
-        "": "dashboard",
-        "dashboard": "dashboard",
-        "crop-recommendation": "crop-recommendation",
-        "crop-yield-prediction": "crop-yield-prediction",
-        "plant-disease-detection": "plant-disease-detection",
-        "fertilizer-guide": "fertilizer-guide",
-    }
+    "": "dashboard",
+    "dashboard": "dashboard",
+    "crop-recommendation": "crop-recommendation",
+    "crop-yield-prediction": "crop-yield-prediction",
+    "plant-disease-detection": "plant-disease-detection",
+    "fertilizer-guide": "fertilizer-guide",
+    "profile": "profile",   # ✅ ADD THIS
+}
 
     page = page_map.get(path, "dashboard")
-    t = get_translations(lang, page)
+    t = get_translations(lang, page) or {}
+
+    user = session.get("user")
 
     return dict(
-        current_user=session.get("user"),
-        t=t,
-        lang=lang
-    )
+    current_user=user or None,
+    t=t or {},
+    lang=lang or "en"
+)
 
 
 # ─────────────────────────────────────────────
@@ -222,9 +225,9 @@ def save_location():
 
     # Just store location (basic entry)
     cursor.execute("""
-        INSERT INTO farm_conditions (user_id, latitude, longitude)
-        VALUES (?, ?, ?)
-    """, (user_id, lat, lon))
+    INSERT INTO farm_conditions (user_id, latitude, longitude, location_name)
+    VALUES (?, ?, ?, ?)
+""", (user_id, lat, lon, city))
 
     conn.commit()
     conn.close()

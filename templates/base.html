@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Labhansh.ai – Smart Agriculture</title>
 
-    <script>
-      window.__i18n = {{ t | tojson }};
-      window.__lang  = "{{ lang }}";
-    </script>
-
     <link
       href="{{ url_for('static', filename='css/output.css') }}"
       rel="stylesheet"
@@ -88,16 +83,36 @@
     block scripts %}
 
     <script id="userData" type="application/json">
-      {{ current_user | tojson }}
+      {{ current_user | default({}) | tojson }}
     </script>
 
     <script>
-      const userData = JSON.parse(
-        document.getElementById("userData").textContent,
-      );
-      window._currentUserId = userData ? userData.id : null;
+      let userData = {};
+      try {
+        userData = JSON.parse(document.getElementById("userData").textContent);
+      } catch (e) {
+        console.warn("User data parse failed");
+      }
+
+      window._currentUserId = userData?.id || null;
     </script>
 
+    <script>
+      window.__i18n = {{ (t or {}) | tojson | safe }};
+      window.__lang = "{{ lang }}";
+
+      console.log("Translations loaded:", window.__i18n);
+    </script>
+
+    <script src="{{ url_for('static', filename='js/global.js') }}"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof applyLang === "function") {
+          applyLang();
+        }
+      });
+    </script>
     <!-- Existing -->
     <script src="{{ url_for('static', filename='js/global.js') }}"></script>
 
