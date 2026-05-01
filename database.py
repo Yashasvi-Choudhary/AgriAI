@@ -153,5 +153,19 @@ def create_tables():
 
     print("  Database Ready with Improvements!")
 
+def add_reset_token_column():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN reset_token TEXT")
+    except:
+        pass
+
+    conn.commit()
+    conn.close()
+
+
 if __name__ == "__main__":
     create_tables()
+    add_reset_token_column()

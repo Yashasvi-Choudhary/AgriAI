@@ -1,3 +1,8 @@
+import uuid
+from werkzeug.security import generate_password_hash
+from flask_mail import Mail, Message
+from config import *
+
 from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for
 import requests
 from database import create_tables
@@ -7,11 +12,28 @@ from utils.translator import get_translations
 
 import sqlite3
 
+import uuid
+from werkzeug.security import generate_password_hash
+
+
 # ─────────────────────────────────────────────
 # APP INIT
 # ─────────────────────────────────────────────
 app = Flask(__name__)
 
+from flask_mail import Mail, Message
+from config import *
+
+# ✅ YAHI ADD KARNA HAI
+app.config['MAIL_SERVER'] = MAIL_SERVER
+app.config['MAIL_PORT'] = MAIL_PORT
+app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+
+mail = Mail(app)
+
+# ye already hai → same rehne do
 app.secret_key = "super_secret_key_123"
 
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -265,7 +287,72 @@ def logout():
     session.pop("user", None)
     return redirect('/login')
 
+# ─────────────────────────────────────────────
+# forgot password 
+# ─────────────────────────────────────────────
+@app.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    email = request.form.get('email')
 
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+
+    if user:
+        token = str(uuid.uuid4())
+
+        cursor.execute(
+            "UPDATE users SET reset_token = ? WHERE email = ?",
+            (token, email)
+        )
+        conn.commit()
+        conn.close()
+
+        reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
+
+        msg = Message(
+            subject="Password Reset",
+            sender=MAIL_USERNAME,
+            recipients=[email]
+        )
+        msg.body = f"Click this link:\n{reset_link}"
+
+        mail.send(msg)
+
+        return jsonify({"success": True})
+
+    return jsonify({"success": False})
+# ─────────────────────────────────────────────
+# reset password 
+# ─────────────────────────────────────────────
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if request.method == 'POST':
+        password = request.form.get('password')
+
+        hashed = generate_password_hash(password)
+
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM users WHERE reset_token=?", (token,))
+        user = cursor.fetchone()
+
+        if user:
+            cursor.execute(
+                "UPDATE users SET password=?, reset_token=NULL WHERE reset_token=?",
+                (hashed, token)
+            )
+            conn.commit()
+            conn.close()
+            return jsonify({"success": True})
+
+        return jsonify({"success": False})
+
+    return render_template('auth/reset_password.html', token=token)
 # ─────────────────────────────────────────────
 # RUN SERVER
 # ─────────────────────────────────────────────
