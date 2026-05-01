@@ -40,6 +40,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400
 
+import sys, os
+
 
 # ─────────────────────────────────────────────
 # GLOBAL TRANSLATION CONTEXT
@@ -277,6 +279,10 @@ def get_weather():
         "humidity": res["hourly"]["relativehumidity_2m"][0],
         "rainfall": res["hourly"]["precipitation_probability"][0]
     })
+
+
+
+
 
 
 # ─────────────────────────────────────────────
