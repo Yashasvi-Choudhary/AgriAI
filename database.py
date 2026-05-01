@@ -11,15 +11,19 @@ def create_tables():
 
     # ---------------- USERS ----------------
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        phone TEXT,
-        password TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT,
+    password TEXT NOT NULL,
+
+    reset_token TEXT,
+    token_expiry TIMESTAMP,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
 
     # ---------------- FARM CONDITIONS ----------------
     cursor.execute("""
@@ -153,19 +157,5 @@ def create_tables():
 
     print("  Database Ready with Improvements!")
 
-def add_reset_token_column():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN reset_token TEXT")
-    except:
-        pass
-
-    conn.commit()
-    conn.close()
-
-
 if __name__ == "__main__":
     create_tables()
-    add_reset_token_column()
