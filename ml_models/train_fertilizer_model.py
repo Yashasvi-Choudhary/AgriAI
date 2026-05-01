@@ -1,1 +1,0 @@
-# Train fertilizer recommendation model

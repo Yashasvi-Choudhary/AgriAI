@@ -6,15 +6,18 @@
   "fert_nutrient_section_title": "मिट्टी पोषक तत्व स्तर (mg/kg)",
 
   "fert_label_crop": "फसल का प्रकार",
-  "fert_crop_placeholder": "फसल चुनें…",
-  "fert_crop_wheat": "गेहूँ",
-  "fert_crop_rice": "धान (चावल)",
-  "fert_crop_maize": "मक्का",
+  "fert_crop_placeholder": "फसल चुनें...",
+  "fert_crop_barley": "जौ",
   "fert_crop_cotton": "कपास",
-  "fert_crop_sugarcane": "गन्ना",
-  "fert_crop_soybean": "सोयाबीन",
   "fert_crop_groundnut": "मूंगफली",
-  "fert_crop_tomato": "टमाटर",
+  "fert_crop_maize": "मक्का",
+  "fert_crop_millets": "बाजरा",
+  "fert_crop_oilseeds": "तिलहन",
+  "fert_crop_paddy": "धान",
+  "fert_crop_pulses": "दालें",
+  "fert_crop_sugarcane": "गन्ना",
+  "fert_crop_tobacco": "तंबाकू",
+  "fert_crop_wheat": "गेहूं",
 
   "fert_label_soil": "मिट्टी का प्रकार",
   "fert_soil_placeholder": "मिट्टी का प्रकार चुनें…",
@@ -25,11 +28,13 @@
   "fert_soil_sandy": "रेतीली मिट्टी",
   "fert_soil_clay": "चिकनी मिट्टी",
 
-  "fert_label_ph": "pH स्तर",
-  "fert_ph_placeholder": "जैसे 6.5 (0–14)",
+
 
   "fert_label_temperature": "तापमान (°C) — वैकल्पिक",
   "fert_temp_placeholder": "जैसे 28",
+
+  "fert_label_humidity": "ह्यूमिडिटी (%) — वैकल्पिक",
+  "fert_humidity_placeholder": "जैसे 40",
 
   "fert_label_moisture": "मिट्टी की नमी (%) — वैकल्पिक",
   "fert_moisture_placeholder": "जैसे 45",
