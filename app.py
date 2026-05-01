@@ -318,18 +318,12 @@ def get_weather():
 # ─────────────────────────────────────────────
 # LOGOUT
 # ─────────────────────────────────────────────
-@app.route('/logout')
-def logout():
-    session.pop("user", None)
-    return redirect('/login')
-
-# ─────────────────────────────────────────────
-# forgot password 
-# ─────────────────────────────────────────────
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
+
     if request.method == 'GET':
         return render_template('auth/forgot_password.html')
+
     email = request.form.get('email')
 
     conn = sqlite3.connect('database.db')
@@ -352,14 +346,17 @@ def forgot_password():
     conn.commit()
     conn.close()
 
-    # ⚠️ IMPORTANT: frontend link
     reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
+
+    print("Sending email to:", email)
+    print("Reset link:", reset_link)
 
     msg = Message(
         subject="Password Reset",
         sender=MAIL_USERNAME,
         recipients=[email]
     )
+
     msg.body = f"Click this link to reset password:\n{reset_link}"
 
     mail.send(msg)
