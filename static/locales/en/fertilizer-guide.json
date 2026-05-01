@@ -5,16 +5,20 @@
   "fert_form_section_title": "Enter Farm Details",
   "fert_nutrient_section_title": "Soil Nutrient Levels (mg/kg)",
 
+
   "fert_label_crop": "Crop Type",
   "fert_crop_placeholder": "Select a crop…",
-  "fert_crop_wheat": "Wheat",
-  "fert_crop_rice": "Rice",
-  "fert_crop_maize": "Maize (Corn)",
+  "fert_crop_barley": "Barley",
   "fert_crop_cotton": "Cotton",
-  "fert_crop_sugarcane": "Sugarcane",
-  "fert_crop_soybean": "Soybean",
   "fert_crop_groundnut": "Groundnut",
-  "fert_crop_tomato": "Tomato",
+  "fert_crop_maize": "Maize (Corn)",
+  "fert_crop_millets": "Millets",
+  "fert_crop_oilseeds": "Oil Seeds",
+  "fert_crop_paddy": "Paddy",
+  "fert_crop_pulses": "Pulses",
+  "fert_crop_sugarcane": "Sugarcane",
+  "fert_crop_tobacco": "Tobacco",
+  "fert_crop_wheat": "Wheat",
 
   "fert_label_soil": "Soil Type",
   "fert_soil_placeholder": "Select soil type…",
@@ -25,11 +29,12 @@
   "fert_soil_sandy": "Sandy Soil",
   "fert_soil_clay": "Clay Soil",
 
-  "fert_label_ph": "pH Level",
-  "fert_ph_placeholder": "e.g. 6.5 (0–14)",
 
   "fert_label_temperature": "Temperature (°C) — Optional",
   "fert_temp_placeholder": "e.g. 28",
+
+  "fert_label_humidity": "Humidity (%) — Optional",
+  "fert_humidity_placeholder": "e.g. 40",
 
   "fert_label_moisture": "Soil Moisture (%) — Optional",
   "fert_moisture_placeholder": "e.g. 45",
