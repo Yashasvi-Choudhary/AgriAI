@@ -34,6 +34,8 @@ app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+app.config['MAIL_DEFAULT_SENDER'] = MAIL_USERNAME
+
 
 mail = Mail(app)
 
@@ -318,6 +320,31 @@ def get_weather():
 # ─────────────────────────────────────────────
 # LOGOUT
 # ─────────────────────────────────────────────
+@app.route('/logout')
+def logout():
+    session.pop("user", None)
+    return redirect('/login')
+
+# ─────────────────────────────────────────────
+# TEST EMAIL (DEBUG)
+# ─────────────────────────────────────────────
+@app.route('/test-email')
+def test_email():
+    msg = Message(
+        subject="Test Email",
+        recipients=["your_email@gmail.com"]
+    )
+    msg.body = "Email working hai"
+
+    try:
+        mail.send(msg)
+        return "✅ Email sent"
+    except Exception as e:
+        return f"❌ Error: {e}"
+
+# ─────────────────────────────────────────────
+# forgot password 
+# ─────────────────────────────────────────────
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
 
@@ -348,18 +375,19 @@ def forgot_password():
 
     reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
 
-    print("Sending email to:", email)
     print("Reset link:", reset_link)
 
     msg = Message(
         subject="Password Reset",
-        sender=MAIL_USERNAME,
         recipients=[email]
     )
+    msg.body = f"Click this link:\n{reset_link}"
 
-    msg.body = f"Click this link to reset password:\n{reset_link}"
-
-    mail.send(msg)
+    try:
+        mail.send(msg)
+        print("✅ Email sent")
+    except Exception as e:
+        print("❌ Email error:", e)
 
     return jsonify({"success": True})
 
