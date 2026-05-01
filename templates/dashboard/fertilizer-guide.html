@@ -1,6 +1,6 @@
 <!-- Fertilizer Guide page -->
- {% extends "base.html" %}{% block page_name %}fertilizer-guide{% endblock %}
-{% block title %}Fertilizer Guide{% endblock %} {% block content %}
+{% extends "base.html" %}{% block page_name %}fertilizer-guide{% endblock %} {%
+block title %}Fertilizer Guide{% endblock %} {% block content %}
 <div class="bg-background py-10 relative">
   <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
     <!-- ── PAGE HEADER ── -->
@@ -85,20 +85,24 @@
                 selected
                 data-i18n="fert_crop_placeholder"
               ></option>
-              <option value="wheat" data-i18n="fert_crop_wheat"></option>
-              <option value="rice" data-i18n="fert_crop_rice"></option>
-              <option value="maize" data-i18n="fert_crop_maize"></option>
-              <option value="cotton" data-i18n="fert_crop_cotton"></option>
+              <!-- Crops from your dataset -->
+              <option value="Barley" data-i18n="fert_crop_barley"></option>
+              <option value="Cotton" data-i18n="fert_crop_cotton"></option>
               <option
-                value="sugarcane"
-                data-i18n="fert_crop_sugarcane"
-              ></option>
-              <option value="soybean" data-i18n="fert_crop_soybean"></option>
-              <option
-                value="groundnut"
+                value="Ground Nuts"
                 data-i18n="fert_crop_groundnut"
               ></option>
-              <option value="tomato" data-i18n="fert_crop_tomato"></option>
+              <option value="Maize" data-i18n="fert_crop_maize"></option>
+              <option value="Millets" data-i18n="fert_crop_millets"></option>
+              <option value="Oil seeds" data-i18n="fert_crop_oilseeds"></option>
+              <option value="Paddy" data-i18n="fert_crop_paddy"></option>
+              <option value="Pulses" data-i18n="fert_crop_pulses"></option>
+              <option
+                value="Sugarcane"
+                data-i18n="fert_crop_sugarcane"
+              ></option>
+              <option value="Tobacco" data-i18n="fert_crop_tobacco"></option>
+              <option value="Wheat" data-i18n="fert_crop_wheat"></option>
             </select>
             <span
               class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-textLight"
@@ -182,43 +186,7 @@
           </div>
         </div>
 
-        <!-- pH Level -->
-        <div>
-          <label
-            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-            data-i18n="fert_label_ph"
-          ></label>
-          <div class="relative">
-            <span
-              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                />
-              </svg>
-            </span>
-            <input
-              type="number"
-              id="ph_level"
-              name="ph_level"
-              min="0"
-              max="14"
-              step="0.1"
-              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              data-i18n-placeholder="fert_ph_placeholder"
-            />
-          </div>
-        </div>
-
+        
         <!-- Temperature (optional) -->
         <div>
           <label
@@ -251,6 +219,44 @@
               max="60"
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
               data-i18n-placeholder="fert_temp_placeholder"
+              placeholder="Temperature"
+            />
+          </div>
+        </div>
+
+        <!-- Humidity (optional) -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="fert_label_humidity"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 5a1 1 0 011 1v4.586l2.293 2.293a1 1 0 01-1.414 1.414L11 14.414V9a1 1 0 011-1z"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="humidity"
+              name="humidity"
+              min="0"
+              max="100"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="fert_humidity_placeholder"
+              placeholder="Humidity"
             />
           </div>
         </div>
@@ -378,7 +384,6 @@
         <button
           id="fertBtn"
           type="button"
-          onclick="getFertilizerRecommendation()"
           class="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-lg shadow-primaryDark/20"
         >
           <svg

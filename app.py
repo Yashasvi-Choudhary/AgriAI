@@ -15,10 +15,12 @@ from utils.translator import get_translations
 import sqlite3
 import pickle                     # ✅ ADDED
 import pandas as pd              # ✅ ADDED
+import os
+import sys
+import importlib.util
 
 import uuid
 from werkzeug.security import generate_password_hash
-
 
 # ─────────────────────────────────────────────
 # APP INIT
@@ -40,12 +42,21 @@ mail = Mail(app)
 # ye already hai → same rehne do
 app.secret_key = "super_secret_key_123"
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, BASE_DIR)
+
+utils_path = os.path.join(BASE_DIR, "fertilizer_utils.py")
+spec = importlib.util.spec_from_file_location("fertilizer_utils", utils_path)
+fertilizer_utils = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(fertilizer_utils)
+
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400
 
 # ✅ LOAD ML MODEL
-model = pickle.load(open('models/crop_model.pkl', 'rb'))
+CROP_MODEL_PATH = os.path.join(BASE_DIR, "model", "crop_model.pkl")
+model = pickle.load(open(CROP_MODEL_PATH, 'rb'))
 
 
 # ─────────────────────────────────────────────
@@ -89,6 +100,19 @@ def inject_globals():
 app.register_blueprint(auth_bp, url_prefix='/auth')
 
 create_tables()
+
+MODEL_PATH = os.path.join(BASE_DIR, "model", "fertilizer_model.pkl")
+_model = None
+
+def load_fertilizer_model():
+    global _model
+    if _model is None:
+        try:
+            import joblib
+            _model = joblib.load(MODEL_PATH)
+        except Exception:
+            _model = None
+    return _model
 
 
 # ─────────────────────────────────────────────
@@ -296,6 +320,28 @@ def predict_crop():
             "status": "error",
             "message": "Something went wrong"
         })
+
+
+@app.route('/predict', methods=['POST'])
+def predict_fertilizer():
+    payload = request.get_json(silent=True)
+    validated = fertilizer_utils.validate_input(payload)
+
+    if not validated:
+        return jsonify({"status": "error", "message": "Missing or invalid input data"}), 400
+
+    model = load_fertilizer_model()
+    if model is None:
+        return jsonify({"status": "error", "message": "Model not available"}), 500
+
+    features = fertilizer_utils.prepare_model_input(validated)
+    try:
+        prediction = model.predict(features)[0]
+    except Exception:
+        return jsonify({"status": "error", "message": "Missing or invalid input data"}), 400
+
+    result = fertilizer_utils.build_response(prediction, validated)
+    return jsonify(result)
 
 
 # ─────────────────────────────────────────────
