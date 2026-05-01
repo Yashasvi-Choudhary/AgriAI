@@ -1,4 +1,5 @@
 import uuid
+import datetime
 from werkzeug.security import generate_password_hash
 from flask_mail import Mail, Message
 from config import *
@@ -103,17 +104,6 @@ def login():
 @app.route('/register')
 def register():
     return render_template('auth/register.html')
-
-
-@app.route('/forgot-password')
-def forgot_password_page():
-    return render_template('auth/forgot_password.html')
-
-
-@app.route('/reset-password')
-def reset_password_page():
-    return render_template('auth/reset_password.html')
-
 
 # ─────────────────────────────────────────────
 # DASHBOARD (SESSION CHECK)
@@ -280,11 +270,6 @@ def get_weather():
         "rainfall": res["hourly"]["precipitation_probability"][0]
     })
 
-
-
-
-
-
 # ─────────────────────────────────────────────
 # LOGOUT
 # ─────────────────────────────────────────────
@@ -296,8 +281,10 @@ def logout():
 # ─────────────────────────────────────────────
 # forgot password 
 # ─────────────────────────────────────────────
-@app.route('/forgot-password', methods=['POST'])
+@app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
+    if request.method == 'GET':
+        return render_template('auth/forgot_password.html')
     email = request.form.get('email')
 
     conn = sqlite3.connect('database.db')
@@ -306,57 +293,68 @@ def forgot_password():
     cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
 
-    if user:
-        token = str(uuid.uuid4())
+    if not user:
+        return jsonify({"success": False, "message": "Email not found"})
 
-        cursor.execute(
-            "UPDATE users SET reset_token = ? WHERE email = ?",
-            (token, email)
-        )
-        conn.commit()
-        conn.close()
+    token = str(uuid.uuid4())
+    expiry = datetime.datetime.now() + datetime.timedelta(hours=1)
 
-        reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
+    cursor.execute(
+        "UPDATE users SET reset_token=?, token_expiry=? WHERE email=?",
+        (token, expiry, email)
+    )
 
-        msg = Message(
-            subject="Password Reset",
-            sender=MAIL_USERNAME,
-            recipients=[email]
-        )
-        msg.body = f"Click this link:\n{reset_link}"
+    conn.commit()
+    conn.close()
 
-        mail.send(msg)
+    # ⚠️ IMPORTANT: frontend link
+    reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
 
-        return jsonify({"success": True})
+    msg = Message(
+        subject="Password Reset",
+        sender=MAIL_USERNAME,
+        recipients=[email]
+    )
+    msg.body = f"Click this link to reset password:\n{reset_link}"
 
-    return jsonify({"success": False})
+    mail.send(msg)
+
+    return jsonify({"success": True})
+
 # ─────────────────────────────────────────────
 # reset password 
 # ─────────────────────────────────────────────
 
+import datetime
+
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM users WHERE reset_token=? AND token_expiry > ?",
+        (token, datetime.datetime.now())
+    )
+    user = cursor.fetchone()
+
+    if not user:
+        return "Token expired or invalid"
+
     if request.method == 'POST':
         password = request.form.get('password')
-
         hashed = generate_password_hash(password)
 
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE users SET password=?, reset_token=NULL, token_expiry=NULL WHERE reset_token=?",
+            (hashed, token)
+        )
 
-        cursor.execute("SELECT * FROM users WHERE reset_token=?", (token,))
-        user = cursor.fetchone()
+        conn.commit()
+        conn.close()
 
-        if user:
-            cursor.execute(
-                "UPDATE users SET password=?, reset_token=NULL WHERE reset_token=?",
-                (hashed, token)
-            )
-            conn.commit()
-            conn.close()
-            return jsonify({"success": True})
-
-        return jsonify({"success": False})
+        return jsonify({"success": True})
 
     return render_template('auth/reset_password.html', token=token)
 # ─────────────────────────────────────────────
