@@ -1,5 +1,5 @@
- {% extends "base.html" %}{% block page_name %}crop-yield-prediction{% endblock %}
-{% block title %}Crop Yield Prediction{% endblock %} {% block content %}
+{% extends "base.html" %}{% block page_name %}crop-yield-prediction{% endblock
+%} {% block title %}Crop Yield Prediction{% endblock %} {% block content %}
 
 <div class="bg-background py-10 relative">
   <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
@@ -75,8 +75,8 @@
               </svg>
             </span>
             <select
-              id="crop_type"
-              name="crop_type"
+              id="crop"
+              name="crop"
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-9 text-sm appearance-none bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
             >
               <option
@@ -120,137 +120,41 @@
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
             data-i18n="yield_label_area"
           ></label>
-          <div class="flex gap-2">
-            <div class="relative flex-1">
-              <span
-                class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-                  />
-                </svg>
-              </span>
-              <input
-                type="number"
-                id="land_area"
-                name="land_area"
-                min="0"
-                step="0.1"
-                class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-                data-i18n-placeholder="yield_area_placeholder"
-              />
-            </div>
-            <!-- Unit Toggle -->
-            <div class="relative">
-              <select
-                id="area_unit"
-                name="area_unit"
-                class="h-full rounded-lg border border-backgroundDark py-2.5 pl-3 pr-8 text-sm appearance-none bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              >
-                <option value="acre" data-i18n="yield_unit_acre"></option>
-                <option value="hectare" data-i18n="yield_unit_hectare"></option>
-              </select>
-              <span
-                class="absolute inset-y-0 right-2 flex items-center pointer-events-none text-textLight"
-              >
-                <svg
-                  class="w-3 h-3"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Nitrogen -->
-        <div>
-          <label
-            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-            data-i18n="yield_label_nitrogen"
-          ></label>
           <div class="relative">
             <span
-              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
-              >N</span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
             >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                />
+              </svg>
+            </span>
             <input
               type="number"
-              id="nitrogen"
-              name="nitrogen"
+              id="area"
+              name="area"
               min="0"
+              step="0.1"
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              data-i18n-placeholder="yield_nitrogen_placeholder"
+              data-i18n-placeholder="yield_area_placeholder"
             />
           </div>
         </div>
 
-        <!-- Phosphorus -->
+        <!-- Temperature -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-            data-i18n="yield_label_phosphorus"
-          ></label>
-          <div class="relative">
-            <span
-              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
-              >P</span
-            >
-            <input
-              type="number"
-              id="phosphorus"
-              name="phosphorus"
-              min="0"
-              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              data-i18n-placeholder="yield_phosphorus_placeholder"
-            />
-          </div>
-        </div>
-
-        <!-- Potassium -->
-        <div>
-          <label
-            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-            data-i18n="yield_label_potassium"
-          ></label>
-          <div class="relative">
-            <span
-              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-xs font-bold text-textLight"
-              >K</span
-            >
-            <input
-              type="number"
-              id="potassium"
-              name="potassium"
-              min="0"
-              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              data-i18n-placeholder="yield_potassium_placeholder"
-            />
-          </div>
-        </div>
-
-        <!-- pH Level -->
-        <div>
-          <label
-            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-            data-i18n="yield_label_ph"
+            data-i18n="yield_label_temperature"
           ></label>
           <div class="relative">
             <span
@@ -266,19 +170,187 @@
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                 />
               </svg>
             </span>
             <input
               type="number"
-              id="ph_level"
-              name="ph_level"
+              id="temperature"
+              name="temperature"
               min="0"
-              max="14"
+              max="60"
               step="0.1"
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              data-i18n-placeholder="yield_ph_placeholder"
+              data-i18n-placeholder="yield_temperature_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Rainfall -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_rainfall"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3v1m6.364 1.636l-.707.707M21 12h-1m1.364 6.364l-.707-.707M12 21v1m-6.364-1.636l.707.707M3 12h1M3.636 5.636l.707.707"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="rainfall"
+              name="rainfall"
+              min="0"
+              step="10"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="yield_rainfall_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Soil Type -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_soil_type"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                />
+              </svg>
+            </span>
+            <select
+              id="soil_type"
+              name="soil_type"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-9 text-sm appearance-none bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+            >
+              <option
+                value=""
+                disabled
+                selected
+                data-i18n="yield_soil_placeholder"
+              ></option>
+              <option value="loamy" data-i18n="yield_soil_loamy"></option>
+              <option value="sandy" data-i18n="yield_soil_sandy"></option>
+              <option value="clay" data-i18n="yield_soil_clay"></option>
+              <option value="silt" data-i18n="yield_soil_silt"></option>
+            </select>
+            <span
+              class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Fertilizer Usage -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_fertilizer_usage"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 6v6m0 0v6m0-6h6m0 0h6M12 6l4.24-4.24M18 12l4.24-4.24"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="fertilizer_usage"
+              name="fertilizer_usage"
+              min="0"
+              step="10"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="yield_fertilizer_usage_placeholder"
+            />
+          </div>
+        </div>
+
+        <!-- Irrigation -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="yield_label_irrigation"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+            </span>
+            <input
+              type="number"
+              id="irrigation"
+              name="irrigation"
+              min="0"
+              step="5"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="yield_irrigation_placeholder"
             />
           </div>
         </div>

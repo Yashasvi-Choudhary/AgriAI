@@ -50,6 +50,11 @@ spec = importlib.util.spec_from_file_location("fertilizer_utils", utils_path)
 fertilizer_utils = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fertilizer_utils)
 
+utils_yield_path = os.path.join(BASE_DIR, "utils_yield.py")
+spec_yield = importlib.util.spec_from_file_location("utils_yield", utils_yield_path)
+utils_yield = importlib.util.module_from_spec(spec_yield)
+spec_yield.loader.exec_module(utils_yield)
+
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400
@@ -112,6 +117,19 @@ def load_fertilizer_model():
         except Exception:
             _model = None
     return _model
+
+MODEL_YIELD_PATH = os.path.join(BASE_DIR, "model", "yield_model.pkl")
+_yield_model = None
+
+def load_yield_model():
+    global _yield_model
+    if _yield_model is None:
+        try:
+            import joblib
+            _yield_model = joblib.load(MODEL_YIELD_PATH)
+        except Exception:
+            _yield_model = None
+    return _yield_model
 
 
 # ─────────────────────────────────────────────
@@ -262,6 +280,28 @@ def predict_fertilizer():
         return jsonify({"status": "error", "message": "Missing or invalid input data"}), 400
 
     result = fertilizer_utils.build_response(prediction, validated)
+    return jsonify(result)
+
+
+@app.route('/predict-yield', methods=['POST'])
+def predict_yield():
+    payload = request.get_json(silent=True)
+    validated = utils_yield.validate_input(payload)
+
+    if not validated:
+        return jsonify({"status": "error", "message": "Missing or invalid input data"}), 400
+
+    model = load_yield_model()
+    if model is None:
+        return jsonify({"status": "error", "message": "Model not available"}), 500
+
+    features = utils_yield.prepare_model_input(validated)
+    try:
+        prediction = model.predict(features)[0]
+    except Exception:
+        return jsonify({"status": "error", "message": "Prediction failed"}), 500
+
+    result = utils_yield.build_response(prediction)
     return jsonify(result)
 
 
