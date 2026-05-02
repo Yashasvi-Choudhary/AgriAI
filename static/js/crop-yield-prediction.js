@@ -1,25 +1,7 @@
 /* ============================================================
    crop-yield-prediction.js
-   Handles: form submission, geolocation, weather fetch,
-            result rendering, comparison bar, suggestions
+   Handles: form submission, result rendering, language support
    ============================================================ */
-
-/* ── Average yield benchmarks (Quintal/Acre) ── */
-const AVG_YIELD = {
-  wheat: 14,
-  rice: 18,
-  maize: 16,
-  cotton: 8,
-  sugarcane: 200,
-};
-
-/* ── Productivity thresholds (ratio vs average) ── */
-function getProductivity(predicted, avg) {
-  const ratio = predicted / avg;
-  if (ratio >= 1.15) return "high";
-  if (ratio >= 0.85) return "medium";
-  return "low";
-}
 
 /* ── Show/hide UI panels ── */
 function showState(id) {
@@ -29,151 +11,76 @@ function showState(id) {
   document.getElementById(id).classList.remove("hidden");
 }
 
-/* ── Render result dashboard ── */
-function renderResult(data) {
-  const t = window.__i18n || {};
-
-  const yieldVal = parseFloat(data.predicted_yield || data.yield || 0).toFixed(
-    2,
-  );
-  const cropType = (
-    data.crop_type ||
-    document.getElementById("crop_type").value ||
-    ""
-  ).toLowerCase();
-  const avg = AVG_YIELD[cropType] || 15;
-  const productivity = getProductivity(parseFloat(yieldVal), avg);
-
-  /* Main yield number */
-  document.getElementById("resultYieldValue").textContent = yieldVal;
-  document.getElementById("resultCropName").textContent =
-    (t["yield_result_for"] || "Predicted for") +
-    " " +
-    (document.getElementById("crop_type").options[
-      document.getElementById("crop_type").selectedIndex
-    ]?.text || cropType);
-
-  /* Productivity badge */
-  const badge = document.getElementById("productivityBadge");
-  const iconMap = { high: "⬆️", medium: "➡️", low: "⬇️" };
-  const colorMap = {
-    high: "bg-green-100 text-green-700",
-    medium: "bg-yellow-100 text-yellow-700",
-    low: "bg-red-100 text-red-700",
-  };
-  badge.className =
-    "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider " +
-    colorMap[productivity];
-  document.getElementById("productivityIcon").textContent =
-    iconMap[productivity];
-  document.getElementById("productivityText").textContent =
-    t[`yield_productivity_${productivity}`] || productivity.toUpperCase();
-
-  /* Weather insights */
-  const temp = document.getElementById("weather_temp").value || "--";
-  const humidity = document.getElementById("weather_humidity").value || "--";
-  const rainfall = document.getElementById("weather_rainfall").value || "--";
-  document.getElementById("insightTemp").textContent =
-    temp !== "--" ? temp + " °C" : "--";
-  document.getElementById("insightHumidity").textContent =
-    humidity !== "--" ? humidity + " %" : "--";
-  document.getElementById("insightRainfall").textContent =
-    rainfall !== "--" ? rainfall + " mm" : "--";
-
-  const weatherNote =
-    data.weather_impact ||
-    t["yield_weather_impact_note"] ||
-    "Weather conditions look suitable for this crop.";
-  document.getElementById("weatherImpactNote").textContent = weatherNote;
-
-  /* Soil insights */
-  document.getElementById("insightN").textContent =
-    document.getElementById("nitrogen").value || "--";
-  document.getElementById("insightP").textContent =
-    document.getElementById("phosphorus").value || "--";
-  document.getElementById("insightK").textContent =
-    document.getElementById("potassium").value || "--";
-  document.getElementById("insightPh").textContent =
-    document.getElementById("ph_level").value || "--";
-
-  /* Comparison bars */
-  const maxVal = Math.max(parseFloat(yieldVal), avg) * 1.2;
-  const yourPct = Math.min((parseFloat(yieldVal) / maxVal) * 100, 100);
-  const avgPct = Math.min((avg / maxVal) * 100, 100);
-
-  const unit = t["yield_result_unit"] || "Q/acre";
-  document.getElementById("compYourValue").textContent = yieldVal + " " + unit;
-  document.getElementById("compAvgValue").textContent = avg + " " + unit;
-
-  setTimeout(() => {
-    document.getElementById("compYourBar").style.width = yourPct + "%";
-    document.getElementById("compAvgBar").style.width = avgPct + "%";
-  }, 150);
-
-  const diff = (parseFloat(yieldVal) - avg).toFixed(2);
-  const diffSign = diff >= 0 ? "+" : "";
-  document.getElementById("compDiffNote").textContent = t["yield_comp_note"]
-    ? t["yield_comp_note"].replace("{diff}", diffSign + diff)
-    : `Your predicted yield is ${diffSign}${diff} ${unit} compared to the regional average.`;
-
-  /* Suggestions */
-  const suggestions =
-    data.suggestions ||
-    buildDefaultSuggestions(cropType, parseFloat(yieldVal), avg, t);
-  const list = document.getElementById("suggestionsList");
-  list.innerHTML = "";
-  suggestions.forEach((s) => {
-    const li = document.createElement("li");
-    li.className =
-      "flex items-start gap-2.5 rounded-lg bg-backgroundLight border border-backgroundDark px-4 py-3 text-sm text-textDark";
-    li.innerHTML = `<span class="mt-0.5 flex-shrink-0 text-primary">💡</span><span>${s}</span>`;
-    list.appendChild(li);
-  });
-
-  showState("resultDashboard");
+/* ── Get current language from DOM ── */
+function getCurrentLanguage() {
+  const htmlLang = document.documentElement.lang || "en";
+  return htmlLang === "hi" ? "hi" : "en";
 }
 
-/* ── Auto-generate suggestions if not returned by API ── */
-function buildDefaultSuggestions(crop, predicted, avg, t) {
-  const suggestions = [];
-  const n = parseFloat(document.getElementById("nitrogen").value);
-  const p = parseFloat(document.getElementById("phosphorus").value);
-  const k = parseFloat(document.getElementById("potassium").value);
-  const ph = parseFloat(document.getElementById("ph_level").value);
+/* ── Render result dashboard ── */
+function renderResult(response) {
+  const t = window.__i18n || {};
+  const lang = getCurrentLanguage();
 
-  if (!isNaN(n) && n < 40)
-    suggestions.push(
-      t["yield_suggest_n"] ||
-        "Increase Nitrogen (N) levels — low nitrogen can reduce yield by 10–15%.",
-    );
-  if (!isNaN(p) && p < 20)
-    suggestions.push(
-      t["yield_suggest_p"] ||
-        "Apply phosphorus fertiliser to boost root development and grain filling.",
-    );
-  if (!isNaN(k) && k < 30)
-    suggestions.push(
-      t["yield_suggest_k"] ||
-        "Potassium is below optimal range — consider muriate of potash application.",
-    );
-  if (!isNaN(ph) && (ph < 5.5 || ph > 7.5))
-    suggestions.push(
-      t["yield_suggest_ph"] ||
-        "Soil pH is outside ideal range (5.5–7.5). Consider liming or sulphur treatment.",
-    );
-  if (predicted < avg)
-    suggestions.push(
-      t["yield_suggest_below_avg"] ||
-        "Your yield is below average — review irrigation schedule and fertiliser timing.",
-    );
+  // Parse response structure
+  const yieldData = response.data.yield_prediction[lang];
+  const yieldValue = parseFloat(yieldData.predicted_yield || 0).toFixed(2);
+  const unit = yieldData.unit || "kg/hectare";
+  const analysis = yieldData.analysis || "";
+  const suggestion = yieldData.suggestion || "";
 
-  if (suggestions.length === 0)
-    suggestions.push(
-      t["yield_suggest_good"] ||
-        "Soil and weather conditions look good. Maintain current farming practices.",
-    );
+  // Display main yield result
+  document.getElementById("resultYieldValue").textContent = yieldValue;
+  document.getElementById("resultYieldUnit").textContent = unit;
 
-  return suggestions;
+  // Display crop name
+  const cropField = document.getElementById("crop");
+  const cropName = cropField.options[cropField.selectedIndex]?.text || "Crop";
+  document.getElementById("resultCropName").textContent =
+    (t["yield_result_for"] || "Predicted for") + " " + cropName;
+
+  // Productivity badge
+  const avgYields = {
+    wheat: 2000,
+    rice: 2500,
+    maize: 3000,
+    cotton: 1500,
+    sugarcane: 60000,
+  };
+  const crop = document.getElementById("crop").value || "wheat";
+  const avgYield = avgYields[crop] || 2000;
+  const ratio = yieldValue / (avgYield / 100);
+
+  let productivity = "medium";
+  let productivityIcon = "➡️";
+  let productivityColor = "bg-yellow-100 text-yellow-700";
+  let productivityKey = "yield_productivity_medium";
+
+  if (ratio >= 85) {
+    productivity = "high";
+    productivityIcon = "⬆️";
+    productivityColor = "bg-green-100 text-green-700";
+    productivityKey = "yield_productivity_high";
+  } else if (ratio < 65) {
+    productivity = "low";
+    productivityIcon = "⬇️";
+    productivityColor = "bg-red-100 text-red-700";
+    productivityKey = "yield_productivity_low";
+  }
+
+  const badge = document.getElementById("productivityBadge");
+  badge.className =
+    "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider " +
+    productivityColor;
+  document.getElementById("productivityIcon").textContent = productivityIcon;
+  document.getElementById("productivityText").textContent =
+    t[productivityKey] || productivity.toUpperCase();
+
+  // Display analysis and suggestions
+  document.getElementById("weatherImpactNote").textContent = analysis;
+  document.getElementById("compDiffNote").textContent = suggestion;
+
+  showState("resultDashboard");
 }
 
 /* ── Main prediction function ── */
@@ -183,32 +90,52 @@ async function getCropYieldPrediction() {
   const btnSpinner = document.getElementById("btnSpinner");
   const t = window.__i18n || {};
 
-  const payload = {
-    crop_type: document.getElementById("crop_type").value,
-    land_area: document.getElementById("land_area").value,
-    area_unit: document.getElementById("area_unit").value,
-    nitrogen: document.getElementById("nitrogen").value,
-    phosphorus: document.getElementById("phosphorus").value,
-    potassium: document.getElementById("potassium").value,
-    ph_level: document.getElementById("ph_level").value,
-    latitude: document.getElementById("latitude").value,
-    longitude: document.getElementById("longitude").value,
-    weather_temp: document.getElementById("weather_temp").value,
-    weather_humidity: document.getElementById("weather_humidity").value,
-    weather_rainfall: document.getElementById("weather_rainfall").value,
+  // Collect form data
+  const formData = {
+    crop: document.getElementById("crop").value,
+    area: parseFloat(document.getElementById("area").value),
+    rainfall: parseFloat(document.getElementById("rainfall").value),
+    temperature: parseFloat(document.getElementById("temperature").value),
+    soil_type: document.getElementById("soil_type").value,
+    fertilizer_usage: parseFloat(
+      document.getElementById("fertilizer_usage").value,
+    ),
+    irrigation: parseFloat(document.getElementById("irrigation").value),
   };
 
-  if (!payload.crop_type) {
+  // Validation
+  if (!formData.crop) {
     alert(
       t["yield_alert_crop"] || "Please select a crop type before proceeding.",
     );
     return;
   }
-  if (!payload.land_area) {
+  if (isNaN(formData.area) || formData.area <= 0) {
     alert(t["yield_alert_area"] || "Please enter the land area.");
     return;
   }
+  if (isNaN(formData.rainfall) || formData.rainfall < 0) {
+    alert(t["yield_alert_rainfall"] || "Please enter rainfall.");
+    return;
+  }
+  if (isNaN(formData.temperature) || formData.temperature < 0) {
+    alert(t["yield_alert_temperature"] || "Please enter temperature.");
+    return;
+  }
+  if (!formData.soil_type) {
+    alert(t["yield_alert_soil"] || "Please select soil type.");
+    return;
+  }
+  if (isNaN(formData.fertilizer_usage) || formData.fertilizer_usage < 0) {
+    alert(t["yield_alert_fertilizer"] || "Please enter fertilizer usage.");
+    return;
+  }
+  if (isNaN(formData.irrigation) || formData.irrigation < 0) {
+    alert(t["yield_alert_irrigation"] || "Please enter irrigation.");
+    return;
+  }
 
+  // Show loading state
   btn.disabled = true;
   btn.style.opacity = "0.7";
   btnText.textContent = t["yield_btn_predicting"] || "Predicting…";
@@ -216,26 +143,39 @@ async function getCropYieldPrediction() {
   showState("loadingState");
 
   try {
-    const res = await fetch("/api/crop-yield-prediction/", {
+    const response = await fetch("/predict-yield", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": getCsrf(),
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(formData),
     });
-    if (!res.ok) throw new Error("Server error " + res.status);
 
-    const data = await res.json();
-    if (data.predicted_yield === undefined && data.yield === undefined)
+    if (!response.ok) {
+      throw new Error("Server error " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (data.status !== "success") {
       throw new Error(
-        t["yield_error_no_result"] || "No yield prediction received.",
+        data.message ||
+          t["yield_error_no_result"] ||
+          "No yield prediction received.",
       );
+    }
+
+    if (!data.data || !data.data.yield_prediction) {
+      throw new Error(t["yield_error_no_result"] || "Invalid response format.");
+    }
 
     renderResult(data);
   } catch (err) {
+    console.error("Prediction error:", err);
     document.getElementById("errorMsg").textContent =
-      err.message || "Unexpected error.";
+      err.message ||
+      t["yield_error_message"] ||
+      "Unable to fetch prediction. Please try again.";
     showState("errorState");
   } finally {
     btn.disabled = false;
@@ -245,89 +185,7 @@ async function getCropYieldPrediction() {
   }
 }
 
-/* ── CSRF helper ── */
-function getCsrf() {
-  const meta = document.querySelector('meta[name="csrf-token"]');
-  if (meta) return meta.content;
-  const c = document.cookie
-    .split(";")
-    .find((x) => x.trim().startsWith("csrftoken="));
-  return c ? c.trim().split("=")[1] : "";
-}
-
-/* ── Geolocation + reverse geocode ── */
-function detectLocation() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const lat = pos.coords.latitude.toFixed(5);
-      const lon = pos.coords.longitude.toFixed(5);
-      document.getElementById("latitude").value = lat;
-      document.getElementById("longitude").value = lon;
-
-      /* Reverse geocode using nominatim */
-      try {
-        const r = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
-        );
-        const d = await r.json();
-        const city =
-          d.address?.city ||
-          d.address?.town ||
-          d.address?.village ||
-          d.address?.county ||
-          "Unknown";
-        document.getElementById("locationText").textContent = city;
-      } catch {
-        document.getElementById("locationText").textContent = `${lat}, ${lon}`;
-      }
-
-      /* Fetch weather via open-meteo */
-      fetchWeather(lat, lon);
-    },
-    () => {
-      const t = window.__i18n || {};
-      document.getElementById("locationText").textContent =
-        t["yield_location_unavailable"] || "Location unavailable";
-    },
-  );
-}
-
-/* ── Weather fetch (Open-Meteo, free, no key required) ── */
-async function fetchWeather(lat, lon) {
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation&timezone=auto`;
-    const r = await fetch(url);
-    const d = await r.json();
-    const cur = d.current || {};
-    const temp =
-      cur.temperature_2m !== undefined ? cur.temperature_2m.toFixed(1) : "--";
-    const hum =
-      cur.relative_humidity_2m !== undefined ? cur.relative_humidity_2m : "--";
-    const rain =
-      cur.precipitation !== undefined ? cur.precipitation.toFixed(1) : "--";
-
-    document.getElementById("weather_temp").value = temp;
-    document.getElementById("weather_humidity").value = hum;
-    document.getElementById("weather_rainfall").value = rain;
-
-    const t = window.__i18n || {};
-    document.getElementById("weatherChips").innerHTML = `
-      <div class="flex items-center gap-1.5 rounded-lg border border-backgroundDark py-2 px-3 text-xs bg-backgroundLight text-textDark font-medium">
-        🌡️ ${temp} °C
-      </div>
-      <div class="flex items-center gap-1.5 rounded-lg border border-backgroundDark py-2 px-3 text-xs bg-backgroundLight text-textDark font-medium">
-        💧 ${hum}%
-      </div>
-      <div class="flex items-center gap-1.5 rounded-lg border border-backgroundDark py-2 px-3 text-xs bg-backgroundLight text-textDark font-medium">
-        🌧️ ${rain} mm
-      </div>
-    `;
-  } catch {
-    const t = window.__i18n || {};
-    document.getElementById("weatherChips").innerHTML = `
-      <div class="flex items-center gap-1.5 rounded-lg border border-red-200 py-2 px-3 text-xs bg-red-50 text-red-600">
-        ${t["yield_weather_error"] || "Weather unavailable"}
-      </div>`;
-  }
-}
+/* ── Initialize on page load ── */
+document.addEventListener("DOMContentLoaded", function () {
+  showState("emptyState");
+});
