@@ -124,16 +124,21 @@ CREATE TABLE IF NOT EXISTS users (
 
   # ---------------- GOVERNMENT SCHEMES ----------------
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS government_schemes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        description TEXT,
-        benefit TEXT,
-        website_link TEXT,
-        state TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
+CREATE TABLE IF NOT EXISTS government_schemes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    benefit TEXT,
+    category TEXT,
+    state TEXT,
+    crop_type TEXT,
+    min_land REAL,
+    max_land REAL,
+    income_limit REAL,
+    website_link TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+""")
 
     # ---------------- PROFIT ----------------
     cursor.execute("""
