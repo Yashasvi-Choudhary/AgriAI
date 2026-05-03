@@ -23,7 +23,9 @@ function renderResult(response) {
   const lang = getCurrentLanguage();
 
   // Parse response structure
-  const yieldData = response.data.yield_prediction[lang];
+  const yieldData = response?.data?.yield_prediction?.[lang];
+  if (!yieldData) throw new Error("Invalid response structure");
+
   const yieldValue = parseFloat(yieldData.predicted_yield || 0).toFixed(2);
   const unit = yieldData.unit || "kg/hectare";
   const analysis = yieldData.analysis || "";
@@ -39,29 +41,18 @@ function renderResult(response) {
   document.getElementById("resultCropName").textContent =
     (t["yield_result_for"] || "Predicted for") + " " + cropName;
 
-  // Productivity badge
-  const avgYields = {
-    wheat: 2000,
-    rice: 2500,
-    maize: 3000,
-    cotton: 1500,
-    sugarcane: 60000,
-  };
-  const crop = document.getElementById("crop").value || "wheat";
-  const avgYield = avgYields[crop] || 2000;
-  const ratio = yieldValue / (avgYield / 100);
-
+  // Simple productivity badge based on yield value
   let productivity = "medium";
   let productivityIcon = "➡️";
   let productivityColor = "bg-yellow-100 text-yellow-700";
   let productivityKey = "yield_productivity_medium";
 
-  if (ratio >= 85) {
+  if (yieldValue > 2000) {
     productivity = "high";
     productivityIcon = "⬆️";
     productivityColor = "bg-green-100 text-green-700";
     productivityKey = "yield_productivity_high";
-  } else if (ratio < 65) {
+  } else if (yieldValue < 1000) {
     productivity = "low";
     productivityIcon = "⬇️";
     productivityColor = "bg-red-100 text-red-700";
@@ -76,9 +67,45 @@ function renderResult(response) {
   document.getElementById("productivityText").textContent =
     t[productivityKey] || productivity.toUpperCase();
 
-  // Display analysis and suggestions
-  document.getElementById("weatherImpactNote").textContent = analysis;
-  document.getElementById("compDiffNote").textContent = suggestion;
+  // Generate simple insights based on current form values
+  const currentInputs = {
+    temperature: parseFloat(document.getElementById("temperature").value) || 0,
+    rainfall: parseFloat(document.getElementById("rainfall").value) || 0,
+    humidity: parseFloat(document.getElementById("humidity").value) || 0,
+    ph: parseFloat(document.getElementById("ph").value) || 0,
+  };
+
+  const insights = [];
+  if (currentInputs.temperature > 30)
+    insights.push(t["yield_insight_temp_high"] || "Temperature is high");
+  else if (currentInputs.temperature < 15)
+    insights.push(t["yield_insight_temp_low"] || "Temperature is low");
+  else
+    insights.push(t["yield_insight_temp_optimal"] || "Temperature is optimal");
+
+  if (currentInputs.rainfall < 500)
+    insights.push(t["yield_insight_rainfall_low"] || "Rainfall is low");
+  else if (currentInputs.rainfall > 1500)
+    insights.push(t["yield_insight_rainfall_high"] || "Rainfall is high");
+  else
+    insights.push(t["yield_insight_rainfall_optimal"] || "Rainfall is optimal");
+
+  if (currentInputs.humidity < 40)
+    insights.push(t["yield_insight_humidity_low"] || "Humidity is low");
+  else if (currentInputs.humidity > 80)
+    insights.push(t["yield_insight_humidity_high"] || "Humidity is high");
+  else
+    insights.push(t["yield_insight_humidity_optimal"] || "Humidity is optimal");
+
+  if (currentInputs.ph < 5.5 || currentInputs.ph > 7.5)
+    insights.push(t["yield_insight_ph_bad"] || "pH is outside optimal range");
+  else insights.push(t["yield_insight_ph_good"] || "pH is optimal");
+
+  // Display insights
+  const insightsContainer = document.getElementById("insightsList");
+  insightsContainer.innerHTML = insights
+    .map((insight) => `<li class="text-sm text-textMid">${insight}</li>`)
+    .join("");
 
   showState("resultDashboard");
 }
@@ -96,11 +123,11 @@ async function getCropYieldPrediction() {
     area: parseFloat(document.getElementById("area").value),
     rainfall: parseFloat(document.getElementById("rainfall").value),
     temperature: parseFloat(document.getElementById("temperature").value),
-    soil_type: document.getElementById("soil_type").value,
-    fertilizer_usage: parseFloat(
-      document.getElementById("fertilizer_usage").value,
-    ),
-    irrigation: parseFloat(document.getElementById("irrigation").value),
+    humidity: parseFloat(document.getElementById("humidity").value),
+    ph: parseFloat(document.getElementById("ph").value),
+    nitrogen: parseFloat(document.getElementById("nitrogen").value),
+    phosphorus: parseFloat(document.getElementById("phosphorus").value),
+    potassium: parseFloat(document.getElementById("potassium").value),
   };
 
   // Validation
@@ -122,16 +149,28 @@ async function getCropYieldPrediction() {
     alert(t["yield_alert_temperature"] || "Please enter temperature.");
     return;
   }
-  if (!formData.soil_type) {
-    alert(t["yield_alert_soil"] || "Please select soil type.");
+  if (
+    isNaN(formData.humidity) ||
+    formData.humidity < 0 ||
+    formData.humidity > 100
+  ) {
+    alert(t["yield_alert_humidity"] || "Please enter humidity (0-100).");
     return;
   }
-  if (isNaN(formData.fertilizer_usage) || formData.fertilizer_usage < 0) {
-    alert(t["yield_alert_fertilizer"] || "Please enter fertilizer usage.");
+  if (isNaN(formData.ph) || formData.ph < 0 || formData.ph > 14) {
+    alert(t["yield_alert_ph"] || "Please enter pH (0-14).");
     return;
   }
-  if (isNaN(formData.irrigation) || formData.irrigation < 0) {
-    alert(t["yield_alert_irrigation"] || "Please enter irrigation.");
+  if (isNaN(formData.nitrogen) || formData.nitrogen < 0) {
+    alert(t["yield_alert_nitrogen"] || "Please enter nitrogen.");
+    return;
+  }
+  if (isNaN(formData.phosphorus) || formData.phosphorus < 0) {
+    alert(t["yield_alert_phosphorus"] || "Please enter phosphorus.");
+    return;
+  }
+  if (isNaN(formData.potassium) || formData.potassium < 0) {
+    alert(t["yield_alert_potassium"] || "Please enter potassium.");
     return;
   }
 

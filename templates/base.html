@@ -87,13 +87,13 @@
     </script>
 
     <script>
-      let userData = {};
+      var userData = window.userData || {};
       try {
         userData = JSON.parse(document.getElementById("userData").textContent);
       } catch (e) {
         console.warn("User data parse failed");
       }
-
+      window.userData = userData;
       window._currentUserId = userData?.id || null;
     </script>
 

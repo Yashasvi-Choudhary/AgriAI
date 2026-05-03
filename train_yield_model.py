@@ -20,7 +20,7 @@ df = pd.read_csv(INPUT_PATH)
 df = df.drop(columns=['Total_N_kg', 'Total_P_kg', 'Total_K_kg'], errors='ignore')
 
 # Select features
-features = ['Crop', 'Area_ha', 'Rainfall_mm', 'Temperature_C']
+features = ['Crop', 'Area_ha', 'Rainfall_mm', 'Temperature_C', 'Humidity_%', 'pH', 'N_req_kg_per_ha', 'P_req_kg_per_ha', 'K_req_kg_per_ha']
 target = 'Yield_kg_per_ha'
 
 df = df[features + [target]].dropna()
