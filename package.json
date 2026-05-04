@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/Yashasvi-Choudhary/AgriAI/issues"
   },
-  "homepage": "https://github.com/Yashasvi-Choudhary/AgriAI#readme"
+  "homepage": "https://github.com/Yashasvi-Choudhary/AgriAI#readme",
+  "dependencies": {
+    "gpt-tokenizer": "^3.4.0"
+  }
 }

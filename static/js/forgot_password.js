@@ -116,6 +116,9 @@ async function handleSubmit(e) {
   const label = btn.querySelector(".btn-label");
   const spinner = document.getElementById("spinner");
 
+  formErr.classList.add("hidden");
+  formErr.textContent = "";
+
   btn.disabled = true;
   label.classList.add("hidden");
   spinner.classList.remove("hidden");
@@ -129,19 +132,50 @@ async function handleSubmit(e) {
       }),
     });
 
-    await res.json();
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (err) {
+      console.error("Invalid JSON response from forgot-password:", err);
+    }
+
+    if (!res.ok) {
+      const message = data?.message || "Server error while sending reset link.";
+      formErr.textContent = message;
+      formErr.classList.remove("hidden");
+      return;
+    }
+
+    if (!data?.success) {
+      formErr.textContent = data?.message || "Unable to send reset link.";
+      formErr.classList.remove("hidden");
+      return;
+    }
 
     const overlay = document.getElementById("success-overlay");
+    const successText = document.getElementById("success-text");
+    const successLink = document.getElementById("success-link");
+
+    if (successText) {
+      successText.textContent = data.message || "Reset link sent successfully.";
+    }
+
+    if (data.reset_link && successLink) {
+      successLink.innerHTML = `Reset link: <a href="${data.reset_link}" class="underline text-[#c8a84b]">${data.reset_link}</a>`;
+      successLink.classList.remove("hidden");
+    }
+
     overlay.classList.remove("hidden");
     overlay.classList.add("flex");
-  } catch {
+  } catch (err) {
+    console.error("Forgot password fetch error:", err);
     formErr.textContent = "Network error. Please check your connection.";
     formErr.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    label.classList.remove("hidden");
+    spinner.classList.add("hidden");
   }
-
-  btn.disabled = false;
-  label.classList.remove("hidden");
-  spinner.classList.add("hidden");
 }
 
 /* ───────────── CANVAS ───────────── */

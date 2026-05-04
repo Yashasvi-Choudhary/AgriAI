@@ -133,42 +133,54 @@ function togglePwd(id, btn) {
 }
 
 /* ───────────────── FORM SUBMIT ───────────────── */
-const token = new URLSearchParams(window.location.search).get("token") || "";
+const token = window.location.pathname.replace(/\/$/, "").split("/").pop() || "";
 
-document.getElementById("reset-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+function showFormError(msg) {
+  const formErr = document.getElementById("form-error");
+  if (!formErr) return;
+  formErr.textContent = msg;
+  formErr.classList.toggle("hidden", !msg);
+}
 
-  Object.keys(touched).forEach((k) => (touched[k] = true));
+const resetForm = document.getElementById("reset-form");
+if (resetForm) {
+  resetForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const errs = ["new_password", "confirm_password"]
-    .map(validateField)
-    .filter(Boolean);
+    Object.keys(touched).forEach((k) => (touched[k] = true));
 
-  if (errs.length) return;
+    const errs = ["new_password", "confirm_password"]
+      .map(validateField)
+      .filter(Boolean);
 
-  const btn = document.getElementById("btn-submit");
-  const label = btn.querySelector(".btn-label");
-  const spinner = document.getElementById("spinner");
+    if (errs.length) return;
 
-  btn.disabled = true;
-  label.classList.add("hidden");
-  spinner.classList.remove("hidden");
+    const btn = document.getElementById("btn-submit");
+    const label = btn.querySelector(".btn-label");
+    const spinner = document.getElementById("spinner");
 
-  try {
-    const res = await fetch("/reset-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token,
-        password: document.getElementById("new_password").value,
-      }),
-    });
+    showFormError("");
+    btn.disabled = true;
+    label.classList.add("hidden");
+    spinner.classList.remove("hidden");
 
-    const data = await res.json();
+    try {
+      const res = await fetch(`/reset-password/${encodeURIComponent(token)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password: document.getElementById("new_password").value,
+        }),
+      });
 
-    if (data.success) {
-      document.getElementById("reset-form").classList.add("hidden");
+      const data = await res.json();
 
+      if (!data.success) {
+        showFormError(data.message || "Unable to reset password.");
+        return;
+      }
+
+      resetForm.classList.add("hidden");
       const overlay = document.getElementById("success-overlay");
       overlay.classList.remove("hidden");
       overlay.classList.add("flex");
@@ -176,15 +188,15 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
       setTimeout(() => {
         window.location.href = "/login";
       }, 2500);
+    } catch {
+      showFormError("Network error. Please check your connection.");
+    } finally {
+      btn.disabled = false;
+      label.classList.remove("hidden");
+      spinner.classList.add("hidden");
     }
-  } catch {
-    alert("Network error");
-  }
-
-  btn.disabled = false;
-  label.classList.remove("hidden");
-  spinner.classList.add("hidden");
-});
+  });
+}
 
 /* ─────────────────────────────────────────
          NEURAL NETWORK CANVAS

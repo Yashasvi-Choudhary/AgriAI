@@ -9,13 +9,16 @@ DB_NAME = "database.db"
 
 
 def get_db():
-    return sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=10, check_same_thread=False)
+    conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA busy_timeout = 10000")
+    return conn
 
 
 # 🔹 REGISTER API
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
     fullname = data.get('fullname')
     email = data.get('email')
@@ -23,10 +26,11 @@ def register():
     password = data.get('password')
 
     if not all([fullname, email, phone, password]):
-        return jsonify({"success": False, "message": "All fields required"})
+        return jsonify({"success": False, "message": "All fields required"}), 400
 
     hashed_password = generate_password_hash(password)
 
+    conn = None
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -37,12 +41,19 @@ def register():
         """, (fullname, email, phone, hashed_password))
 
         conn.commit()
-        conn.close()
-
-        return jsonify({"success": True, "message": "Registration successful"})
+        return jsonify({"success": True, "message": "Registration successful"}), 200
 
     except sqlite3.IntegrityError:
-        return jsonify({"success": False, "message": "Email already exists"})
+        return jsonify({"success": False, "message": "Email already exists"}), 409
+    except sqlite3.OperationalError as err:
+        print('Database operational error:', err)
+        return jsonify({"success": False, "message": "Database busy, please try again."}), 503
+    except Exception as err:
+        print('Register error:', err)
+        return jsonify({"success": False, "message": "Server error"}), 500
+    finally:
+        if conn:
+            conn.close()
 
 
 # 🔹 LOGIN API

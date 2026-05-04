@@ -1,8 +1,15 @@
 import sqlite3
 
 def connect_db():
-    conn = sqlite3.connect("database.db")
-    conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign keys
+    conn = sqlite3.connect(
+        "database.db",
+        timeout=10,
+        check_same_thread=False,
+        isolation_level=None,
+    )
+    conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 10000")
     return conn
 
 def create_tables():
@@ -17,13 +24,17 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     phone TEXT,
     password TEXT NOT NULL,
-
-    reset_token TEXT,
-    token_expiry TIMESTAMP,
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
+
+    # Migration: add reset columns if they do not exist
+    cursor.execute("PRAGMA table_info(users)")
+    existing_columns = {row[1] for row in cursor.fetchall()}
+    if 'reset_token' not in existing_columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN reset_token TEXT")
+    if 'token_expiry' not in existing_columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN token_expiry TIMESTAMP")
 
     # ---------------- FARM CONDITIONS ----------------
     cursor.execute("""

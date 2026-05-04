@@ -1,8 +1,8 @@
-import uuid
 import datetime
+import uuid
 from werkzeug.security import generate_password_hash
 from flask_mail import Mail, Message
-from config import *
+from config import MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USE_SSL, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER, MAIL_FALLBACK
 
 from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for
 import requests
@@ -16,26 +16,20 @@ import os
 import sys
 import importlib.util
 
-import uuid
-from werkzeug.security import generate_password_hash
-
 
 # ─────────────────────────────────────────────
 # APP INIT
 # ─────────────────────────────────────────────
 app = Flask(__name__)
 
-from flask_mail import Mail, Message
-from config import *
-
-# ✅ YAHI ADD KARNA HAI
+# Mail configuration pulled from config
 app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
+app.config['MAIL_USE_SSL'] = MAIL_USE_SSL
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
-app.config['MAIL_DEFAULT_SENDER'] = MAIL_USERNAME
-
+app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 
 mail = Mail(app)
 
@@ -347,31 +341,28 @@ def test_email():
 # ─────────────────────────────────────────────
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
-
-    print("🔥 Forgot password API hit")
-
     if request.method == 'GET':
         return render_template('auth/forgot_password.html')
 
-    # ✅ email handle (form + json dono)
-    email = request.form.get('email') or (request.json.get('email') if request.is_json else None)
-    print("📧 Email received:", email)
+    payload = request.get_json(silent=True) or {}
+    email = request.form.get('email') or payload.get('email')
 
     if not email:
-        return jsonify({"success": False, "message": "Email missing"})
+        return jsonify({"success": False, "message": "Email missing"}), 400
 
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('database.db', timeout=10, check_same_thread=False)
     cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    cursor.execute("PRAGMA busy_timeout = 10000")
+    cursor.execute("PRAGMA foreign_keys = ON")
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
 
     if not user:
-        return jsonify({"success": False, "message": "Email not found"})
+        conn.close()
+        return jsonify({"success": False, "message": "Email not registered"}), 404
 
-    # ✅ token generate
     token = str(uuid.uuid4())
-    expiry = datetime.datetime.now() + datetime.timedelta(hours=1)
+    expiry = (datetime.datetime.utcnow() + datetime.timedelta(hours=1)).isoformat()
 
     cursor.execute(
         "UPDATE users SET reset_token=?, token_expiry=? WHERE email=?",
@@ -381,71 +372,74 @@ def forgot_password():
     conn.commit()
     conn.close()
 
-    # ✅ reset link
     reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
-    print("🔗 Reset link:", reset_link)
 
-    # ✅ EMAIL SEND (IMPORTANT FIX)
     msg = Message(
-        subject="Password Reset",
-        sender=MAIL_USERNAME,   # ⭐ MUST
+        subject="Password Reset Request",
+        sender=MAIL_DEFAULT_SENDER,
         recipients=[email]
     )
-    msg.body = f"Click this link to reset your password:\n{reset_link}"
+    msg.body = f"Click the link below to reset your password:\n{reset_link}"
 
     try:
         mail.send(msg)
-        print("✅ Email sent successfully")
     except Exception as e:
-        print("❌ Email error:", e)
-        return jsonify({"success": False, "message": "Email sending failed"})
+        app.logger.error("Forgot password email send failed: %s", e, exc_info=True)
+        if MAIL_FALLBACK or MAIL_USERNAME == "your_email@gmail.com" or MAIL_PASSWORD == "your_app_password":
+            app.logger.warning("Using fallback reset link because SMTP credentials are not configured.")
+            return jsonify({
+                "success": True,
+                "message": "Reset link generated successfully.",
+                "reset_link": reset_link,
+                "warning": "Email not sent because SMTP is not configured. Use the reset link from the response."
+            }), 200
+        return jsonify({"success": False, "message": "Email sending failed. Check SMTP credentials and Gmail app password."}), 500
 
-    return jsonify({"success": True})
+    return jsonify({"success": True, "message": "Reset link sent"}), 200
+
 
 # ─────────────────────────────────────────────
 # reset password
 # ─────────────────────────────────────────────
-
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('database.db', timeout=10, check_same_thread=False)
     cursor = conn.cursor()
+    cursor.execute("PRAGMA busy_timeout = 10000")
+    cursor.execute("PRAGMA foreign_keys = ON")
 
-    # ✅ token verify
     cursor.execute(
-        "SELECT * FROM users WHERE reset_token=? AND token_expiry > ?",
-        (token, datetime.datetime.now())
+        "SELECT id FROM users WHERE reset_token=? AND token_expiry > ?",
+        (token, datetime.datetime.utcnow().isoformat())
     )
     user = cursor.fetchone()
 
-    if not user:
-        return "❌ Token expired or invalid"
-
-    # ✅ POST → password update
-    if request.method == 'POST':
-
-        password = request.form.get('password') or (request.json.get('password') if request.is_json else None)
-
-        if not password:
-            return jsonify({"success": False, "message": "Password missing"})
-
-        hashed = generate_password_hash(password)
-
-        cursor.execute(
-            "UPDATE users SET password=?, reset_token=NULL, token_expiry=NULL WHERE reset_token=?",
-            (hashed, token)
-        )
-
-        conn.commit()
+    if request.method == 'GET':
         conn.close()
+        return render_template('auth/reset_password.html', token=token if user else None, invalid=not bool(user))
 
-        print("✅ Password updated")
+    payload = request.get_json(silent=True) or {}
+    password = request.form.get('password') or payload.get('password')
 
-        return jsonify({"success": True})
+    if not password:
+        conn.close()
+        return jsonify({"success": False, "message": "Password missing"}), 400
 
-    # ✅ GET → page open
-    return render_template('auth/reset_password.html', token=token)
+    if not user:
+        conn.close()
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 400
+
+    hashed = generate_password_hash(password)
+
+    cursor.execute(
+        "UPDATE users SET password=?, reset_token=NULL, token_expiry=NULL WHERE reset_token=?",
+        (hashed, token)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": "Password reset successful"}), 200
 # ─────────────────────────────────────────────
 # RUN SERVER
 # ─────────────────────────────────────────────
