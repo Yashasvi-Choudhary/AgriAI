@@ -1,30 +1,42 @@
-# Crop recommendation routes
-from flask import Blueprint, request, redirect
-import sqlite3
+def generate_crop_response(crop, confidence, inputs):
 
-crop = Blueprint('crop', __name__)
+    rainfall = inputs["rainfall"]
+    ph = inputs["ph"]
 
-def connect_db():
-    return sqlite3.connect("database.db")
+    # Rule logic
+    if rainfall > 200:
+        reason_en = "High rainfall. Suitable for rice."
+        reason_hi = "अधिक वर्षा। चावल के लिए उपयुक्त।"
+    elif rainfall < 50:
+        reason_en = "Low rainfall. Suitable for millet or maize."
+        reason_hi = "कम वर्षा। बाजरा या मक्का के लिए उपयुक्त।"
+    else:
+        reason_en = "Balanced conditions for crop growth."
+        reason_hi = "फसल के लिए संतुलित स्थिति।"
 
+    if 6 <= ph <= 7.5:
+        advice_en = "Soil pH is ideal."
+        advice_hi = "मिट्टी का pH उपयुक्त है।"
+    else:
+        advice_en = "Improve soil pH."
+        advice_hi = "मिट्टी के pH को सुधारें।"
 
-# ========================
-# 🌾 CROP RECOMMENDATION
-# ========================
-@crop.route('/crop', methods=['POST'])
-def add_crop():
-    crop_name = request.form['crop']
-    confidence = request.form['confidence']
-
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    INSERT INTO crop_recommendations (user_id, recommended_crop, confidence)
-    VALUES (?, ?, ?)
-    """, (1, crop_name, confidence))
-
-    conn.commit()
-    conn.close()
-
-    return redirect('/dashboard')
+    return {
+        "status": "success",
+        "data": {
+            "crop_recommendation": {
+                "english": {
+                    "crop_name": crop,
+                    "confidence": f"{round(confidence * 100, 2)}%",
+                    "reason": reason_en,
+                    "additional_advice": advice_en
+                },
+                "hindi": {
+                    "crop_name": crop,
+                    "confidence": f"{round(confidence * 100, 2)}%",
+                    "reason": reason_hi,
+                    "additional_advice": advice_hi
+                }
+            }
+        }
+    }

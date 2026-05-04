@@ -2,10 +2,13 @@ from flask import Flask, jsonify, render_template, session, redirect, request, f
 import requests
 from database import create_tables
 from routes.auth_routes import auth_bp
+from routes.crop_routes import generate_crop_response   # ✅ ADDED
 
 from utils.translator import get_translations
 
 import sqlite3
+import pickle                     # ✅ ADDED
+import pandas as pd              # ✅ ADDED
 
 # ─────────────────────────────────────────────
 # APP INIT
@@ -17,6 +20,9 @@ app.secret_key = "super_secret_key_123"
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400
+
+# ✅ LOAD ML MODEL
+model = pickle.load(open('models/crop_model.pkl', 'rb'))
 
 
 # ─────────────────────────────────────────────
@@ -33,14 +39,14 @@ def inject_globals():
 
     path = request.path.strip("/")
     page_map = {
-    "": "dashboard",
-    "dashboard": "dashboard",
-    "crop-recommendation": "crop-recommendation",
-    "crop-yield-prediction": "crop-yield-prediction",
-    "plant-disease-detection": "plant-disease-detection",
-    "fertilizer-guide": "fertilizer-guide",
-    "profile": "profile",   # ✅ ADD THIS
-}
+        "": "dashboard",
+        "dashboard": "dashboard",
+        "crop-recommendation": "crop-recommendation",
+        "crop-yield-prediction": "crop-yield-prediction",
+        "plant-disease-detection": "plant-disease-detection",
+        "fertilizer-guide": "fertilizer-guide",
+        "profile": "profile",
+    }
 
     page = page_map.get(path, "dashboard")
     t = get_translations(lang, page) or {}
@@ -48,17 +54,16 @@ def inject_globals():
     user = session.get("user")
 
     return dict(
-    current_user=user or None,
-    t=t or {},
-    lang=lang or "en"
-)
+        current_user=user or None,
+        t=t or {},
+        lang=lang or "en"
+    )
 
 
 # ─────────────────────────────────────────────
 # BLUEPRINTS
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
-
 
 create_tables()
 
@@ -92,7 +97,7 @@ def reset_password_page():
 
 
 # ─────────────────────────────────────────────
-# DASHBOARD (SESSION CHECK)
+# DASHBOARD
 # ─────────────────────────────────────────────
 @app.route('/dashboard')
 def dashboard():
@@ -102,7 +107,7 @@ def dashboard():
 
 
 # ─────────────────────────────────────────────
-# PROFILE (SESSION ONLY FIXED)
+# PROFILE
 # ─────────────────────────────────────────────
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
@@ -131,7 +136,6 @@ def profile():
     elif "@" not in email:
         errors.append("Invalid email format.")
 
-    # SQLite check (no ORM)
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
@@ -151,7 +155,6 @@ def profile():
         flash(msg, "error")
         return redirect(url_for("profile"))
 
-    # update DB
     cursor.execute("""
         UPDATE users
         SET name=?, email=?, phone=?, location=?
@@ -161,7 +164,6 @@ def profile():
     conn.commit()
     conn.close()
 
-    # update session too
     session["user"]["name"] = name
     session["user"]["email"] = email
 
@@ -173,12 +175,53 @@ def profile():
 
 
 # ─────────────────────────────────────────────
-# FEATURE ROUTES
+# FEATURE PAGES
 # ─────────────────────────────────────────────
-@app.route('/crop-recommendation')
+@app.route('/crop-recommendation', methods=['GET', 'POST'])
 def crop_recommendation():
     if "user" not in session:
         return redirect('/login')
+
+    if request.method == "POST":
+        try:
+            data = {
+                "nitrogen": float(request.form.get("nitrogen", 0)),
+                "phosphorus": float(request.form.get("phosphorus", 0)),
+                "potassium": float(request.form.get("potassium", 0)),
+                "temperature": float(request.form.get("temperature", 0)),
+                "humidity": float(request.form.get("humidity", 0)),
+                "ph": float(request.form.get("ph", 0)),
+                "rainfall": float(request.form.get("rainfall", 0))
+            }
+
+            import pandas as pd
+
+            df = pd.DataFrame([[
+                data['nitrogen'],
+                data['phosphorus'],
+                data['potassium'],
+                data['temperature'],
+                data['humidity'],
+                data['ph'],
+                data['rainfall']
+            ]], columns=["nitrogen","phosphorus","potassium","temperature","humidity","ph","rainfall"])
+
+            prediction = model.predict(df)[0]
+            confidence = max(model.predict_proba(df)[0])
+
+            result = generate_crop_response(prediction, confidence, data)
+
+            return render_template(
+                'dashboard/crop-recommendation.html',
+                result=result
+            )
+
+        except:
+            return render_template(
+                'dashboard/crop-recommendation.html',
+                error="Prediction failed"
+            )
+
     return render_template('dashboard/crop-recommendation.html')
 
 
@@ -203,9 +246,48 @@ def fertilizer_guide():
     return render_template('dashboard/fertilizer-guide.html')
 
 
+# ─────────────────────────────────────────────
+# ✅ CROP PREDICTION API (MAIN FEATURE ADDED)
+# ─────────────────────────────────────────────
+@app.route('/api/predict-crop', methods=['POST'])
+def predict_crop():
+    try:
+        data = request.get_json()
+
+        required = ["nitrogen", "phosphorus", "potassium", "temperature", "humidity", "ph", "rainfall"]
+
+        if not data or not all(k in data for k in required):
+            return jsonify({
+                "status": "error",
+                "message": "Missing or invalid input data"
+            })
+
+        df = pd.DataFrame([[
+            float(data['nitrogen']),
+            float(data['phosphorus']),
+            float(data['potassium']),
+            float(data['temperature']),
+            float(data['humidity']),
+            float(data['ph']),
+            float(data['rainfall'])
+        ]], columns=required)
+
+        prediction = model.predict(df)[0]
+        confidence = max(model.predict_proba(df)[0])
+
+        result = generate_crop_response(prediction, confidence, data)
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": "Something went wrong"
+        })
+
 
 # ─────────────────────────────────────────────
-# SAVE LOCATION (FROM FRONTEND)
+# SAVE LOCATION
 # ─────────────────────────────────────────────
 @app.route("/api/save-location", methods=["POST"])
 def save_location():
@@ -223,17 +305,15 @@ def save_location():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    # Just store location (basic entry)
     cursor.execute("""
     INSERT INTO farm_conditions (user_id, latitude, longitude, location_name)
     VALUES (?, ?, ?, ?)
-""", (user_id, lat, lon, city))
+    """, (user_id, lat, lon, city))
 
     conn.commit()
     conn.close()
 
     return jsonify({"success": True})
-
 
 
 # ─────────────────────────────────────────────
