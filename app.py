@@ -224,6 +224,8 @@ def change_password():
     errors = {}
     if not current or not new or not confirm:
         errors['general'] = 'All password fields are required'
+    elif len(new) < 6:
+        errors['new_password'] = 'Password must be at least 6 characters long'
     elif new != confirm:
         errors['confirm_password'] = 'Passwords do not match'
     else:
