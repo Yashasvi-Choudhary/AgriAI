@@ -101,7 +101,8 @@
       window.__i18n = {{ (t or {}) | tojson | safe }};
       window.__lang = "{{ lang }}";
 
-      console.log("Translations loaded:", window.__i18n);
+      console.log("Translations loaded for language {{ lang }}:", Object.keys(window.__i18n || {}).length, "keys");
+      console.log("Current language:", window.__lang);
     </script>
 
     <script src="{{ url_for('static', filename='js/global.js') }}"></script>
