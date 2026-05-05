@@ -1,0 +1,40 @@
+{
+  "market_page_title": "बाजार मूल्य – Labhansh.ai",
+  "market_title": "बाजार मूल्य",
+  "market_subtitle": "अपने क्षेत्र में फसल की वास्तविक समय बाजार कीमतें जांचें",
+
+  "market_form_section_title": "बाजार मूल्य जांचें",
+
+  "market_label_crop": "फसल का नाम",
+  "market_crop_placeholder": "फसल का नाम दर्ज करें (जैसे, गेहूँ, चावल, मकई)",
+
+  "market_btn_check": "कीमत जांचें",
+  "market_btn_checking": "जांच जा रही है…",
+
+  "market_result_section_title": "बाजार जानकारी",
+  "market_result_crop": "फसल",
+  "market_result_location": "स्थान",
+  "market_result_market": "बाजार",
+  "market_result_current_price": "वर्तमान मूल्य",
+  "market_result_min_price": "न्यूनतम मूल्य",
+  "market_result_max_price": "अधिकतम मूल्य",
+  "market_result_analysis": "विश्लेषण",
+
+  "market_history_section_title": "मूल्य इतिहास",
+  "market_history_empty": "अभी कोई बाजार इतिहास नहीं है। कीमत जांचकर शुरुआत करें!",
+  "market_history_date": "तारीख",
+  "market_history_crop": "फसल",
+  "market_history_market": "बाजार",
+  "market_history_price": "मूल्य",
+  "market_history_actions": "कार्य",
+  "market_history_view": "देखें",
+  "market_history_delete": "हटाएं",
+
+  "market_error_no_crop": "कृपया फसल का नाम दर्ज करें",
+  "market_error_no_location": "स्थान नहीं मिला। कृपया पहले अपना स्थान सेट करें",
+  "market_error_no_data": "आपके क्षेत्र में इस फसल के लिए कोई बाजार डेटा उपलब्ध नहीं है",
+  "market_error_api_error": "बाजार डेटा प्राप्त करने में त्रुटि। कृपया पुनः प्रयास करें",
+  "market_error_server_error": "सर्वर त्रुटि। कृपया बाद में पुनः प्रयास करें",
+
+  "market_success_deleted": "बाजार इतिहास सफलतापूर्वक हटा दिया गया"
+}

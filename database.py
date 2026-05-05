@@ -157,6 +157,24 @@ CREATE TABLE IF NOT EXISTS government_schemes (
     )
     """)
 
+    # ---------------- MARKET PRICE HISTORY ----------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS market_price_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        crop_name TEXT,
+        location_name TEXT,
+        latitude REAL,
+        longitude REAL,
+        current_price TEXT,
+        min_price TEXT,
+        max_price TEXT,
+        market_name TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+
     conn.commit()
     conn.close()
 
