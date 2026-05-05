@@ -11,10 +11,14 @@ let currentLang = window.__lang || localStorage.getItem("lang") || "en";
 // ─────────────────────────────────────────────────────────────
 function applyLang() {
   var i18n = window.__i18n || {};
+  console.log('Applying language. Current lang:', currentLang, 'Translations loaded:', Object.keys(i18n).length);
 
   document.querySelectorAll("[data-i18n]").forEach(function (el) {
     var key = el.getAttribute("data-i18n");
-    if (i18n[key] === undefined) return;
+    if (!i18n[key]) {
+      console.warn('Missing translation key:', key);
+      return;
+    }
     if (el.tagName === "OPTION") {
       el.textContent = i18n[key];
     } else if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
@@ -29,26 +33,43 @@ function applyLang() {
     if (i18n[key] !== undefined) el.placeholder = i18n[key];
   });
 
-  // Active language button
-  document.querySelectorAll(".lang-btn").forEach(function (btn) {
+  // Active language button - highlight current language
+  var buttons = document.querySelectorAll(".lang-btn");
+  buttons.forEach(function (btn) {
     btn.classList.remove("bg-accent", "text-white", "font-semibold");
     btn.classList.add("text-white/50");
   });
-  var activeBtn = document.querySelector(
-    ".lang-btn[onclick=\"setLang('" + currentLang + "')\"]",
-  );
-  if (activeBtn) {
-    activeBtn.classList.add("bg-accent", "text-white", "font-semibold");
-    activeBtn.classList.remove("text-white/50");
-  }
+  
+  // Find and highlight the active language button by checking onclick attribute
+  buttons.forEach(function (btn) {
+    var onclick = btn.getAttribute('onclick') || '';
+    if (onclick.includes("setLang('" + currentLang + "')")) {
+      btn.classList.add("bg-accent", "text-white", "font-semibold");
+      btn.classList.remove("text-white/50");
+    }
+  });
+  
+  console.log('Language applied successfully:', currentLang);
 }
+
+// Translation helper
+window.t = function(key, fallback) {
+  const i18n = window.__i18n || {};
+  return i18n[key] || fallback || key;
+};
 
 // ─────────────────────────────────────────────────────────────
 // LANGUAGE SWITCHER
 // ─────────────────────────────────────────────────────────────
 function setLang(lang) {
-  document.cookie = "lang=" + lang + ";path=/;max-age=31536000";
+  if (!lang || (lang !== 'en' && lang !== 'hi')) {
+    console.warn('Invalid language:', lang);
+    return;
+  }
+  console.log('Setting language to:', lang);
+  document.cookie = "lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax";
   localStorage.setItem("lang", lang);
+  currentLang = lang;
   window.location.reload();
 }
 
@@ -189,4 +210,138 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", waitForUserAndLoadWeather);
 } else {
   waitForUserAndLoadWeather();
+}
+
+// ─────────────────────────────────────────────────────────────
+// PROFILE FUNCTIONS
+// ─────────────────────────────────────────────────────────────
+function getProfileLocationStorageKey() {
+  const userId = window._currentUserId || 'guest';
+  return `location_name_${userId}`;
+}
+
+function initializeProfileLocationField() {
+  const locationInput = document.getElementById('location');
+  if (!locationInput) return;
+
+  const storedLocation = localStorage.getItem(getProfileLocationStorageKey());
+  if (storedLocation) {
+    locationInput.value = storedLocation;
+  }
+
+  locationInput.addEventListener('input', function () {
+    localStorage.setItem(getProfileLocationStorageKey(), locationInput.value.trim());
+  });
+}
+
+async function updateProfile() {
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const locationValue = document.getElementById('location').value.trim();
+
+  // Clear previous errors
+  document.querySelectorAll('[id^="error-"]').forEach(el => {
+    el.classList.add('hidden');
+    el.textContent = '';
+  });
+
+  try {
+    const res = await fetch('/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, location: locationValue })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      for (const [field, msg] of Object.entries(data.errors)) {
+        const errorEl = document.getElementById(`error-${field}`);
+        if (errorEl) {
+          errorEl.textContent = t(`profile_error_${field}_required`, msg) || t(`profile_error_${field}_invalid`, msg) || t(`profile_error_${field}_too_short`, msg) || msg;
+          errorEl.classList.remove('hidden');
+        }
+      }
+    } else {
+      localStorage.setItem(getProfileLocationStorageKey(), locationValue);
+      if (data.lat && data.lon) {
+        const userId = window._currentUserId || 'guest';
+        localStorage.setItem(`lat_${userId}`, data.lat);
+        localStorage.setItem(`lon_${userId}`, data.lon);
+        localStorage.setItem(`location_name_${userId}`, locationValue);
+      }
+      alert(t('profile_success', 'Profile updated successfully'));
+      window.location.reload();
+    }
+  } catch (err) {
+    console.error('Profile update error:', err);
+    alert(t('profile_error_failed', 'An error occurred. Please try again.'));
+  }
+}
+
+async function changePassword() {
+  const current = document.getElementById('current_password').value;
+  const newPass = document.getElementById('new_password').value;
+  const confirm = document.getElementById('confirm_password').value;
+
+  // Clear previous errors
+  document.querySelectorAll('[id^="error-"]').forEach(el => {
+    el.classList.add('hidden');
+    el.textContent = '';
+  });
+
+  if (newPass.length > 0 && newPass.length < 6) {
+    const errorEl = document.getElementById('error-new_password');
+    if (errorEl) {
+      errorEl.textContent = t('password_error_too_short', 'Password must be at least 6 characters long');
+      errorEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch('/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        current_password: current,
+        new_password: newPass,
+        confirm_password: confirm
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      for (const [field, msg] of Object.entries(data.errors)) {
+        const errorEl = document.getElementById(`error-${field}`);
+        if (errorEl) {
+          errorEl.textContent = t(`password_error_${field}`, msg);
+          errorEl.classList.remove('hidden');
+        }
+      }
+    } else {
+      alert(t('password_success', 'Password changed successfully'));
+      document.getElementById('password-form').reset();
+    }
+  } catch (err) {
+    console.error('Password change error:', err);
+    alert(t('password_error_failed', 'An error occurred. Please try again.'));
+  }
+}
+
+// Event listeners for profile page
+if (document.getElementById('profile-form')) {
+  initializeProfileLocationField();
+  document.getElementById('profile-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    updateProfile();
+  });
+}
+
+if (document.getElementById('password-form')) {
+  document.getElementById('password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    changePassword();
+  });
 }
