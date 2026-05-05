@@ -6,6 +6,9 @@ from config import *
 
 from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
 
@@ -43,6 +46,8 @@ mail = Mail(app)
 app.secret_key = "super_secret_key_123"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+MARKET_API_KEY = os.getenv("MARKET_API_KEY")
 sys.path.insert(0, BASE_DIR)
 
 utils_path = os.path.join(BASE_DIR, "fertilizer_utils.py")
@@ -82,6 +87,7 @@ def inject_globals():
     "crop-yield-prediction": "crop-yield-prediction",
     "plant-disease-detection": "plant-disease-detection",
     "fertilizer-guide": "fertilizer-guide",
+    "market-price": "market",
     "profile": "profile",   # ✅ ADD THIS
 }
 
@@ -261,6 +267,13 @@ def fertilizer_guide():
     return render_template('dashboard/fertilizer-guide.html')
 
 
+@app.route('/market-price')
+def market_price():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/market_price.html')
+
+
 @app.route('/predict', methods=['POST'])
 def predict_fertilizer():
     payload = request.get_json(silent=True)
@@ -303,6 +316,268 @@ def predict_yield():
 
     result = utils_yield.build_response(prediction)
     return jsonify(result)
+
+
+# ─────────────────────────────────────────────
+# MARKET PRICE API
+# ─────────────────────────────────────────────
+@app.route('/api/get-market-price', methods=['POST'])
+def get_market_price():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    data = request.get_json()
+    crop_name = data.get('crop_name', '').strip()
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+    location_name = data.get('location_name', '').strip()
+    user_id = session["user"]["id"]
+
+    if not crop_name:
+        return jsonify({"status": "error", "message": "Crop name required"}), 400
+
+    if not location_name or latitude is None or longitude is None:
+        return jsonify({"status": "error", "message": "Location data required"}), 400
+
+    market_data = fetch_crop_market_price(crop_name, location_name, latitude, longitude)
+
+    if not market_data:
+        return jsonify({"status": "error", "message": "Unable to fetch market data. Please try another crop or location."}), 502
+
+    current_price = market_data.get('current_price', 'N/A')
+    min_price = market_data.get('min_price', 'N/A')
+    max_price = market_data.get('max_price', 'N/A')
+    market_name = market_data.get('market_name', location_name or 'Local Market')
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+    INSERT INTO market_price_history
+    (user_id, crop_name, location_name, latitude, longitude, current_price, min_price, max_price, market_name)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (user_id, crop_name, location_name, latitude, longitude, current_price, min_price, max_price, market_name))
+    conn.commit()
+    conn.close()
+
+    analysis = generate_price_analysis(current_price, min_price, max_price)
+
+    result = {
+        "status": "success",
+        "data": {
+            "market_price": {
+                "english": {
+                    "crop_name": crop_name.capitalize(),
+                    "location": location_name,
+                    "market": market_name,
+                    "current_price": f"₹{current_price}/quintal",
+                    "min_price": f"₹{min_price}/quintal",
+                    "max_price": f"₹{max_price}/quintal",
+                    "analysis": analysis["english"]
+                },
+                "hindi": {
+                    "crop_name": crop_name.capitalize(),
+                    "location": location_name,
+                    "market": market_name,
+                    "current_price": f"₹{current_price}/क्विंटल",
+                    "min_price": f"₹{min_price}/क्विंटल",
+                    "max_price": f"₹{max_price}/क्विंटल",
+                    "analysis": analysis["hindi"]
+                }
+            }
+        }
+    }
+
+    return jsonify(result)
+
+
+@app.route('/api/get-market-history', methods=['GET'])
+def get_market_history():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    user_id = session["user"]["id"]
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT id, crop_name, location_name, current_price, market_name, created_at
+    FROM market_price_history
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+    LIMIT 20
+    """, (user_id,))
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    history = []
+    for row in rows:
+        history.append({
+            "id": row[0],
+            "crop_name": row[1],
+            "location_name": row[2],
+            "current_price": row[3],
+            "market_name": row[4],
+            "created_at": row[5]
+        })
+
+    return jsonify({"status": "success", "data": history})
+
+
+@app.route('/delete-market-history', methods=['POST'])
+def delete_market_history():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    data = request.get_json()
+    history_id = data.get('id')
+    user_id = session["user"]["id"]
+
+    if not history_id:
+        return jsonify({"status": "error", "message": "ID required"}), 400
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    # Verify ownership
+    cursor.execute("SELECT user_id FROM market_price_history WHERE id = ?", (history_id,))
+    result = cursor.fetchone()
+
+    if not result or result[0] != user_id:
+        conn.close()
+        return jsonify({"status": "error", "message": "Not authorized"}), 403
+
+    cursor.execute("DELETE FROM market_price_history WHERE id = ?", (history_id,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status": "success", "message": "Deleted successfully"})
+
+
+# ─────────────────────────────────────────────
+# MARKET PRICE HELPER FUNCTIONS
+# ─────────────────────────────────────────────
+def normalize_price_field(record, fields):
+    for field in fields:
+        value = record.get(field)
+        if value is None:
+            continue
+        normalized = str(value).strip()
+        if normalized and normalized not in ["NA", "na", "--"]:
+            return normalized
+    return None
+
+
+def choose_best_market_record(records, location):
+    location_lower = location.lower().strip()
+    best = None
+    best_score = -1
+
+    for record in records:
+        score = 0
+        for field in ["market", "district", "state", "commodity"]:
+            value = str(record.get(field, "")).lower()
+            if location_lower and location_lower in value:
+                score += 2
+        if score > best_score:
+            best_score = score
+            best = record
+
+    return best or records[0]
+
+
+def fetch_crop_market_price(crop_name, location, lat, lon):
+    if not MARKET_API_KEY:
+        print("[MarketPrice] Missing MARKET_API_KEY")
+        return None
+
+    url = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+    params = {
+        "api-key": MARKET_API_KEY,
+        "format": "json",
+        "filters[commodity]": crop_name,
+        "q": location,
+        "limit": 15,
+        "offset": 0,
+    }
+    headers = {"User-Agent": "AgriAI Market Price Client"}
+
+    session = requests.Session()
+    retries = Retry(
+        total=3,
+        backoff_factor=0.5,
+        status_forcelist=[429, 500, 502, 503, 504],
+        raise_on_status=False,
+    )
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+
+    print(f"[MarketPrice] Request URL: {url}")
+    print(f"[MarketPrice] Request params: {params}")
+
+    try:
+        response = session.get(url, params=params, headers=headers, timeout=(5, 20))
+        response.raise_for_status()
+    except requests.exceptions.RequestException as exc:
+        print(f"[MarketPrice] API error: {exc}")
+        if hasattr(exc, "response") and exc.response is not None:
+            print(
+                "[MarketPrice] Response status:",
+                exc.response.status_code,
+                exc.response.text[:300],
+            )
+        return None
+
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        print(f"[MarketPrice] JSON decode failed: {exc}")
+        return None
+
+    records = payload.get("records") or []
+    if not records:
+        print("[MarketPrice] No records returned for", crop_name, "at", location)
+        return None
+
+    record = choose_best_market_record(records, location)
+    current_price = normalize_price_field(record, ["modal_price", "modal", "price"])
+    min_price = normalize_price_field(record, ["min_price", "minimum_price"])
+    max_price = normalize_price_field(record, ["max_price", "maximum_price"])
+    market_name = normalize_price_field(record, ["market", "market_name"]) or location
+
+    if not current_price and not min_price and not max_price:
+        print("[MarketPrice] No valid price values in record", record)
+        return None
+
+    return {
+        "current_price": current_price or "N/A",
+        "min_price": min_price or current_price or "N/A",
+        "max_price": max_price or current_price or "N/A",
+        "market_name": market_name,
+    }
+
+
+def generate_price_analysis(current, min_price, max_price):
+    """
+    Generate price analysis text
+    """
+    try:
+        curr_val = float(str(current).replace('₹', '').split('/')[0])
+        min_val = float(str(min_price).replace('₹', '').split('/')[0])
+        max_val = float(str(max_price).replace('₹', '').split('/')[0])
+    except:
+        curr_val = min_val = max_val = 0
+
+    if curr_val >= max_val * 0.9:
+        en_analysis = "Price is near maximum. Consider selling if possible."
+        hi_analysis = "कीमत अधिकतम के निकट है। यदि संभव हो तो बेचने पर विचार करें।"
+    elif curr_val <= min_val * 1.1:
+        en_analysis = "Price is near minimum. Wait for better rates if possible."
+        hi_analysis = "कीमत न्यूनतम के निकट है। यदि संभव हो तो बेहतर दरों के लिए प्रतीक्षा करें।"
+    else:
+        en_analysis = "Price is in average range. Monitor market trends."
+        hi_analysis = "कीमत औसत सीमा में है। बाजार के रुझानों पर नज़र रखें।"
+
+    return {"english": en_analysis, "hindi": hi_analysis}
 
 
 # ─────────────────────────────────────────────
