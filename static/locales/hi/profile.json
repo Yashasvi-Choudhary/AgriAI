@@ -11,14 +11,16 @@
   "current_password": "वर्तमान पासवर्ड",
   "new_password": "नया पासवर्ड",
   "confirm_password": "पासवर्ड की पुष्टि करें",
-  "change_password_btn": "पासवर्ड बदलें"
-}
-
-  "password_error_current_required": "कृपया अपना वर्तमान पासवर्ड दर्ज करें।",
-  "password_error_too_short": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।",
-  "password_error_no_match": "नए पासवर्ड मेल नहीं खाते।",
-  "password_error_same_as_old": "नया पासवर्ड वर्तमान से अलग होना चाहिए।",
-  "password_error_wrong_current": "वर्तमान पासवर्ड गलत है।",
-  "password_error_failed": "पासवर्ड अपडेट करने में विफल। कृपया पुनः प्रयास करें।",
-  "password_success": "पासवर्ड सफलतापूर्वक अपडेट किया गया।"
+  "change_password_btn": "पासवर्ड बदलें",
+  "password_error_too_short": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
+  "password_error_no_match": "पासवर्ड मेल नहीं खाते",
+  "password_error_wrong_current": "वर्तमान पासवर्ड गलत है",
+  "password_error_general": "सभी पासवर्ड फ़ील्ड आवश्यक हैं",
+  "profile_error_name_required": "उपयोगकर्ता नाम आवश्यक है",
+  "profile_error_phone_invalid": "फ़ोन संख्या होना चाहिए",
+  "profile_error_location_too_short": "स्थान कम से कम 3 अक्षरों का होना चाहिए",
+  "password_success": "पासवर्ड सफलतापूर्वक बदला गया",
+  "password_error_failed": "एक त्रुटि हुई। कृपया पुनः प्रयास करें।",
+  "profile_success": "प्रोफ़ाइल सफलतापूर्वक अपडेट की गई",
+  "profile_error_failed": "एक त्रुटि हुई। कृपया पुनः प्रयास करें।"
 }
