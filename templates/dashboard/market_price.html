@@ -1,0 +1,303 @@
+<!-- Market Price page -->
+{% extends "base.html" %}
+
+{% block page_name %}
+market-price
+{% endblock %}
+
+{% block title %}
+Market Prices
+{% endblock %}
+
+{% block content %}
+
+<div class="bg-background py-10 relative">
+  <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+    <!-- ── PAGE HEADER ── -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-1.5">
+        <div
+          class="flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 bg-gradient-to-br from-primary to-primaryDark shadow-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h1
+            class="text-2xl sm:text-3xl font-bold leading-tight text-textDark font-heading"
+            data-i18n="market_title"
+          ></h1>
+          <p
+            class="text-sm mt-0.5 text-textLight"
+            data-i18n="market_subtitle"
+          ></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FORM CARD ── -->
+    <div
+      class="bg-white rounded-2xl border p-6 sm:p-8 mb-7 border-backgroundDark shadow-sm"
+    >
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+        <h2
+          class="text-xs font-bold uppercase tracking-widest text-textMid"
+          data-i18n="market_form_section_title"
+        ></h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+        <!-- Crop Name -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="market_label_crop"
+          ></label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3v18m-7-7h14M7 10.5h10M7 17.5h10"
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="cropName"
+              name="crop_name"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              data-i18n-placeholder="market_crop_placeholder"
+              placeholder=""
+            />
+          </div>
+        </div>
+
+        <!-- Location Display (Read-only) -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+          >
+            Location
+          </label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="locationDisplay"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-backgroundLight text-textDark outline-none cursor-not-allowed"
+              readonly
+              value="Not set"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="mt-8 flex gap-3">
+        <button
+          id="checkPriceBtn"
+          type="button"
+          onclick="getMarketPrice()"
+          class="flex-1 rounded-lg bg-gradient-to-r from-primary to-primaryDark px-6 py-3 text-sm font-semibold text-white shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span id="checkBtnText" data-i18n="market_btn_check"></span>
+          <span
+            id="checkSpinner"
+            class="hidden inline-block ml-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+          ></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── RESULT CARD ── -->
+    <div
+      id="resultCard"
+      class="bg-white rounded-2xl border p-6 sm:p-8 mb-7 border-backgroundDark shadow-sm hidden"
+    >
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+        <h2
+          class="text-xs font-bold uppercase tracking-widest text-textMid"
+          data-i18n="market_result_section_title"
+        ></h2>
+      </div>
+
+      <div
+        id="resultContent"
+        class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5"
+      >
+        <!-- Results will be rendered here -->
+      </div>
+
+      <!-- Analysis Section -->
+      <div class="mt-6 pt-6 border-t border-backgroundDark">
+        <h3
+          class="text-sm font-semibold text-textDark mb-3"
+          data-i18n="market_result_analysis"
+        ></h3>
+        <p id="analysisText" class="text-sm text-textMid leading-relaxed"></p>
+      </div>
+    </div>
+
+    <!-- ── ERROR STATE ── -->
+    <div
+      id="errorState"
+      class="bg-red-50 rounded-2xl border border-red-200 p-6 sm:p-8 mb-7 shadow-sm hidden"
+    >
+      <div class="flex items-start gap-3">
+        <svg
+          class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <div>
+          <h3 class="font-semibold text-red-900">Error</h3>
+          <p id="errorMsg" class="text-sm text-red-700 mt-1"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOADING STATE ── -->
+    <div
+      id="loadingState"
+      class="bg-white rounded-2xl border p-6 sm:p-8 mb-7 border-backgroundDark shadow-sm hidden"
+    >
+      <div class="flex items-center justify-center gap-3">
+        <div
+          class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"
+        ></div>
+        <p class="text-sm text-textMid">Fetching market data...</p>
+      </div>
+    </div>
+
+    <!-- ── HISTORY SECTION ── -->
+    <div
+      class="bg-white rounded-2xl border p-6 sm:p-8 border-backgroundDark shadow-sm"
+    >
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+        <h2
+          class="text-xs font-bold uppercase tracking-widest text-textMid"
+          data-i18n="market_history_section_title"
+        ></h2>
+      </div>
+
+      <!-- Empty State -->
+      <div id="historyEmpty" class="text-center py-8">
+        <svg
+          class="w-12 h-12 text-textLight mx-auto mb-3 opacity-50"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+        <p class="text-sm text-textLight" data-i18n="market_history_empty"></p>
+      </div>
+
+      <!-- History Table -->
+      <div id="historyTable" class="overflow-x-auto hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-backgroundDark">
+              <th
+                class="text-left py-3 px-4 font-semibold text-textDark"
+                data-i18n="market_history_date"
+              ></th>
+              <th
+                class="text-left py-3 px-4 font-semibold text-textDark"
+                data-i18n="market_history_crop"
+              ></th>
+              <th
+                class="text-left py-3 px-4 font-semibold text-textDark"
+                data-i18n="market_history_market"
+              ></th>
+              <th
+                class="text-left py-3 px-4 font-semibold text-textDark"
+                data-i18n="market_history_price"
+              ></th>
+              <th
+                class="text-center py-3 px-4 font-semibold text-textDark"
+                data-i18n="market_history_actions"
+              ></th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <!-- History items will be rendered here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize market price page
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      loadMarketHistory();
+      updateLocationDisplay();
+    });
+  } else {
+    loadMarketHistory();
+    updateLocationDisplay();
+  }
+</script>
+{% endblock %}

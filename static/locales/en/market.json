@@ -1,0 +1,40 @@
+{
+  "market_page_title": "Market Prices – Labhansh.ai",
+  "market_title": "Market Prices",
+  "market_subtitle": "Check real-time crop market prices in your location",
+
+  "market_form_section_title": "Check Market Price",
+
+  "market_label_crop": "Crop Name",
+  "market_crop_placeholder": "Enter crop name (e.g., Wheat, Rice, Corn)",
+
+  "market_btn_check": "Check Price",
+  "market_btn_checking": "Checking…",
+
+  "market_result_section_title": "Market Information",
+  "market_result_crop": "Crop",
+  "market_result_location": "Location",
+  "market_result_market": "Market",
+  "market_result_current_price": "Current Price",
+  "market_result_min_price": "Min Price",
+  "market_result_max_price": "Max Price",
+  "market_result_analysis": "Analysis",
+
+  "market_history_section_title": "Price History",
+  "market_history_empty": "No market history yet. Check a price to get started!",
+  "market_history_date": "Date",
+  "market_history_crop": "Crop",
+  "market_history_market": "Market",
+  "market_history_price": "Price",
+  "market_history_actions": "Actions",
+  "market_history_view": "View",
+  "market_history_delete": "Delete",
+
+  "market_error_no_crop": "Please enter a crop name",
+  "market_error_no_location": "Location not found. Please set your location first",
+  "market_error_no_data": "No market data available for this crop in your location",
+  "market_error_api_error": "Error fetching market data. Please try again",
+  "market_error_server_error": "Server error. Please try again later",
+
+  "market_success_deleted": "Market history deleted successfully"
+}
