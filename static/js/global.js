@@ -191,3 +191,108 @@ if (document.readyState === "loading") {
 } else {
   waitForUserAndLoadWeather();
 }
+
+// ─────────────────────────────────────────────────────────────
+// PROFILE FUNCTIONS
+// ─────────────────────────────────────────────────────────────
+async function updateProfile() {
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const location = document.getElementById('location').value.trim();
+
+  // Clear previous errors
+  document.querySelectorAll('[id^="error-"]').forEach(el => {
+    el.classList.add('hidden');
+    el.textContent = '';
+  });
+
+  try {
+    const res = await fetch('/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, location })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      for (const [field, msg] of Object.entries(data.errors)) {
+        const errorEl = document.getElementById(`error-${field}`);
+        if (errorEl) {
+          errorEl.textContent = msg;
+          errorEl.classList.remove('hidden');
+        }
+      }
+    } else {
+      alert(data.message);
+      // Update localStorage if location changed
+      if (data.lat && data.lon) {
+        localStorage.setItem('latitude', data.lat);
+        localStorage.setItem('longitude', data.lon);
+      }
+      // Reload to update header
+      location.reload();
+    }
+  } catch (err) {
+    console.error('Profile update error:', err);
+    alert('An error occurred. Please try again.');
+  }
+}
+
+async function changePassword() {
+  const current = document.getElementById('current_password').value;
+  const newPass = document.getElementById('new_password').value;
+  const confirm = document.getElementById('confirm_password').value;
+
+  // Clear previous errors
+  document.querySelectorAll('[id^="error-"]').forEach(el => {
+    el.classList.add('hidden');
+    el.textContent = '';
+  });
+
+  try {
+    const res = await fetch('/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        current_password: current,
+        new_password: newPass,
+        confirm_password: confirm
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      for (const [field, msg] of Object.entries(data.errors)) {
+        const errorEl = document.getElementById(`error-${field}`);
+        if (errorEl) {
+          errorEl.textContent = msg;
+          errorEl.classList.remove('hidden');
+        }
+      }
+    } else {
+      alert(data.message);
+      // Clear form
+      document.getElementById('password-form').reset();
+    }
+  } catch (err) {
+    console.error('Password change error:', err);
+    alert('An error occurred. Please try again.');
+  }
+}
+
+// Event listeners for profile page
+if (document.getElementById('profile-form')) {
+  document.getElementById('profile-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    updateProfile();
+  });
+}
+
+if (document.getElementById('password-form')) {
+  document.getElementById('password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    changePassword();
+  });
+}

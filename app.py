@@ -1,8 +1,7 @@
 import uuid
 import datetime
-from werkzeug.security import generate_password_hash
-from flask_mail import Mail, Message
-from config import *
+from werkzeug.security import generate_password_hash, check_password_hash
+from utils.geolocation import geocode_location
 
 from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for
 import requests
@@ -142,75 +141,93 @@ def dashboard():
 
 
 # ─────────────────────────────────────────────
-# PROFILE (SESSION ONLY FIXED)
+# PROFILE
 # ─────────────────────────────────────────────
-@app.route("/profile", methods=["GET", "POST"])
+@app.route('/profile')
 def profile():
     if "user" not in session:
-        return redirect("/login")
-
-    user = session["user"]
-
-    if request.method == "GET":
-        return render_template("layout/profile.html", user=user)
-
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
-
-    name = request.form.get("name", "").strip()
-    email = request.form.get("email", "").strip()
-    phone = request.form.get("phone", "").strip()
-    location = request.form.get("location", "").strip()
-
-    errors = []
-
-    if not name:
-        errors.append("Full name is required.")
-
-    if not email:
-        errors.append("Email is required.")
-    elif "@" not in email:
-        errors.append("Invalid email format.")
-
-    # SQLite check (no ORM)
-    conn = sqlite3.connect("database.db")
+        return redirect('/login')
+    
+    conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
+    cursor.execute("SELECT name, email, phone, location FROM users WHERE id=?", (session["user"]["id"],))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if not user:
+        return redirect('/login')
+    
+    return render_template('profile.html', user=user)
 
-    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
-    existing = cursor.fetchone()
-
-    if existing and existing[0] != user["id"]:
-        errors.append("Email already in use.")
-
+@app.route('/update-profile', methods=['POST'])
+def update_profile():
+    if "user" not in session:
+        return jsonify({"success": False, "message": "Not logged in"}), 401
+    
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    phone = data.get('phone', '').strip()
+    location = data.get('location', '').strip()
+    
+    errors = {}
+    if not name:
+        errors['name'] = 'Username is required'
+    if phone and not phone.isdigit():
+        errors['phone'] = 'Phone must be numeric'
+    if location and len(location) < 3:
+        errors['location'] = 'Location must be at least 3 characters'
+    
     if errors:
-        conn.close()
-        msg = errors[0]
-
-        if is_ajax:
-            return jsonify({"success": False, "message": msg}), 400
-
-        flash(msg, "error")
-        return redirect(url_for("profile"))
-
-    # update DB
-    cursor.execute("""
-        UPDATE users
-        SET name=?, email=?, phone=?, location=?
-        WHERE id=?
-    """, (name, email, phone, location, user["id"]))
-
+        return jsonify({"success": False, "errors": errors})
+    
+    lat, lon = geocode_location(location) if location else (None, None)
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET name=?, phone=?, location=? WHERE id=?", (name, phone, location, session["user"]["id"]))
     conn.commit()
     conn.close()
-
-    # update session too
+    
+    # Update session
     session["user"]["name"] = name
-    session["user"]["email"] = email
+    
+    return jsonify({"success": True, "message": "Profile updated successfully", "lat": lat, "lon": lon})
 
-    if is_ajax:
-        return jsonify({"success": True, "message": "Profile updated"}), 200
-
-    flash("Profile updated successfully", "success")
-    return redirect(url_for("profile"))
-
+@app.route('/change-password', methods=['POST'])
+def change_password():
+    if "user" not in session:
+        return jsonify({"success": False, "message": "Not logged in"}), 401
+    
+    data = request.get_json()
+    current = data.get('current_password')
+    new = data.get('new_password')
+    confirm = data.get('confirm_password')
+    
+    errors = {}
+    if not current or not new or not confirm:
+        errors['general'] = 'All password fields are required'
+    elif new != confirm:
+        errors['confirm_password'] = 'Passwords do not match'
+    else:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT password FROM users WHERE id=?", (session["user"]["id"],))
+        user = cursor.fetchone()
+        conn.close()
+        if not user or not check_password_hash(user[0], current):
+            errors['current_password'] = 'Current password is incorrect'
+    
+    if errors:
+        return jsonify({"success": False, "errors": errors})
+    
+    hashed = generate_password_hash(new)
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET password=? WHERE id=?", (hashed, session["user"]["id"]))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"success": True, "message": "Password changed successfully"})
 
 # ─────────────────────────────────────────────
 # FEATURE ROUTES
@@ -446,6 +463,7 @@ def reset_password(token):
 
     # ✅ GET → page open
     return render_template('auth/reset_password.html', token=token)
+
 # ─────────────────────────────────────────────
 # RUN SERVER
 # ─────────────────────────────────────────────
