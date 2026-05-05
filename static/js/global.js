@@ -2,7 +2,7 @@
    global.js — clean version, no opacity tricks needed
    The flash is eliminated by matching html background color.
    ============================================================ */
-const DEV_MODE = true;
+window.DEV_MODE = window.DEV_MODE ?? true;
 
 let currentLang = window.__lang || localStorage.getItem("lang") || "en";
 
@@ -119,8 +119,7 @@ function waitForUserAndLoadWeather() {
 window.globalWeatherData = null;
 
 async function fetchWeatherData() {
-
-// remove this when API is ready, for testing without hitting rate limits
+  // remove this when API is ready, for testing without hitting rate limits
 
   if (DEV_MODE) {
     console.log("⚠️ Dev mode: skipping API call");
