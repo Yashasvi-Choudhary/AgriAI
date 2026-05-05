@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     phone TEXT,
     password TEXT NOT NULL,
+    location TEXT,
 
     reset_token TEXT,
     token_expiry TIMESTAMP,
@@ -24,6 +25,12 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
+
+    # Add location column if it doesn't exist (for existing databases)
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN location TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
 
     # ---------------- FARM CONDITIONS ----------------
     cursor.execute("""
