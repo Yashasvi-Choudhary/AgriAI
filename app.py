@@ -321,6 +321,20 @@ def predict_yield():
 # ─────────────────────────────────────────────
 # MARKET PRICE API
 # ─────────────────────────────────────────────
+
+crop_translations = {
+    "wheat": {"english": "Wheat", "hindi": "गेहूं"},
+    "rice": {"english": "Rice", "hindi": "चावल"},
+    "maize": {"english": "Maize", "hindi": "मक्का"},
+    "barley": {"english": "Barley", "hindi": "जौ"},
+    "soybean": {"english": "Soybean", "hindi": "सोयाबीन"},
+    "cotton": {"english": "Cotton", "hindi": "कपास"},
+    "sugarcane": {"english": "Sugarcane", "hindi": "गन्ना"},
+    "potato": {"english": "Potato", "hindi": "आलू"},
+    "tomato": {"english": "Tomato", "hindi": "टमाटर"},
+    "onion": {"english": "Onion", "hindi": "प्याज"}
+}
+
 @app.route('/api/get-market-price', methods=['POST'])
 def get_market_price():
     if "user" not in session:
@@ -361,12 +375,14 @@ def get_market_price():
 
     analysis = generate_price_analysis(current_price, min_price, max_price)
 
+    crop_display = crop_translations.get(crop_name.lower(), {"english": crop_name.capitalize(), "hindi": crop_name.capitalize()})
+
     result = {
         "status": "success",
         "data": {
             "market_price": {
                 "english": {
-                    "crop_name": crop_name.capitalize(),
+                    "crop_name": crop_display["english"],
                     "location": location_name,
                     "market": market_name,
                     "current_price": f"₹{current_price}/quintal",
@@ -375,7 +391,7 @@ def get_market_price():
                     "analysis": analysis["english"]
                 },
                 "hindi": {
-                    "crop_name": crop_name.capitalize(),
+                    "crop_name": crop_display["hindi"],
                     "location": location_name,
                     "market": market_name,
                     "current_price": f"₹{current_price}/क्विंटल",

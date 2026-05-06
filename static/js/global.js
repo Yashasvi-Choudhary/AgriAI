@@ -212,14 +212,67 @@ function updateLocationDisplay() {
   }
 }
 
-async function getMarketPrice() {
-  const t = window.__i18n || {};
-  const cropName = (document.getElementById("cropName") || {}).value || "";
+async function updateLocation() {
+  const locationInput = document.getElementById("locationDisplay");
+  const locationName = locationInput.value.trim();
   const userId = window._currentUserId;
 
-  if (!cropName.trim()) {
-    showMarketError(t["market_error_no_crop"] || "Please enter a crop name");
+  if (!locationName || locationName === "Not set") return;
+
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}&limit=1`,
+    );
+    const data = await res.json();
+
+    if (data.length > 0) {
+      const lat = data[0].lat;
+      const lon = data[0].lon;
+
+      localStorage.setItem(`lat_${userId}`, lat);
+      localStorage.setItem(`lon_${userId}`, lon);
+      localStorage.setItem(`location_name_${userId}`, locationName);
+
+      // Update displays across app
+      updateLocationDisplay();
+      // Update header if exists
+      const headerLocation = document.getElementById("headerLocation");
+      if (headerLocation) headerLocation.textContent = locationName;
+    } else {
+      showMarketError(
+        window.__i18n?.["market_error_invalid_location"] ||
+          "Invalid location. Please enter a valid location.",
+      );
+    }
+  } catch (err) {
+    console.error("Geocoding error:", err);
+    showMarketError(
+      window.__i18n?.["market_error_geocode_error"] ||
+        "Error updating location. Please try again.",
+    );
+  }
+}
+
+async function getMarketPrice() {
+  const t = window.__i18n || {};
+  const cropName = document.getElementById("cropName").value;
+  const userId = window._currentUserId;
+
+  if (!cropName) {
+    showMarketError(t["market_error_no_crop"] || "Please select a crop");
     return;
+  }
+
+  // Check if location input differs from stored, update if needed
+  const locationInput = document.getElementById("locationDisplay");
+  const currentLocationValue = locationInput.value.trim();
+  const storedLocation = localStorage.getItem(`location_name_${userId}`);
+  if (
+    currentLocationValue &&
+    currentLocationValue !== storedLocation &&
+    currentLocationValue !== "Not set"
+  ) {
+    await updateLocation();
   }
 
   const latitude = localStorage.getItem(`lat_${userId}`);
@@ -360,11 +413,11 @@ async function loadMarketHistory() {
         const date = new Date(item.created_at).toLocaleDateString();
         return `
           <tr class="border-b border-backgroundDark hover:bg-backgroundLight transition-all">
-            <td class="py-3 px-4 text-sm text-textDark">${date}</td>
-            <td class="py-3 px-4 text-sm text-textDark">${item.crop_name}</td>
-            <td class="py-3 px-4 text-sm text-textDark">${item.market_name}</td>
-            <td class="py-3 px-4 text-sm font-semibold text-primary">${item.current_price}</td>
-            <td class="py-3 px-4 text-center">
+            <td class="py-3 px-4 text-sm text-textDark text-left">${date}</td>
+            <td class="py-3 px-4 text-sm text-textDark text-left">${item.crop_name}</td>
+            <td class="py-3 px-4 text-sm text-textDark text-left">${item.market_name}</td>
+            <td class="py-3 px-4 text-sm font-semibold text-primary text-left">${item.current_price}</td>
+            <td class="py-3 px-4 text-left">
               <button
                 onclick="deleteHistoryItem(${item.id})"
                 class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-all"
@@ -385,8 +438,6 @@ async function loadMarketHistory() {
 }
 
 async function deleteHistoryItem(id) {
-  if (!confirm("Are you sure you want to delete this record?")) return;
-
   try {
     const res = await fetch("/delete-market-history", {
       method: "POST",
