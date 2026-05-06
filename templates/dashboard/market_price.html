@@ -1,15 +1,6 @@
 <!-- Market Price page -->
-{% extends "base.html" %}
-
-{% block page_name %}
-market-price
-{% endblock %}
-
-{% block title %}
-Market Prices
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block page_name %} market-price {% endblock %} {%
+block title %} Market Prices {% endblock %} {% block content %}
 
 <div class="bg-background py-10 relative">
   <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
@@ -84,24 +75,32 @@ Market Prices
                 />
               </svg>
             </span>
-            <input
-              type="text"
+            <select
               id="cropName"
               name="crop_name"
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-              data-i18n-placeholder="market_crop_placeholder"
-              placeholder=""
-            />
+            >
+              <option value="" data-i18n="market_crop_placeholder"></option>
+              <option value="wheat" data-i18n="crop_wheat"></option>
+              <option value="rice" data-i18n="crop_rice"></option>
+              <option value="maize" data-i18n="crop_maize"></option>
+              <option value="barley" data-i18n="crop_barley"></option>
+              <option value="soybean" data-i18n="crop_soybean"></option>
+              <option value="cotton" data-i18n="crop_cotton"></option>
+              <option value="sugarcane" data-i18n="crop_sugarcane"></option>
+              <option value="potato" data-i18n="crop_potato"></option>
+              <option value="tomato" data-i18n="crop_tomato"></option>
+              <option value="onion" data-i18n="crop_onion"></option>
+            </select>
           </div>
         </div>
 
-        <!-- Location Display (Read-only) -->
+        <!-- Location Display (Editable) -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-          >
-            Location
-          </label>
+            data-i18n="market_label_location"
+          ></label>
           <div class="relative">
             <span
               class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
@@ -128,8 +127,8 @@ Market Prices
             <input
               type="text"
               id="locationDisplay"
-              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-backgroundLight text-textDark outline-none cursor-not-allowed"
-              readonly
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              onchange="updateLocation()"
               value="Not set"
             />
           </div>
@@ -274,7 +273,7 @@ Market Prices
                 data-i18n="market_history_price"
               ></th>
               <th
-                class="text-center py-3 px-4 font-semibold text-textDark"
+                class="text-left py-3 px-4 font-semibold text-textDark"
                 data-i18n="market_history_actions"
               ></th>
             </tr>
