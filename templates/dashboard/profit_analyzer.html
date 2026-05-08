@@ -1,1 +1,189 @@
-<!-- Profit analyzer page -->
+{% extends "base.html" %}{% block page_name %}profit-analyzer{% endblock %}{% block title %}Profit Analyzer{% endblock %}{% block content %}
+
+<div class="bg-background py-10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primaryDark shadow-sm">
+            <span class="text-xl">📊</span>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-textDark font-heading" data-i18n="profit_title"></h1>
+            <p class="text-sm text-textLight mt-1 max-w-2xl" data-i18n="profit_subtitle"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[1.35fr_0.95fr]">
+      <div class="bg-white rounded-3xl border border-backgroundDark p-6 sm:p-8 shadow-sm">
+        <div class="flex items-center gap-2 mb-6">
+          <div class="w-1 h-6 rounded-full bg-primaryLight"></div>
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-textMid" data-i18n="profit_form_section_title"></h2>
+        </div>
+
+        <form id="profitForm" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_crop_name"></label>
+            <input type="text" id="crop_name" name="crop_name" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_crop_name" />
+            <p id="error-crop_name" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_land_area"></label>
+            <input type="number" id="land_area" name="land_area" min="0" step="0.1" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_land_area" />
+            <p id="error-land_area" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_production_cost"></label>
+            <input type="number" id="production_cost" name="production_cost" min="0" step="0.01" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_production_cost" />
+            <p id="error-production_cost" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_fertilizer_cost"></label>
+            <input type="number" id="fertilizer_cost" name="fertilizer_cost" min="0" step="0.01" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_fertilizer_cost" />
+            <p id="error-fertilizer_cost" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_labor_cost"></label>
+            <input type="number" id="labor_cost" name="labor_cost" min="0" step="0.01" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_labor_cost" />
+            <p id="error-labor_cost" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_irrigation_cost"></label>
+            <input type="number" id="irrigation_cost" name="irrigation_cost" min="0" step="0.01" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_irrigation_cost" />
+            <p id="error-irrigation_cost" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_expected_yield"></label>
+            <input type="number" id="expected_yield" name="expected_yield" min="0" step="0.01" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_expected_yield" />
+            <p id="error-expected_yield" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_market_price"></label>
+            <input type="number" id="market_price" name="market_price" min="0" step="0.01" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_market_price" />
+            <p id="error-market_price" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid">
+              <span data-i18n="profit_label_transport_cost"></span>
+              <span class="text-[0.65rem] text-textLight ml-2" data-i18n="profit_label_optional"></span>
+            </label>
+            <input type="number" id="transport_cost" name="transport_cost" min="0" step="0.01" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_transport_cost" />
+            <p id="error-transport_cost" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid">
+              <span data-i18n="profit_label_other_expenses"></span>
+              <span class="text-[0.65rem] text-textLight ml-2" data-i18n="profit_label_optional"></span>
+            </label>
+            <input type="number" id="other_expenses" name="other_expenses" min="0" step="0.01" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30" data-i18n-placeholder="profit_placeholder_other_expenses" />
+            <p id="error-other_expenses" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="space-y-2 sm:col-span-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-textMid" data-i18n="profit_label_soil_type"></label>
+            <select id="soil_type" name="soil_type" class="w-full rounded-2xl border border-backgroundDark bg-white py-3 px-4 text-sm text-textDark outline-none focus:border-primary focus:ring-2 focus:ring-primaryLight/30">
+              <option value="" selected data-i18n="profit_placeholder_soil_type"></option>
+              <option value="alluvial">Alluvial</option>
+              <option value="black">Black</option>
+              <option value="red">Red</option>
+              <option value="laterite">Laterite</option>
+              <option value="sandy">Sandy</option>
+              <option value="clay">Clay</option>
+            </select>
+            <p id="error-soil_type" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+
+          <div class="sm:col-span-2 pt-1">
+            <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-primary to-accent text-white py-3 text-sm font-semibold hover:shadow-lg transition-all" id="profitSubmitBtn">
+              <span data-i18n="profit_btn_calculate"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="space-y-6">
+        <div id="profitResultCard" class="hidden bg-white rounded-3xl border border-backgroundDark p-6 sm:p-8 shadow-sm">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="w-1 h-6 rounded-full bg-primaryLight"></div>
+            <h2 class="text-xs font-semibold uppercase tracking-widest text-textMid" data-i18n="profit_results_title"></h2>
+          </div>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="rounded-3xl border border-backgroundDark p-4 bg-surface">
+              <p class="text-sm text-textMid" data-i18n="profit_label_total_investment"></p>
+              <p class="mt-2 text-lg font-semibold text-textDark" id="result_total_investment"></p>
+            </div>
+            <div class="rounded-3xl border border-backgroundDark p-4 bg-surface">
+              <p class="text-sm text-textMid" data-i18n="profit_label_expected_revenue"></p>
+              <p class="mt-2 text-lg font-semibold text-textDark" id="result_expected_revenue"></p>
+            </div>
+            <div class="rounded-3xl border border-backgroundDark p-4 bg-surface">
+              <p class="text-sm text-textMid" data-i18n="profit_label_estimated_profit"></p>
+              <p class="mt-2 text-lg font-semibold text-textDark" id="result_estimated_profit"></p>
+            </div>
+            <div class="rounded-3xl border border-backgroundDark p-4 bg-surface">
+              <p class="text-sm text-textMid" data-i18n="profit_label_profit_percentage"></p>
+              <p class="mt-2 text-lg font-semibold text-textDark" id="result_profit_percentage"></p>
+            </div>
+          </div>
+          <div class="mt-6">
+            <p class="text-sm font-semibold text-textDark" data-i18n="profit_label_profit_status"></p>
+            <p class="mt-2 text-base text-textDark font-medium" id="result_profit_status"></p>
+            <p class="mt-4 text-sm text-textLight" id="result_analysis"></p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-backgroundDark p-6 sm:p-8 shadow-sm">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="w-1 h-6 rounded-full bg-primaryLight"></div>
+            <h2 class="text-xs font-semibold uppercase tracking-widest text-textMid" data-i18n="profit_history_title"></h2>
+          </div>
+          <div class="space-y-4" id="profitHistoryWrapper">
+            {% if history and history|length > 0 %}
+            <div class="grid grid-cols-1 gap-4">
+              {% for record in history %}
+              <div class="rounded-3xl border border-backgroundDark p-4 bg-surface">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-sm text-textMid" data-i18n="profit_history_crop"></p>
+                    <p class="mt-1 font-semibold text-textDark">{{ record.crop_name }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm text-textMid" data-i18n="profit_history_date"></p>
+                    <p class="mt-1 text-sm text-textDark">{{ record.created_at }}</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 mt-4 text-sm text-textDark">
+                  <div>
+                    <p class="text-textMid" data-i18n="profit_history_revenue"></p>
+                    <p class="mt-1 font-semibold">₹{{ '%.2f' | format(record.expected_revenue) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-textMid" data-i18n="profit_history_profit"></p>
+                    <p class="mt-1 font-semibold">₹{{ '%.2f' | format(record.estimated_profit) }}</p>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-textMid" id="profitNoHistory" data-i18n="profit_analysis_no_history"></p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
