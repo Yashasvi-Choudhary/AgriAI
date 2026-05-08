@@ -152,17 +152,57 @@ CREATE TABLE IF NOT EXISTS government_schemes (
     CREATE TABLE IF NOT EXISTS profit_analysis (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
+        crop_name TEXT,
         crop_type TEXT,
+        soil_type TEXT,
         land_area REAL,
-        total_expense REAL,
-        predicted_yield REAL,
-        predicted_price REAL,
-        predicted_revenue REAL,
-        predicted_profit REAL,
+        production_cost REAL,
+        fertilizer_cost REAL,
+        labor_cost REAL,
+        irrigation_cost REAL,
+        transport_cost REAL,
+        other_expenses REAL,
+        expected_yield REAL,
+        market_price REAL,
+        total_investment REAL,
+        expected_revenue REAL,
+        estimated_profit REAL,
+        profit_percentage REAL,
+        latitude REAL,
+        longitude REAL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
+
+    profit_columns = [
+        "crop_name TEXT",
+        "crop_type TEXT",
+        "soil_type TEXT",
+        "land_area REAL",
+        "production_cost REAL",
+        "fertilizer_cost REAL",
+        "labor_cost REAL",
+        "irrigation_cost REAL",
+        "transport_cost REAL",
+        "other_expenses REAL",
+        "expected_yield REAL",
+        "market_price REAL",
+        "total_investment REAL",
+        "expected_revenue REAL",
+        "estimated_profit REAL",
+        "profit_percentage REAL",
+        "latitude REAL",
+        "longitude REAL",
+    ]
+    existing_columns = [row[1] for row in cursor.execute("PRAGMA table_info(profit_analysis)").fetchall()]
+    for column_definition in profit_columns:
+        column_name = column_definition.split()[0]
+        if column_name not in existing_columns:
+            try:
+                cursor.execute(f"ALTER TABLE profit_analysis ADD COLUMN {column_definition}")
+            except sqlite3.OperationalError:
+                pass
 
     # ---------------- MARKET PRICE HISTORY ----------------
     cursor.execute("""
