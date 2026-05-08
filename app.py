@@ -1,5 +1,6 @@
 import uuid
 import datetime
+import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.geolocation import geocode_location
 
@@ -828,7 +829,7 @@ def get_schemes():
         cursor = conn.cursor()
         
         # Build query with filtering logic
-        query = "SELECT id, title, description, benefit, category, state, crop_type, website_link, created_at FROM government_schemes WHERE 1=1"
+        query = "SELECT id, title, description, benefit, state, crop_type, eligibility, website_link, created_at FROM government_schemes WHERE 1=1"
         params = []
         
         # Filter by state (include 'All' schemes)
@@ -836,10 +837,11 @@ def get_schemes():
             query += " AND (state = ? OR state = 'All')"
             params.append(state)
         
-        # Filter by crop type (include 'All' schemes)
+        # Filter by crop type (include 'All' schemes) - need to handle JSON field
         if crop_type and crop_type != 'All':
-            query += " AND (crop_type = ? OR crop_type = 'All')"
-            params.append(crop_type)
+            # For JSON fields, we need to check both languages
+            query += " AND (json_extract(crop_type, '$.en') = ? OR json_extract(crop_type, '$.hi') = ? OR state = 'All')"
+            params.extend([crop_type, crop_type])
         
         # Order by state-specific schemes first, then national schemes
         query += " ORDER BY CASE WHEN state = 'All' THEN 1 ELSE 0 END, title"
@@ -852,12 +854,12 @@ def get_schemes():
         for row in rows:
             schemes.append({
                 "id": row[0],
-                "title": row[1],
-                "description": row[2],
-                "benefit": row[3],
-                "eligibility": row[4],  # category maps to eligibility
-                "state": row[5],
-                "crop_type": row[6],
+                "title": json.loads(row[1]) if row[1] else {"en": "", "hi": ""},
+                "description": json.loads(row[2]) if row[2] else {"en": "", "hi": ""},
+                "benefit": json.loads(row[3]) if row[3] else {"en": "", "hi": ""},
+                "state": row[4],
+                "crop_type": json.loads(row[5]) if row[5] else {"en": "", "hi": ""},
+                "eligibility": json.loads(row[6]) if row[6] else {"en": "", "hi": ""},
                 "website_link": row[7],
                 "created_at": row[8]
             })

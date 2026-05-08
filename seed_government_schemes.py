@@ -46,21 +46,21 @@ def seed_government_schemes():
             try:
                 cursor.execute("""
                 INSERT INTO government_schemes 
-                (title, description, benefit, category, state, crop_type, website_link, created_at)
+                (title, description, benefit, state, crop_type, eligibility, website_link, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    scheme.get('title', ''),
-                    scheme.get('description', ''),
-                    scheme.get('benefit', ''),
-                    scheme.get('eligibility', ''),  # Map eligibility to category
+                    json.dumps(scheme.get('title', {})),
+                    json.dumps(scheme.get('description', '')),
+                    json.dumps(scheme.get('benefit', '')),
                     scheme.get('state', 'All'),
-                    scheme.get('crop_type', 'All'),
+                    json.dumps(scheme.get('crop_type', {})),
+                    json.dumps(scheme.get('eligibility', '')),
                     scheme.get('website_link', ''),
                     scheme.get('created_at', datetime.now().strftime('%Y-%m-%d'))
                 ))
                 inserted_count += 1
             except Exception as e:
-                print(f"  ⚠ Failed to insert scheme: {scheme.get('title', 'Unknown')}")
+                print(f"  ⚠ Failed to insert scheme: {scheme.get('title', {}).get('en', 'Unknown')}")
                 print(f"    Error: {str(e)}")
         
         conn.commit()

@@ -77,11 +77,24 @@ async function applyFilters() {
       // Apply local search filter
       filteredSchemes = data.schemes.filter((scheme) => {
         if (!search) return true;
-        return (
-          scheme.title.toLowerCase().includes(search) ||
-          scheme.description.toLowerCase().includes(search) ||
-          scheme.benefit.toLowerCase().includes(search)
-        );
+
+        // Helper function to get multilingual text for search
+        const getSearchText = (field) => {
+          if (typeof field === "object" && field !== null) {
+            return (field.en || "") + " " + (field.hi || "");
+          }
+          return field || "";
+        };
+
+        const searchableText = (
+          getSearchText(scheme.title) +
+          " " +
+          getSearchText(scheme.description) +
+          " " +
+          getSearchText(scheme.benefit)
+        ).toLowerCase();
+
+        return searchableText.includes(search);
       });
 
       renderSchemes(filteredSchemes);
@@ -116,14 +129,29 @@ function renderSchemes(schemes) {
  * Create HTML for a single scheme card
  */
 function createSchemeCard(scheme) {
-  const translations = window.i18nData || {};
+  const translations = window.__i18n || {};
+  const currentLang =
+    window.currentLang || localStorage.getItem("lang") || "en";
+
+  // Helper function to get multilingual text
+  const getText = (field) => {
+    if (typeof field === "object" && field !== null) {
+      return field[currentLang] || field.en || "";
+    }
+    return field || "";
+  };
+
+  // Helper function to get translation
+  const t = (key, fallback) => {
+    return translations[key] || fallback || key;
+  };
 
   return `
     <div class="bg-white rounded-xl border border-backgroundDark p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
       <!-- Header -->
       <div class="mb-4 pb-4 border-b border-backgroundDark">
         <h3 class="text-base font-bold text-textDark leading-tight mb-2 line-clamp-2">
-          ${escapeHtml(scheme.title)}
+          ${escapeHtml(getText(scheme.title))}
         </h3>
         <div class="flex flex-wrap gap-2">
           ${
@@ -140,10 +168,10 @@ function createSchemeCard(scheme) {
           `
           }
           ${
-            scheme.crop_type && scheme.crop_type !== "All"
+            getText(scheme.crop_type) && getText(scheme.crop_type) !== "All"
               ? `
             <span class="inline-block bg-amber-100 text-amber-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-              ${escapeHtml(scheme.crop_type)}
+              ${escapeHtml(getText(scheme.crop_type))}
             </span>
           `
               : ""
@@ -153,22 +181,22 @@ function createSchemeCard(scheme) {
       
       <!-- Description -->
       <p class="text-sm text-textMid mb-4 leading-relaxed line-clamp-3">
-        ${escapeHtml(scheme.description)}
+        ${escapeHtml(getText(scheme.description))}
       </p>
       
       <!-- Benefit -->
       <div class="mb-4 p-3 bg-primaryLight/10 rounded-lg border border-primaryLight/20">
-        <p class="text-xs font-semibold text-primary mb-1">Benefit</p>
+        <p class="text-xs font-semibold text-primary mb-1">${t("govt_schemes_benefit_label", "Benefit")}</p>
         <p class="text-sm text-textDark font-medium">
-          ${escapeHtml(scheme.benefit)}
+          ${escapeHtml(getText(scheme.benefit))}
         </p>
       </div>
       
       <!-- Eligibility -->
       <div class="mb-4">
-        <p class="text-xs font-semibold text-textMid mb-1 uppercase">Eligibility</p>
+        <p class="text-xs font-semibold text-textMid mb-1 uppercase">${t("govt_schemes_eligibility_label", "Eligibility")}</p>
         <p class="text-sm text-textDark">
-          ${escapeHtml(scheme.eligibility)}
+          ${escapeHtml(getText(scheme.eligibility))}
         </p>
       </div>
       
@@ -183,7 +211,7 @@ function createSchemeCard(scheme) {
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
-          <span data-i18n="govt_schemes_apply_now">Apply Now</span>
+          <span>${t("govt_schemes_apply_now", "Apply Now")}</span>
         </a>
       </div>
     </div>
