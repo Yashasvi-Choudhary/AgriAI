@@ -136,14 +136,11 @@ CREATE TABLE IF NOT EXISTS government_schemes (
     title TEXT NOT NULL,
     description TEXT,
     benefit TEXT,
-    category TEXT,
     state TEXT,
     crop_type TEXT,
-    min_land REAL,
-    max_land REAL,
-    income_limit REAL,
+    eligibility TEXT,
     website_link TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT
 );
 """)
 
