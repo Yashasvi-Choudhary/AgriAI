@@ -87,6 +87,7 @@ def inject_globals():
     "plant-disease-detection": "plant-disease-detection",
     "fertilizer-guide": "fertilizer-guide",
     "market-price": "market",
+    "government-schemes": "government-schemes",
     "profile": "profile",   # ✅ ADD THIS
 }
 
@@ -291,6 +292,13 @@ def market_price():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/market_price.html')
+
+
+@app.route('/government-schemes')
+def government_schemes():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/government_schemes.html')
 
 
 @app.route('/predict', methods=['POST'])
@@ -796,6 +804,76 @@ def reset_password(token):
 
     # ✅ GET → page open
     return render_template('auth/reset_password.html', token=token)
+
+# ─────────────────────────────────────────────
+# GOVERNMENT SCHEMES API
+# ─────────────────────────────────────────────
+@app.route('/api/schemes', methods=['GET'])
+def get_schemes():
+    """
+    Get government schemes with optional filtering
+    Query Parameters:
+    - state: Filter by state (or 'All' for national schemes)
+    - crop_type: Filter by crop type (or 'All' for all crops)
+    
+    Filtering Logic:
+    - If state = 'MP' → returns schemes with state='MP' OR state='All'
+    - If crop_type = 'Wheat' → returns schemes with crop_type='Wheat' OR crop_type='All'
+    """
+    try:
+        state = request.args.get('state', '').strip()
+        crop_type = request.args.get('crop_type', '').strip()
+        
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        
+        # Build query with filtering logic
+        query = "SELECT id, title, description, benefit, category, state, crop_type, website_link, created_at FROM government_schemes WHERE 1=1"
+        params = []
+        
+        # Filter by state (include 'All' schemes)
+        if state and state != 'All':
+            query += " AND (state = ? OR state = 'All')"
+            params.append(state)
+        
+        # Filter by crop type (include 'All' schemes)
+        if crop_type and crop_type != 'All':
+            query += " AND (crop_type = ? OR crop_type = 'All')"
+            params.append(crop_type)
+        
+        # Order by state-specific schemes first, then national schemes
+        query += " ORDER BY CASE WHEN state = 'All' THEN 1 ELSE 0 END, title"
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+        
+        schemes = []
+        for row in rows:
+            schemes.append({
+                "id": row[0],
+                "title": row[1],
+                "description": row[2],
+                "benefit": row[3],
+                "eligibility": row[4],  # category maps to eligibility
+                "state": row[5],
+                "crop_type": row[6],
+                "website_link": row[7],
+                "created_at": row[8]
+            })
+        
+        return jsonify({
+            "status": "success",
+            "count": len(schemes),
+            "schemes": schemes
+        })
+        
+    except Exception as e:
+        print(f"❌ Error fetching schemes: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Error fetching schemes"
+        }), 500
 
 # ─────────────────────────────────────────────
 # RUN SERVER

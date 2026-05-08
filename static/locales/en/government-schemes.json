@@ -1,0 +1,31 @@
+{
+  "govt_schemes_page_title": "Government Schemes – Labhansh.ai",
+  "govt_schemes_title": "Government Schemes",
+  "govt_schemes_subtitle": "Discover government schemes tailored to your farm and crop",
+
+  "govt_schemes_filter_section_title": "Filter Schemes",
+  "govt_schemes_filter_state": "Select State",
+  "govt_schemes_filter_crop": "Select Crop Type",
+  "govt_schemes_search_placeholder": "Search Schemes",
+
+  "govt_schemes_loading": "Loading schemes...",
+  "govt_schemes_apply_now": "Apply Now",
+
+  "govt_schemes_empty_title": "No Schemes Found",
+  "govt_schemes_empty_description": "Try adjusting your filters or search terms to find relevant government schemes.",
+
+  "govt_schemes_error_title": "Error Loading Schemes",
+  "govt_schemes_error_message": "Unable to load schemes. Please check your connection and try again.",
+
+  "govt_schemes_info_title": "About Government Schemes",
+  "govt_schemes_info_description": "These schemes are designed to support farmers with financial assistance, technical guidance, insurance coverage, and infrastructure development. Click 'Apply Now' to visit the official scheme website and submit your application. Verify all eligibility criteria before applying.",
+
+  "govt_schemes_state_all": "All States",
+  "govt_schemes_state_national": "National Schemes",
+  "govt_schemes_crop_all": "All Crop Types",
+
+  "govt_schemes_benefit_label": "Benefit",
+  "govt_schemes_eligibility_label": "Eligibility",
+  "govt_schemes_state_label": "State",
+  "govt_schemes_crop_label": "Crop Type"
+}
