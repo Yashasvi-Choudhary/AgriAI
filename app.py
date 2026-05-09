@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
 from routes.community_routes import community
+from routes.assistant_routes import assistant_bp
 
 from utils.translator import get_translations
 
@@ -96,6 +97,7 @@ def inject_globals():
     "market-price": "market",
     "government-schemes": "government-schemes",
     "community": "community",
+    "assistant": "assistant",
     "profile": "profile",
 }
 
@@ -116,6 +118,7 @@ def inject_globals():
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(community, url_prefix='/community')
+app.register_blueprint(assistant_bp, url_prefix='/assistant')
 
 
 create_tables()
@@ -172,6 +175,12 @@ def dashboard():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/dashboard.html')
+
+@app.route('/assistant')
+def assistant():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/assistant.html')
 
 
 # ─────────────────────────────────────────────

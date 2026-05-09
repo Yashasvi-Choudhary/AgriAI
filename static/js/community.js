@@ -288,7 +288,7 @@ function renderComments(postElement, comments) {
 }
 
 async function handleLike(postId, likeBtn) {
-  if (!currentUser) {
+  if (!currentUser || !currentUser.id) {
     showToast(getTranslation("error_login"), "error");
     return;
   }
@@ -335,7 +335,7 @@ function toggleComments(postElement) {
 }
 
 async function handleAddComment(postId, commentInput, postElement) {
-  if (!currentUser) {
+  if (!currentUser || !currentUser.id) {
     showToast(getTranslation("error_login"), "error");
     return;
   }
