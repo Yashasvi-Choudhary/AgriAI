@@ -30,7 +30,7 @@ def community_page():
 # ========================
 @community.route('/api/create-post', methods=['POST'])
 def create_post_api():
-    if 'user' not in session:
+    if 'user' not in session or not session.get('user') or not session['user'].get('id'):
         return jsonify({'error': 'Not logged in'}), 401
 
     try:
@@ -135,7 +135,7 @@ def get_posts_api():
 # ========================
 @community.route('/api/comment', methods=['POST'])
 def add_comment_api():
-    if 'user' not in session:
+    if 'user' not in session or not session.get('user') or not session['user'].get('id'):
         return jsonify({'error': 'Not logged in'}), 401
 
     try:
@@ -169,7 +169,7 @@ def add_comment_api():
 # ========================
 @community.route('/api/like', methods=['POST'])
 def like_post_api():
-    if 'user' not in session:
+    if 'user' not in session or not session.get('user') or not session['user'].get('id'):
         return jsonify({'error': 'Not logged in'}), 401
 
     try:

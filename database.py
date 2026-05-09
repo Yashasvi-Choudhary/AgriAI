@@ -215,6 +215,19 @@ CREATE TABLE IF NOT EXISTS government_schemes (
     )
     """)
 
+    # ---------------- AI CHAT HISTORY ----------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ai_chat_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        user_query TEXT NOT NULL,
+        ai_response TEXT NOT NULL,
+        language VARCHAR(10),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+
     conn.commit()
     conn.close()
 
