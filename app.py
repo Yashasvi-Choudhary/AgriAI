@@ -4,13 +4,14 @@ import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.geolocation import geocode_location
 
-from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for
+from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for, send_from_directory
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
+from routes.community_routes import community
 
 from utils.translator import get_translations
 
@@ -46,6 +47,11 @@ mail = Mail(app)
 app.secret_key = "super_secret_key_123"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Upload configuration
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 MARKET_API_KEY = os.getenv("MARKET_API_KEY")
 sys.path.insert(0, BASE_DIR)
@@ -89,7 +95,8 @@ def inject_globals():
     "fertilizer-guide": "fertilizer-guide",
     "market-price": "market",
     "government-schemes": "government-schemes",
-    "profile": "profile",   # ✅ ADD THIS
+    "community": "community",
+    "profile": "profile",
 }
 
     page = page_map.get(path, "dashboard")
@@ -108,6 +115,7 @@ def inject_globals():
 # BLUEPRINTS
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(community, url_prefix='/community')
 
 
 create_tables()
@@ -675,6 +683,13 @@ def get_weather():
         "humidity": res["hourly"]["relativehumidity_2m"][0],
         "rainfall": res["hourly"]["precipitation_probability"][0]
     })
+
+# ─────────────────────────────────────────────
+# SERVE UPLOADED FILES
+# ─────────────────────────────────────────────
+@app.route('/uploads/<path:filename>')
+def serve_uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # ─────────────────────────────────────────────
 # LOGOUT
