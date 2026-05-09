@@ -1,1 +1,695 @@
 <!-- Community page -->
+{% extends "base.html" %} {% block title %}{{ t.community_title }}{% endblock %}
+{% block content %}
+
+<div class="bg-background py-10 relative">
+  <div class="max-w-6xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+    <!-- ── PAGE HEADER ── -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-1.5">
+        <div
+          class="flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 bg-gradient-to-br from-primary to-primaryDark shadow-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h1
+            class="text-2xl sm:text-3xl font-bold leading-tight text-textDark font-heading"
+            data-i18n="community_title"
+          >
+            Farmer Community
+          </h1>
+          <p class="text-sm mt-0.5 text-textLight" data-i18n="share_experience">
+            Share your farming experiences and connect with fellow farmers
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STATS + CONTROLS CARD ── -->
+    <div
+      class="bg-white rounded-2xl border p-6 sm:p-8 mb-7 border-backgroundDark shadow-sm"
+    >
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+        <h2
+          class="text-xs font-bold uppercase tracking-widest text-textMid"
+          data-i18n="community_overview"
+        >
+          Community Overview
+        </h2>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+        <div
+          class="flex items-center gap-3 p-4 rounded-xl bg-background border border-backgroundDark"
+        >
+          <div
+            class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-primaryLight to-primary flex-shrink-0"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-textDark" id="totalPosts">
+              0
+            </div>
+            <div
+              class="text-xs text-textMid font-medium"
+              data-i18n="total_posts"
+            >
+              Total Posts
+            </div>
+          </div>
+        </div>
+        <div
+          class="flex items-center gap-3 p-4 rounded-xl bg-background border border-backgroundDark"
+        >
+          <div
+            class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-primaryLight to-primary flex-shrink-0"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-textDark" id="activeFarmers">
+              0
+            </div>
+            <div
+              class="text-xs text-textMid font-medium"
+              data-i18n="active_farmers"
+            >
+              Active Farmers
+            </div>
+          </div>
+        </div>
+        <div
+          class="flex items-center gap-3 p-4 rounded-xl bg-background border border-backgroundDark"
+        >
+          <div
+            class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-primaryLight to-primary flex-shrink-0"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-textDark" id="todayPosts">
+              0
+            </div>
+            <div
+              class="text-xs text-textMid font-medium"
+              data-i18n="today_posts"
+            >
+              Posts Today
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search + Filter + Create -->
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4"
+      >
+        <!-- Search -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="search_label"
+            >Search Posts</label
+          >
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="{{ t.search_placeholder }}"
+              class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- Filter -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+            data-i18n="filter_label"
+            >Filter By</label
+          >
+          <div class="flex gap-2">
+            <button
+              class="flex-1 px-3 py-2.5 text-xs font-semibold bg-background border border-backgroundDark text-textMid hover:bg-primaryLight/20 hover:text-primary hover:border-primaryLight rounded-lg transition-all"
+              onclick="filterPosts('all')"
+            >
+              All
+            </button>
+            <button
+              class="flex-1 px-3 py-2.5 text-xs font-semibold bg-background border border-backgroundDark text-textMid hover:bg-primaryLight/20 hover:text-primary hover:border-primaryLight rounded-lg transition-all"
+              onclick="filterPosts('recent')"
+            >
+              Recent
+            </button>
+            <button
+              class="flex-1 px-3 py-2.5 text-xs font-semibold bg-background border border-backgroundDark text-textMid hover:bg-primaryLight/20 hover:text-primary hover:border-primaryLight rounded-lg transition-all"
+              onclick="filterPosts('popular')"
+            >
+              Popular
+            </button>
+          </div>
+        </div>
+
+        <!-- Create Post Button -->
+        <div>
+          <label
+            class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid opacity-0 select-none"
+            >Action</label
+          >
+          <button
+            onclick="openCreatePostModal()"
+            class="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-lg shadow-primaryDark/20"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            <span data-i18n="create_post">{{ t.create_post }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOADING STATE ── -->
+    <div
+      id="loadingIndicator"
+      class="bg-white rounded-2xl border p-12 border-backgroundDark shadow-sm flex flex-col items-center justify-center gap-4 hidden"
+    >
+      <div
+        class="w-12 h-12 border-4 border-primaryLight/30 border-t-primary rounded-full animate-spin"
+      ></div>
+      <p class="text-sm text-textMid" data-i18n="loading">Loading posts...</p>
+    </div>
+
+    <!-- ── POSTS GRID ── -->
+    <div
+      id="postsFeed"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      <!-- Posts loaded dynamically by community.js -->
+    </div>
+
+    <!-- ── NO POSTS STATE ── -->
+    <div
+      id="noPostsMessage"
+      class="bg-white rounded-2xl border p-12 border-backgroundDark shadow-sm text-center hidden"
+    >
+      <div class="text-5xl mb-4">🌱</div>
+      <h3 class="text-lg font-semibold text-textDark mb-1">No posts yet</h3>
+      <p class="text-sm text-textMid mb-6">
+        Be the first to share your farming experience with the community!
+      </p>
+      <button
+        onclick="openCreatePostModal()"
+        class="inline-flex items-center gap-2 rounded-xl py-3 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-md"
+        data-i18n="create_post"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Create First Post
+      </button>
+    </div>
+
+    <!-- ── INFO SECTION ── -->
+    <div class="mt-12 bg-blue-50 rounded-2xl border border-blue-200 p-6 sm:p-8">
+      <div class="flex items-start gap-3">
+        <svg
+          class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <div>
+          <h3
+            class="text-sm font-semibold text-blue-900 mb-2"
+            data-i18n="community_info_title"
+          >
+            Community Guidelines
+          </h3>
+          <p
+            class="text-sm text-blue-800 leading-relaxed"
+            data-i18n="community_info_description"
+          >
+            Share your farming experiences, crop tips, and connect with fellow
+            farmers. Be respectful and supportive of each other's efforts. Posts
+            with images and detailed descriptions help the community learn
+            better.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     CREATE POST MODAL
+     z-[9999] keeps it above sidebar + header always
+     ══════════════════════════════════ -->
+<div
+  id="createPostModal"
+  class="fixed inset-0 bg-black/50 hidden z-[9999] overflow-y-auto"
+  onclick="closeCreatePostModal()"
+>
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div
+      class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
+      onclick="event.stopPropagation()"
+    >
+      <!-- Modal Header -->
+      <div
+        class="flex justify-between items-center px-6 sm:px-8 py-5 border-b border-backgroundDark"
+      >
+        <div class="flex items-center gap-2.5">
+          <div
+            class="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primaryLight to-primary"
+          >
+            <svg
+              class="w-4 h-4 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h2
+              class="text-base font-bold text-textDark"
+              data-i18n="create_post"
+            >
+              Create Post
+            </h2>
+            <p class="text-xs text-textLight">
+              Share with the farmer community
+            </p>
+          </div>
+        </div>
+        <button
+          onclick="closeCreatePostModal()"
+          class="text-textLight hover:text-textDark text-2xl leading-none transition-colors"
+        >
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
+        <form id="postForm" enctype="multipart/form-data" class="space-y-0">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+            <h3
+              class="text-xs font-bold uppercase tracking-widest text-textMid"
+            >
+              Post Details
+            </h3>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+            <!-- Title (full width) -->
+            <div class="sm:col-span-2">
+              <label
+                class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                data-i18n="post_title"
+                >Title</label
+              >
+              <input
+                type="text"
+                name="title"
+                required
+                placeholder="{{ t.post_title_placeholder }}"
+                class="w-full rounded-lg border border-backgroundDark py-2.5 px-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+              />
+            </div>
+
+            <!-- Crop Type -->
+            <div>
+              <label
+                class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                data-i18n="crop_type"
+                >Crop Type</label
+              >
+              <div class="relative">
+                <span
+                  class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 3C8 8 5 12 5 16a7 7 0 0014 0c0-4-3-8-7-13z"
+                    />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  name="crop_type"
+                  placeholder="{{ t.crop_type_placeholder }}"
+                  class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                />
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div>
+              <label
+                class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                data-i18n="location"
+                >Location</label
+              >
+              <div class="relative">
+                <span
+                  class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  name="location"
+                  id="locationInput"
+                  placeholder="{{ t.location_placeholder }}"
+                  class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                />
+              </div>
+            </div>
+
+            <!-- Description (full width) -->
+            <div class="sm:col-span-2">
+              <label
+                class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                data-i18n="post_description"
+                >Description</label
+              >
+              <textarea
+                name="description"
+                required
+                rows="4"
+                placeholder="{{ t.post_description_placeholder }}"
+                class="w-full rounded-lg border border-backgroundDark py-2.5 px-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all resize-vertical"
+              ></textarea>
+            </div>
+
+            <!-- Upload Image (full width) -->
+            <div class="sm:col-span-2">
+              <label
+                class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                data-i18n="upload_image"
+                >Upload Image</label
+              >
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                class="w-full rounded-lg border border-backgroundDark py-2 px-3 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all cursor-pointer file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primaryLight/20 file:text-primary hover:file:bg-primaryLight/30"
+              />
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div
+            class="flex justify-end gap-3 mt-8 pt-6 border-t border-backgroundDark"
+          >
+            <button
+              type="button"
+              onclick="clearPostForm()"
+              class="px-6 py-2.5 border border-backgroundDark text-textMid rounded-xl hover:bg-background text-sm font-medium transition-colors"
+              data-i18n="clear"
+            >
+              Clear
+            </button>
+            <button
+              type="submit"
+              class="flex items-center gap-2 rounded-xl py-2.5 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-lg shadow-primaryDark/20"
+              data-i18n="submit_post"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+              Post
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     POST CARD TEMPLATE (hidden, cloned by JS)
+     ══════════════════════════════════ -->
+<template id="postCardTemplate">
+  <div
+    class="bg-white rounded-2xl border border-backgroundDark shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col"
+  >
+    <!-- Card Image -->
+    <div class="post-image-container hidden">
+      <img class="post-image w-full h-44 object-cover" alt="Post image" />
+    </div>
+
+    <div class="p-5 flex flex-col flex-1">
+      <!-- Author Row -->
+      <div class="flex items-center gap-3 mb-4">
+        <div
+          class="w-10 h-10 bg-gradient-to-br from-primaryLight to-primary rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+        >
+          <span class="user-initials"></span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <h4
+            class="font-semibold text-textDark text-sm truncate user-name"
+          ></h4>
+          <p class="text-xs text-textLight truncate user-location"></p>
+        </div>
+        <div class="text-xs text-textLight flex-shrink-0 post-date"></div>
+      </div>
+
+      <!-- Title -->
+      <h3
+        class="text-base font-bold text-textDark mb-1.5 post-title leading-snug"
+      ></h3>
+
+      <!-- Description -->
+      <p
+        class="text-sm text-textMid leading-relaxed post-description line-clamp-3 flex-1"
+      ></p>
+
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span
+          class="crop-type hidden items-center gap-1 bg-primaryLight/10 text-primary rounded-full px-3 py-1 text-xs font-medium"
+        >
+          🌾 <span class="crop-value"></span>
+        </span>
+        <span
+          class="location-info hidden items-center gap-1 bg-background border border-backgroundDark text-textMid rounded-full px-3 py-1 text-xs"
+        >
+          📍 <span class="location-value"></span>
+        </span>
+      </div>
+
+      <!-- Divider + Actions -->
+      <div
+        class="border-t border-backgroundDark mt-4 pt-4 flex items-center gap-6"
+      >
+        <button
+          class="like-btn flex items-center gap-1.5 text-textMid hover:text-red-500 transition-colors text-sm font-medium"
+        >
+          <span class="like-icon">❤️</span>
+          <span class="likes-count">0</span>
+          <span class="like-text text-xs" data-i18n="likes">likes</span>
+        </button>
+        <button
+          class="comment-btn flex items-center gap-1.5 text-textMid hover:text-primary transition-colors text-sm font-medium"
+        >
+          <span>💬</span>
+          <span class="comments-count">0</span>
+          <span class="text-xs" data-i18n="comments">comments</span>
+        </button>
+      </div>
+
+      <!-- Comments Section -->
+      <div
+        class="comments-section mt-4 pt-4 border-t border-backgroundDark hidden"
+      >
+        <div
+          class="comments-list space-y-3 mb-3 max-h-48 overflow-y-auto"
+        ></div>
+        <div class="flex gap-2">
+          <input
+            type="text"
+            placeholder="{{ t.comment_placeholder }}"
+            class="comment-input flex-1 rounded-lg border border-backgroundDark py-2 px-3 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+          />
+          <button
+            class="add-comment-btn rounded-lg py-2 px-4 text-xs font-semibold text-white bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark transition-all"
+            data-i18n="add_comment"
+          >
+            Comment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ══════════════════════════════════
+     COMMENT TEMPLATE (hidden, cloned by JS)
+     ══════════════════════════════════ -->
+<template id="commentTemplate">
+  <div class="flex gap-3">
+    <div
+      class="w-8 h-8 bg-primaryLight/20 rounded-full flex items-center justify-center text-xs font-bold text-primary flex-shrink-0"
+    >
+      <span class="comment-user-initial"></span>
+    </div>
+    <div class="flex-1">
+      <div
+        class="bg-background rounded-lg px-3 py-2 border border-backgroundDark"
+      >
+        <div
+          class="font-semibold text-xs text-textDark comment-user-name"
+        ></div>
+        <div class="text-textMid text-sm mt-0.5 comment-text"></div>
+      </div>
+      <div class="text-xs text-textLight mt-1 comment-date"></div>
+    </div>
+  </div>
+</template>
+
+{% endblock %} {% block scripts %}
+<script src="/static/js/community.js"></script>
+{% endblock %}

@@ -96,11 +96,36 @@ CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         title TEXT NOT NULL,
-        description TEXT,
+        description TEXT NOT NULL,
+        image_url TEXT,
+        crop_type TEXT,
+        location TEXT,
+        likes_count INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
+
+    # Add missing columns to community_posts if they don't exist
+    try:
+        cursor.execute("ALTER TABLE community_posts ADD COLUMN image_url TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE community_posts ADD COLUMN crop_type TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE community_posts ADD COLUMN location TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE community_posts ADD COLUMN likes_count INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
 
     # ---------------- COMMENTS ----------------
     cursor.execute("""
@@ -110,6 +135,17 @@ CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER,
         comment TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(post_id) REFERENCES community_posts(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+
+    # ---------------- LIKES ----------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS community_likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER,
+        user_id INTEGER,
         FOREIGN KEY(post_id) REFERENCES community_posts(id),
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
