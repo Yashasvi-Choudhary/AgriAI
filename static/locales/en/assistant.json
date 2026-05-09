@@ -1,0 +1,14 @@
+{
+  "assistant_title": "AI Assistant",
+  "assistant_subtitle": "Ask me anything about farming!",
+  "type_message": "Type your question...",
+  "send": "Send",
+  "voice_input": "Voice Input",
+  "language_switch": "Language",
+  "loading": "Thinking...",
+  "error_generic": "Sorry, I couldn't process your request. Please try again.",
+  "error_login": "Please log in to use the AI Assistant.",
+  "chat_history": "Chat History",
+  "new_chat": "New Chat",
+  "assistant_intro": "Hello! I'm your farming assistant. Ask me about crops, fertilizers, diseases, irrigation, weather, government schemes, farming techniques, or market prices."
+}

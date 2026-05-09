@@ -1,11 +1,21 @@
 # Community routes
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, render_template, request, redirect, session
 import sqlite3
 
 community = Blueprint('community', __name__)
 
 def connect_db():
     return sqlite3.connect("database.db")
+
+
+# ========================
+# COMMUNITY PAGE
+# ========================
+@community.route('/')
+def community_page():
+    if 'user' not in session:
+        return redirect('/login')
+    return render_template('dashboard/community.html')
 
 
 # ========================

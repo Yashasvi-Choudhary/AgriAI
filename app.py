@@ -11,6 +11,8 @@ from urllib3.util import Retry
 from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
+from routes.community_routes import community
+from routes.assistant_routes import assistant_bp
 
 from utils.translator import get_translations
 
@@ -89,7 +91,8 @@ def inject_globals():
     "fertilizer-guide": "fertilizer-guide",
     "market-price": "market",
     "government-schemes": "government-schemes",
-    "profile": "profile",   # ✅ ADD THIS
+    "assistant": "assistant",
+    "profile": "profile",
 }
 
     page = page_map.get(path, "dashboard")
@@ -108,6 +111,8 @@ def inject_globals():
 # BLUEPRINTS
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(community, url_prefix='/community')
+app.register_blueprint(assistant_bp, url_prefix='/assistant')
 
 
 create_tables()
