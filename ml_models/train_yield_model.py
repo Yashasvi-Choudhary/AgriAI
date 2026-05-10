@@ -1,1 +1,0 @@
-# Train yield prediction model

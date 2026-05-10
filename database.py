@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS government_schemes (
     category TEXT,
     state TEXT,
     crop_type TEXT,
+    eligibility TEXT,
     min_land REAL,
     max_land REAL,
     income_limit REAL,

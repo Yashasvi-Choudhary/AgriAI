@@ -50,7 +50,6 @@ function applyLang() {
   });
   
   console.log('Language applied successfully:', window.currentLang);
-}
 
 // Translation helper
 window.t = function(key, fallback) {
