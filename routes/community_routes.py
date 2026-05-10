@@ -1,5 +1,5 @@
 # Community routes
-from flask import Blueprint, render_template, request, redirect, jsonify, session, flash, url_for
+from flask import Blueprint, render_template, request, redirect, jsonify, session, flash, url_for, current_app
 import sqlite3
 import os
 from werkzeug.utils import secure_filename
@@ -14,7 +14,9 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def connect_db():
-    return sqlite3.connect("database.db")
+    conn = sqlite3.connect("database.db")
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
 
 # ========================
 # 🏠 COMMUNITY PAGE
@@ -71,6 +73,7 @@ def create_post_api():
         return jsonify({'success': True, 'message': 'Post created successfully'})
 
     except Exception as e:
+        current_app.logger.exception("Error creating community post")
         return jsonify({'error': str(e)}), 500
 
 # ========================
@@ -81,6 +84,12 @@ def get_posts_api():
     try:
         conn = connect_db()
         cursor = conn.cursor()
+
+        user_id = session['user']['id'] if 'user' in session and session.get('user') and session['user'].get('id') else None
+        liked_post_ids = set()
+        if user_id:
+            cursor.execute("SELECT post_id FROM community_likes WHERE user_id = ?", (user_id,))
+            liked_post_ids = {row[0] for row in cursor.fetchall()}
 
         cursor.execute("""
         SELECT
@@ -94,8 +103,9 @@ def get_posts_api():
 
         posts = []
         for row in cursor.fetchall():
+            post_id = row[0]
             post = {
-                'id': row[0],
+                'id': post_id,
                 'title': row[1],
                 'description': row[2],
                 'image_url': row[3],
@@ -105,7 +115,8 @@ def get_posts_api():
                 'created_at': row[7],
                 'user_name': row[8],
                 'user_location': row[9],
-                'comments': []
+                'comments': [],
+                'liked': post_id in liked_post_ids,
             }
 
             # Get comments for this post
@@ -143,8 +154,13 @@ def add_comment_api():
         post_id = data.get('post_id')
         comment = data.get('comment', '').strip()
 
-        if not post_id or not comment:
-            return jsonify({'error': 'Post ID and comment are required'}), 400
+        try:
+            post_id = int(post_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid post ID'}), 400
+
+        if not comment:
+            return jsonify({'error': 'Comment is required'}), 400
 
         user_id = session['user']['id']
 
@@ -162,6 +178,7 @@ def add_comment_api():
         return jsonify({'success': True, 'message': 'Comment added successfully'})
 
     except Exception as e:
+        current_app.logger.exception("Error adding community comment")
         return jsonify({'error': str(e)}), 500
 
 # ========================
@@ -175,6 +192,11 @@ def like_post_api():
     try:
         data = request.get_json()
         post_id = data.get('post_id')
+
+        try:
+            post_id = int(post_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid post ID'}), 400
 
         if not post_id:
             return jsonify({'error': 'Post ID is required'}), 400
@@ -228,6 +250,7 @@ def like_post_api():
         })
 
     except Exception as e:
+        current_app.logger.exception("Error processing community like")
         return jsonify({'error': str(e)}), 500
 
 # ========================

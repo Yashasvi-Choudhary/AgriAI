@@ -2,8 +2,26 @@
 {% extends "base.html" %} {% block title %}{{ t.community_title }}{% endblock %}
 {% block content %}
 
-<div class="bg-background py-10 relative">
-  <div class="relative max-w-6xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+<!--
+  MODAL STRUCTURE EXPLANATION:
+  This outer div is `relative` — it fills exactly the dashboard content
+  area (beside sidebar, below header). The modal uses `absolute inset-0`
+  inside this div so it covers ONLY the content zone, never the sidebar
+  or header. No overflow-hidden here so the absolute modal isn't clipped.
+-->
+<!--
+  #communityPageWrapper:
+  - `relative`   → containing block for the absolute modal overlay
+  - `min-h-full` → stretches to fill the dashboard content area height
+                   so the modal overlay has the full content zone to
+                   cover and center within (not just the page's own
+                   natural content height which may be short on sparse pages)
+  - NO overflow-hidden → modal is not clipped
+  - py-10 kept as page content padding (not header clearance — the header
+    lives outside the content block in base.html)
+-->
+<div class="bg-background py-10 relative" id="communityPageWrapper">
+  <div class="max-w-6xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
     <!-- ── PAGE HEADER ── -->
     <div class="mb-8">
       <div class="flex items-center gap-3 mb-1.5">
@@ -39,7 +57,7 @@
       </div>
     </div>
 
-    <!-- ── STATS + CONTROLS CARD ── -->
+    <!-- ── EXPLORE COMMUNITY (replaces Community Overview + stats) ── -->
     <div
       class="bg-white rounded-2xl border p-6 sm:p-8 mb-7 border-backgroundDark shadow-sm"
     >
@@ -47,121 +65,22 @@
         <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
         <h2
           class="text-xs font-bold uppercase tracking-widest text-textMid"
-          data-i18n="community_overview"
+          data-i18n="explore_community"
         >
-          Community Overview
+          Explore Community
         </h2>
       </div>
 
-      <!-- Stats Row -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 mb-6">
-        <div
-          class="flex items-center gap-3 p-4 rounded-xl bg-background border border-backgroundDark"
-        >
-          <div
-            class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-primaryLight to-primary flex-shrink-0"
-          >
-            <svg
-              class="w-5 h-5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-          </div>
-          <div>
-            <div class="text-2xl font-bold text-textDark" id="totalPosts">
-              0
-            </div>
-            <div
-              class="text-xs text-textMid font-medium"
-              data-i18n="total_posts"
-            >
-              Total Posts
-            </div>
-          </div>
-        </div>
-        <div
-          class="flex items-center gap-3 p-4 rounded-xl bg-background border border-backgroundDark"
-        >
-          <div
-            class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-primaryLight to-primary flex-shrink-0"
-          >
-            <svg
-              class="w-5 h-5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-          </div>
-          <div>
-            <div class="text-2xl font-bold text-textDark" id="activeFarmers">
-              0
-            </div>
-            <div
-              class="text-xs text-textMid font-medium"
-              data-i18n="active_farmers"
-            >
-              Active Farmers
-            </div>
-          </div>
-        </div>
-        <div
-          class="flex items-center gap-3 p-4 rounded-xl bg-background border border-backgroundDark"
-        >
-          <div
-            class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-primaryLight to-primary flex-shrink-0"
-          >
-            <svg
-              class="w-5 h-5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <div>
-            <div class="text-2xl font-bold text-textDark" id="todayPosts">
-              0
-            </div>
-            <div
-              class="text-xs text-textMid font-medium"
-              data-i18n="today_posts"
-            >
-              Posts Today
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Search + Create -->
+      <!-- Search + Create Post (2-col on sm+, stacked on mobile) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
         <!-- Search -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
             data-i18n="search_label"
-            >Search Posts</label
           >
+            Search Posts
+          </label>
           <div class="relative">
             <span
               class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
@@ -194,8 +113,10 @@
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid opacity-0 select-none"
-            >Action</label
+            aria-hidden="true"
           >
+            Action
+          </label>
           <button
             onclick="openCreatePostModal()"
             class="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-lg shadow-primaryDark/20"
@@ -305,257 +226,15 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════
-         CREATE POST MODAL
-         Positioned inside the dashboard content wrapper
-         so it stays aligned with the main page area.
-         ══════════════════════════════════ -->
-    <div
-      id="createPostModal"
-      class="absolute inset-0 bg-black/50 hidden z-[50] overflow-y-auto"
-      onclick="handleModalBackdropClick(event)"
-    >
-      <div
-        class="flex items-center justify-center min-h-full p-4 sm:pt-10 pb-10"
-      >
-        <div
-          id="createPostModalContent"
-          class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative"
-          onclick="event.stopPropagation()"
-        >
-          <!-- Modal Header -->
-          <div
-            class="flex justify-between items-center px-6 sm:px-8 py-5 border-b border-backgroundDark"
-          >
-            <div class="flex items-center gap-2.5">
-              <div
-                class="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primaryLight to-primary"
-              >
-                <svg
-                  class="w-4 h-4 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h2
-                  class="text-base font-bold text-textDark"
-                  data-i18n="create_post"
-                >
-                  Create Post
-                </h2>
-                <p class="text-xs text-textLight">
-                  Share with the farmer community
-                </p>
-              </div>
-            </div>
-            <button
-              onclick="closeCreatePostModal()"
-              class="text-textLight hover:text-textDark text-2xl leading-none transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background"
-            >
-              &times;
-            </button>
-          </div>
-
-          <!-- Modal Body -->
-          <div class="p-6 sm:p-8">
-            <form id="postForm" enctype="multipart/form-data" class="space-y-0">
-              <div class="flex items-center gap-2 mb-6">
-                <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
-                <h3
-                  class="text-xs font-bold uppercase tracking-widest text-textMid"
-                >
-                  Post Details
-                </h3>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                <!-- Title (full width) -->
-                <div class="sm:col-span-2">
-                  <label
-                    class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-                    data-i18n="post_title"
-                    >Title</label
-                  >
-                  <input
-                    type="text"
-                    name="title"
-                    required
-                    placeholder="{{ t.post_title_placeholder }}"
-                    data-i18n-placeholder="post_title_placeholder"
-                    class="w-full rounded-lg border border-backgroundDark py-2.5 px-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-                  />
-                </div>
-
-                <!-- Crop Type -->
-                <div>
-                  <label
-                    class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-                    data-i18n="crop_type"
-                    >Crop Type</label
-                  >
-                  <div class="relative">
-                    <span
-                      class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M12 3C8 8 5 12 5 16a7 7 0 0014 0c0-4-3-8-7-13z"
-                        />
-                      </svg>
-                    </span>
-                    <input
-                      type="text"
-                      name="crop_type"
-                      placeholder="{{ t.crop_type_placeholder }}"
-                      data-i18n-placeholder="crop_type_placeholder"
-                      class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-                    />
-                  </div>
-                </div>
-
-                <!-- Location -->
-                <div>
-                  <label
-                    class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-                    data-i18n="location"
-                    >Location</label
-                  >
-                  <div class="relative">
-                    <span
-                      class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    </span>
-                    <input
-                      type="text"
-                      name="location"
-                      id="locationInput"
-                      placeholder="{{ t.location_placeholder }}"
-                      data-i18n-placeholder="location_placeholder"
-                      class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
-                    />
-                  </div>
-                </div>
-
-                <!-- Description (full width) -->
-                <div class="sm:col-span-2">
-                  <label
-                    class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-                    data-i18n="post_description"
-                    >Description</label
-                  >
-                  <textarea
-                    name="description"
-                    required
-                    rows="4"
-                    placeholder="{{ t.post_description_placeholder }}"
-                    data-i18n-placeholder="post_description_placeholder"
-                    class="w-full rounded-lg border border-backgroundDark py-2.5 px-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all resize-vertical"
-                  ></textarea>
-                </div>
-
-                <!-- Upload Image (full width) -->
-                <div class="sm:col-span-2">
-                  <label
-                    class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
-                    data-i18n="upload_image"
-                    >Upload Image</label
-                  >
-                  <input
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    class="w-full rounded-lg border border-backgroundDark py-2 px-3 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all cursor-pointer file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primaryLight/20 file:text-primary hover:file:bg-primaryLight/30"
-                  />
-                </div>
-              </div>
-
-              <!-- Form Actions -->
-              <div
-                class="flex justify-end gap-3 mt-8 pt-6 border-t border-backgroundDark"
-              >
-                <button
-                  type="button"
-                  onclick="clearPostForm()"
-                  class="px-6 py-2.5 border border-backgroundDark text-textMid rounded-xl hover:bg-background text-sm font-medium transition-colors"
-                  data-i18n="clear"
-                >
-                  Clear
-                </button>
-                <button
-                  type="submit"
-                  class="flex items-center gap-2 rounded-xl py-2.5 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-lg shadow-primaryDark/20"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                    />
-                  </svg>
-                  <span data-i18n="submit_post">Post</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-     POST CARD TEMPLATE (hidden, cloned by JS)
-     ══════════════════════════════════ -->
+    <!-- ── POST CARD TEMPLATE (hidden, cloned by JS) ── -->
     <template id="postCardTemplate">
       <div
         class="bg-white rounded-2xl border border-backgroundDark shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col"
       >
-        <!-- Card Image -->
         <div class="post-image-container hidden">
           <img class="post-image w-full h-44 object-cover" alt="Post image" />
         </div>
-
         <div class="p-5 flex flex-col flex-1">
-          <!-- Author Row -->
           <div class="flex items-center gap-3 mb-4">
             <div
               class="w-10 h-10 bg-gradient-to-br from-primaryLight to-primary rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
@@ -570,18 +249,12 @@
             </div>
             <div class="text-xs text-textLight flex-shrink-0 post-date"></div>
           </div>
-
-          <!-- Title -->
           <h3
             class="text-base font-bold text-textDark mb-1.5 post-title leading-snug"
           ></h3>
-
-          <!-- Description -->
           <p
             class="text-sm text-textMid leading-relaxed post-description line-clamp-3 flex-1"
           ></p>
-
-          <!-- Tags -->
           <div class="flex flex-wrap gap-2 mt-4">
             <span
               class="crop-type hidden items-center gap-1 bg-primaryLight/10 text-primary rounded-full px-3 py-1 text-xs font-medium"
@@ -594,8 +267,6 @@
               📍 <span class="location-value"></span>
             </span>
           </div>
-
-          <!-- Divider + Actions -->
           <div
             class="border-t border-backgroundDark mt-4 pt-4 flex items-center gap-6"
           >
@@ -614,8 +285,6 @@
               <span class="text-xs" data-i18n="comments">comments</span>
             </button>
           </div>
-
-          <!-- Comments Section -->
           <div
             class="comments-section mt-4 pt-4 border-t border-backgroundDark hidden"
           >
@@ -641,9 +310,7 @@
       </div>
     </template>
 
-    <!-- ══════════════════════════════════
-     COMMENT TEMPLATE (hidden, cloned by JS)
-     ══════════════════════════════════ -->
+    <!-- ── COMMENT TEMPLATE (hidden, cloned by JS) ── -->
     <template id="commentTemplate">
       <div class="flex gap-3">
         <div
@@ -665,8 +332,289 @@
       </div>
     </template>
   </div>
+  <!-- /.max-w-6xl -->
+
+  <!-- ══════════════════════════════════════════════════════════════
+       CREATE POST MODAL
+       ──────────────────────────────────────────────────────────────
+       WHY IT LIVES HERE (inside #communityPageWrapper, outside max-w-6xl):
+       ─ #communityPageWrapper is `position: relative` and fills exactly
+         the dashboard content area — the space between sidebar, header,
+         and footer. It does NOT have overflow:hidden, so the modal is
+         not clipped.
+       ─ `position: absolute; inset: 0` on the modal overlay makes it
+         cover exactly that content area and nothing else. The sidebar
+         and header are OUTSIDE this element in the DOM, so they are
+         never overlapped.
+       ─ We do NOT use `position: fixed` because fixed escapes the layout
+         and covers the entire viewport including sidebar and header.
+       ══════════════════════════════════════════════════════════════ -->
+  <div
+    id="createPostModal"
+    class="hidden absolute inset-0 bg-black/50 z-50 overflow-y-auto"
+    onclick="handleModalBackdropClick(event)"
+  >
+    <div class="flex items-start justify-center pt-10 pb-16 px-4">
+      <div
+        id="createPostModalContent"
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative"
+        onclick="event.stopPropagation()"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex justify-between items-center px-6 sm:px-8 py-5 border-b border-backgroundDark"
+        >
+          <div class="flex items-center gap-2.5">
+            <div
+              class="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primaryLight to-primary"
+            >
+              <svg
+                class="w-4 h-4 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h2
+                class="text-base font-bold text-textDark"
+                data-i18n="create_post"
+              >
+                Create Post
+              </h2>
+              <p class="text-xs text-textLight">
+                Share with the farmer community
+              </p>
+            </div>
+          </div>
+          <button
+            onclick="closeCreatePostModal()"
+            class="text-textLight hover:text-textDark text-2xl leading-none transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background"
+          >
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 sm:p-8">
+          <form id="postForm" enctype="multipart/form-data" class="space-y-0">
+            <div class="flex items-center gap-2 mb-6">
+              <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+              <h3
+                class="text-xs font-bold uppercase tracking-widest text-textMid"
+              >
+                Post Details
+              </h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+              <!-- Title (full width) -->
+              <div class="sm:col-span-2">
+                <label
+                  class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                  data-i18n="post_title"
+                  >Title</label
+                >
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  placeholder="{{ t.post_title_placeholder }}"
+                  data-i18n-placeholder="post_title_placeholder"
+                  class="w-full rounded-lg border border-backgroundDark py-2.5 px-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                />
+              </div>
+
+              <!-- Crop Type -->
+              <div>
+                <label
+                  class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                  data-i18n="crop_type"
+                  >Crop Type</label
+                >
+                <div class="relative">
+                  <span
+                    class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 3C8 8 5 12 5 16a7 7 0 0014 0c0-4-3-8-7-13z"
+                      />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    name="crop_type"
+                    placeholder="{{ t.crop_type_placeholder }}"
+                    data-i18n-placeholder="crop_type_placeholder"
+                    class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div>
+                <label
+                  class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                  data-i18n="location"
+                  >Location</label
+                >
+                <div class="relative">
+                  <span
+                    class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-textLight"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    name="location"
+                    id="locationInput"
+                    placeholder="{{ t.location_placeholder }}"
+                    data-i18n-placeholder="location_placeholder"
+                    class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
+
+              <!-- Description (full width) -->
+              <div class="sm:col-span-2">
+                <label
+                  class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                  data-i18n="post_description"
+                  >Description</label
+                >
+                <textarea
+                  name="description"
+                  required
+                  rows="4"
+                  placeholder="{{ t.post_description_placeholder }}"
+                  data-i18n-placeholder="post_description_placeholder"
+                  class="w-full rounded-lg border border-backgroundDark py-2.5 px-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all resize-vertical"
+                ></textarea>
+              </div>
+
+              <!-- Upload Image (full width) -->
+              <div class="sm:col-span-2">
+                <label
+                  class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
+                  data-i18n="upload_image"
+                  >Upload Image</label
+                >
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  class="w-full rounded-lg border border-backgroundDark py-2 px-3 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all cursor-pointer file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primaryLight/20 file:text-primary hover:file:bg-primaryLight/30"
+                />
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div
+              class="flex justify-end gap-3 mt-8 pt-6 border-t border-backgroundDark"
+            >
+              <button
+                type="button"
+                onclick="clearPostForm()"
+                class="px-6 py-2.5 border border-backgroundDark text-textMid rounded-xl hover:bg-background text-sm font-medium transition-colors"
+                data-i18n="clear"
+              >
+                Clear
+              </button>
+              <button
+                type="submit"
+                class="flex items-center gap-2 rounded-xl py-2.5 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-lg shadow-primaryDark/20"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  />
+                </svg>
+                <span data-i18n="submit_post">Post</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- /#createPostModalContent -->
+    </div>
+    <!-- /.modal inner flex -->
+  </div>
+  <!-- /#createPostModal -->
 </div>
+<!-- /#communityPageWrapper / .bg-background -->
 
 {% endblock %} {% block scripts %}
+<script>
+  /**
+   * Modal helpers.
+   * The modal uses absolute inset-0 inside #communityPageWrapper (position:relative),
+   * so it covers only the dashboard content area — never the sidebar or header.
+   */
+
+  function openCreatePostModal() {
+    const modal = document.getElementById("createPostModal");
+    if (!modal) return;
+    modal.classList.remove("hidden");
+  }
+
+  function closeCreatePostModal() {
+    const modal = document.getElementById("createPostModal");
+    if (!modal) return;
+    modal.classList.add("hidden");
+  }
+
+  function handleModalBackdropClick(event) {
+    // Only close when clicking the backdrop itself, not the modal card.
+    if (event.target === document.getElementById("createPostModal")) {
+      closeCreatePostModal();
+    }
+  }
+
+  // Escape key closes the modal.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeCreatePostModal();
+  });
+</script>
 <script src="/static/js/community.js"></script>
 {% endblock %}

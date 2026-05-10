@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
 from routes.community_routes import community
-from routes.assistant_routes import assistant_bp
+
 
 from utils.translator import get_translations
 
@@ -105,6 +105,10 @@ def inject_globals():
     t = get_translations(lang, page) or {}
 
     user = session.get("user")
+    
+    # Debug logging
+    from flask import current_app
+    current_app.logger.warning(f"CONTEXT PATH={request.path}, STRIPPED={path}, PAGE={page}, USER={bool(user)}, TRANS={len(t)}")
 
     return dict(
     current_user=user or None,
@@ -118,7 +122,7 @@ def inject_globals():
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(community, url_prefix='/community')
-app.register_blueprint(assistant_bp, url_prefix='/assistant')
+
 
 
 create_tables()
@@ -176,11 +180,7 @@ def dashboard():
         return redirect('/login')
     return render_template('dashboard/dashboard.html')
 
-@app.route('/assistant')
-def assistant():
-    if "user" not in session:
-        return redirect('/login')
-    return render_template('dashboard/assistant.html')
+
 
 
 # ─────────────────────────────────────────────

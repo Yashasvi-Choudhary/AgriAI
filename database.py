@@ -32,6 +32,11 @@ CREATE TABLE IF NOT EXISTS users (
     except sqlite3.OperationalError:
         pass  # Column already exists
 
+    try:
+        cursor.execute("ALTER TABLE farm_conditions ADD COLUMN location_name TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
     # ---------------- FARM CONDITIONS ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS farm_conditions (
@@ -48,6 +53,7 @@ CREATE TABLE IF NOT EXISTS users (
         potassium REAL,
         latitude REAL,
         longitude REAL,
+        location_name TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
