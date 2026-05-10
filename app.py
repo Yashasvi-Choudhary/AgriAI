@@ -10,19 +10,16 @@ from urllib3.util import Retry
 from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
-from routes.crop_routes import crop as crop_bp
+from routes.crop_routes import crop as crop_bp, generate_crop_response
 
 from utils.translator import get_translations
 
 import sqlite3
-import pickle                     # ✅ ADDED
 import pandas as pd              # ✅ ADDED
+import joblib
 import os
 import sys
 import importlib.util
-
-import uuid
-from werkzeug.security import generate_password_hash
 
 # ─────────────────────────────────────────────
 # APP INIT
@@ -67,7 +64,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = 86400
 
 # ✅ LOAD ML MODEL
 CROP_MODEL_PATH = os.path.join(BASE_DIR, "model", "crop_model.pkl")
-model = pickle.load(open(CROP_MODEL_PATH, 'rb'))
+model = joblib.load(CROP_MODEL_PATH)
 
 
 # ─────────────────────────────────────────────

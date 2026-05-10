@@ -2,12 +2,14 @@
 import os
 import sqlite3
 import traceback
-from flask import Blueprint, request, jsonify, current_app, session
+from flask import Blueprint, request, jsonify, current_app, session, redirect
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 MODEL_PATH = os.path.join(BASE_DIR, 'model', 'crop_model.pkl')
 DB_PATH = os.path.join(BASE_DIR, 'database.db')
 _crop_model = None
+
+crop = Blueprint('crop', __name__)
 
 
 def generate_crop_response(crop, confidence, inputs):
@@ -113,6 +115,16 @@ def build_bilingual_response(crop_name, confidence, alternatives):
         },
     }
 
+
+@crop.route('/api/crop-recommendation', methods=['POST'])
+def crop_recommendation_api():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    data = request.get_json(silent=True)
+    if not data:
+        current_app.logger.warning("Invalid JSON payload received for crop recommendation")
+        return jsonify({"status": "error", "message": "Invalid JSON payload", "errors": {"payload": "Invalid JSON"}}), 400
 
     errors = {}
     nitrogen = parse_numeric_field(data, "nitrogen", errors)
