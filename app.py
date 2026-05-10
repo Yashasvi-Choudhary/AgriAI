@@ -1,5 +1,6 @@
 import uuid
 import datetime
+import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.geolocation import geocode_location
 
@@ -15,7 +16,7 @@ from routes.crop_routes import crop as crop_bp, generate_crop_response
 from utils.translator import get_translations
 
 import sqlite3
-import pandas as pd              # ✅ ADDED
+import pandas as pd
 import joblib
 import os
 import sys
@@ -67,6 +68,8 @@ CROP_MODEL_PATH = os.path.join(BASE_DIR, "model", "crop_model.pkl")
 model = joblib.load(CROP_MODEL_PATH)
 
 
+
+
 # ─────────────────────────────────────────────
 # GLOBAL TRANSLATION CONTEXT
 # ─────────────────────────────────────────────
@@ -88,6 +91,7 @@ def inject_globals():
         "plant-disease-detection": "plant-disease-detection",
         "fertilizer-guide": "fertilizer-guide",
         "market-price": "market",
+        "government-schemes": "government-schemes",
         "profile": "profile",
     }
 
@@ -168,69 +172,21 @@ def dashboard():
 # ─────────────────────────────────────────────
 # PROFILE
 # ─────────────────────────────────────────────
-@app.route("/profile", methods=["GET", "POST"])
+@app.route('/profile')
 def profile():
     if "user" not in session:
-        return redirect("/login")
-
-    user = session["user"]
-
-    if request.method == "GET":
-        return render_template("layout/profile.html", user=user)
-
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
-
-    name = request.form.get("name", "").strip()
-    email = request.form.get("email", "").strip()
-    phone = request.form.get("phone", "").strip()
-    location = request.form.get("location", "").strip()
-
-    errors = []
-
-    if not name:
-        errors.append("Full name is required.")
-
-    if not email:
-        errors.append("Email is required.")
-    elif "@" not in email:
-        errors.append("Invalid email format.")
-
-    conn = sqlite3.connect("database.db")
+        return redirect('/login')
+    
+    conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-
-    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
-    existing = cursor.fetchone()
-
-    if existing and existing[0] != user["id"]:
-        errors.append("Email already in use.")
-
-    if errors:
-        conn.close()
-        msg = errors[0]
-
-        if is_ajax:
-            return jsonify({"success": False, "message": msg}), 400
-
-        flash(msg, "error")
-        return redirect(url_for("profile"))
-
-    cursor.execute("""
-        UPDATE users
-        SET name=?, email=?, phone=?, location=?
-        WHERE id=?
-    """, (name, email, phone, location, user["id"]))
-
-    conn.commit()
+    cursor.execute("SELECT name, email, phone, location FROM users WHERE id=?", (session["user"]["id"],))
+    user = cursor.fetchone()
     conn.close()
-
-    session["user"]["name"] = name
-    session["user"]["email"] = email
-
-    if is_ajax:
-        return jsonify({"success": True, "message": "Profile updated"}), 200
-
-    flash("Profile updated successfully", "success")
-    return redirect(url_for("profile"))
+    
+    if not user:
+        return redirect('/login')
+    
+    return render_template('layout/profile.html', user=user)
 
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
@@ -265,7 +221,6 @@ def update_profile():
     session["user"]["name"] = name
     
     return jsonify({"success": True, "message": "Profile updated successfully", "lat": lat, "lon": lon})
-
 @app.route('/change-password', methods=['POST'])
 def change_password():
     if "user" not in session:
@@ -421,6 +376,13 @@ def market_price():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/market_price.html')
+
+
+@app.route('/government-schemes')
+def government_schemes():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/government_schemes.html')
 
 
 @app.route('/predict', methods=['POST'])
@@ -924,6 +886,79 @@ def reset_password(token):
 
     # ✅ GET → page open
     return render_template('auth/reset_password.html', token=token)
+
+
+# ─────────────────────────────────────────────
+# GOVERNMENT SCHEMES API
+# ─────────────────────────────────────────────
+@app.route('/api/schemes', methods=['GET'])
+def get_schemes():
+    """
+    Get government schemes with optional filtering
+    Query Parameters:
+    - state: Filter by state (or 'All' for national schemes)
+    - crop_type: Filter by crop type (or 'All' for all crops)
+    
+    Filtering Logic:
+    - If state = 'MP' → returns schemes with state='MP' OR state='All'
+    - If crop_type = 'Wheat' → returns schemes with crop_type='Wheat' OR crop_type='All'
+    """
+    try:
+        state = request.args.get('state', '').strip()
+        crop_type = request.args.get('crop_type', '').strip()
+        
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        
+        # Build query with filtering logic
+        query = "SELECT id, title, description, benefit, state, crop_type, eligibility, website_link, created_at FROM government_schemes WHERE 1=1"
+        params = []
+        
+        # Filter by state (include 'All' schemes)
+        if state and state != 'All':
+            query += " AND (state = ? OR state = 'All')"
+            params.append(state)
+        
+        # Filter by crop type (include 'All' schemes) - need to handle JSON field
+        if crop_type and crop_type != 'All':
+            # For JSON fields, we need to check both languages
+            query += " AND (json_extract(crop_type, '$.en') = ? OR json_extract(crop_type, '$.hi') = ? OR state = 'All')"
+            params.extend([crop_type, crop_type])
+        
+        # Order by state-specific schemes first, then national schemes
+        query += " ORDER BY CASE WHEN state = 'All' THEN 1 ELSE 0 END, title"
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+        
+        schemes = []
+        for row in rows:
+            schemes.append({
+                "id": row[0],
+                "title": json.loads(row[1]) if row[1] else {"en": "", "hi": ""},
+                "description": json.loads(row[2]) if row[2] else {"en": "", "hi": ""},
+                "benefit": json.loads(row[3]) if row[3] else {"en": "", "hi": ""},
+                "state": row[4],
+                "crop_type": json.loads(row[5]) if row[5] else {"en": "", "hi": ""},
+                "eligibility": json.loads(row[6]) if row[6] else {"en": "", "hi": ""},
+                "website_link": row[7],
+                "created_at": row[8]
+            })
+        
+        return jsonify({
+            "status": "success",
+            "count": len(schemes),
+            "schemes": schemes
+        })
+        
+    except Exception as e:
+        print(f"❌ Error fetching schemes: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Error fetching schemes"
+        }), 500
+
 
 # ─────────────────────────────────────────────
 # RUN SERVER
