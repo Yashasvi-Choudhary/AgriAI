@@ -10,7 +10,7 @@ from urllib3.util import Retry
 from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
-from routes.crop_routes import generate_crop_response   # ✅ ADDED
+from routes.crop_routes import crop as crop_bp
 
 from utils.translator import get_translations
 
@@ -110,6 +110,7 @@ def inject_globals():
 # BLUEPRINTS
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(crop_bp)
 
 create_tables()
 
@@ -378,7 +379,6 @@ def fertilizer_guide():
     return render_template('dashboard/fertilizer-guide.html')
 
 
-<<<<<<< HEAD
 # ─────────────────────────────────────────────
 # ✅ CROP PREDICTION API (MAIN FEATURE ADDED)
 # ─────────────────────────────────────────────
@@ -470,8 +470,6 @@ def predict_yield():
     return jsonify(result)
 
 
-# ─────────────────────────────────────────────
-<<<<<<< HEAD
 # ─────────────────────────────────────────────
 # MARKET PRICE API
 # ─────────────────────────────────────────────
