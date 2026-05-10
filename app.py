@@ -1,12 +1,18 @@
 import uuid
 import datetime
+import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.geolocation import geocode_location
 
-from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for
+from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for, send_from_directory
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
+from routes.community_routes import community
+
 
 from utils.translator import get_translations
 
@@ -42,6 +48,13 @@ mail = Mail(app)
 app.secret_key = "super_secret_key_123"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Upload configuration
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+MARKET_API_KEY = os.getenv("MARKET_API_KEY")
 sys.path.insert(0, BASE_DIR)
 
 utils_path = os.path.join(BASE_DIR, "fertilizer_utils.py")
@@ -81,13 +94,21 @@ def inject_globals():
     "crop-yield-prediction": "crop-yield-prediction",
     "plant-disease-detection": "plant-disease-detection",
     "fertilizer-guide": "fertilizer-guide",
-    "profile": "profile",   # ✅ ADD THIS
+    "market-price": "market",
+    "government-schemes": "government-schemes",
+    "community": "community",
+    "assistant": "assistant",
+    "profile": "profile",
 }
 
     page = page_map.get(path, "dashboard")
     t = get_translations(lang, page) or {}
 
     user = session.get("user")
+    
+    # Debug logging
+    from flask import current_app
+    current_app.logger.warning(f"CONTEXT PATH={request.path}, STRIPPED={path}, PAGE={page}, USER={bool(user)}, TRANS={len(t)}")
 
     return dict(
     current_user=user or None,
@@ -100,6 +121,8 @@ def inject_globals():
 # BLUEPRINTS
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(community, url_prefix='/community')
+
 
 
 create_tables()
@@ -156,6 +179,8 @@ def dashboard():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/dashboard.html')
+
+
 
 
 # ─────────────────────────────────────────────
@@ -280,6 +305,20 @@ def fertilizer_guide():
     return render_template('dashboard/fertilizer-guide.html')
 
 
+@app.route('/market-price')
+def market_price():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/market_price.html')
+
+
+@app.route('/government-schemes')
+def government_schemes():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/government_schemes.html')
+
+
 @app.route('/predict', methods=['POST'])
 def predict_fertilizer():
     payload = request.get_json(silent=True)
@@ -322,6 +361,284 @@ def predict_yield():
 
     result = utils_yield.build_response(prediction)
     return jsonify(result)
+
+
+# ─────────────────────────────────────────────
+# MARKET PRICE API
+# ─────────────────────────────────────────────
+
+crop_translations = {
+    "wheat": {"english": "Wheat", "hindi": "गेहूं"},
+    "rice": {"english": "Rice", "hindi": "चावल"},
+    "maize": {"english": "Maize", "hindi": "मक्का"},
+    "barley": {"english": "Barley", "hindi": "जौ"},
+    "soybean": {"english": "Soybean", "hindi": "सोयाबीन"},
+    "cotton": {"english": "Cotton", "hindi": "कपास"},
+    "sugarcane": {"english": "Sugarcane", "hindi": "गन्ना"},
+    "potato": {"english": "Potato", "hindi": "आलू"},
+    "tomato": {"english": "Tomato", "hindi": "टमाटर"},
+    "onion": {"english": "Onion", "hindi": "प्याज"}
+}
+
+@app.route('/api/get-market-price', methods=['POST'])
+def get_market_price():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    data = request.get_json()
+    crop_name = data.get('crop_name', '').strip()
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+    location_name = data.get('location_name', '').strip()
+    user_id = session["user"]["id"]
+
+    if not crop_name:
+        return jsonify({"status": "error", "message": "Crop name required"}), 400
+
+    if not location_name or latitude is None or longitude is None:
+        return jsonify({"status": "error", "message": "Location data required"}), 400
+
+    market_data = fetch_crop_market_price(crop_name, location_name, latitude, longitude)
+
+    if not market_data:
+        return jsonify({"status": "error", "message": "Unable to fetch market data. Please try another crop or location."}), 502
+
+    current_price = market_data.get('current_price', 'N/A')
+    min_price = market_data.get('min_price', 'N/A')
+    max_price = market_data.get('max_price', 'N/A')
+    market_name = market_data.get('market_name', location_name or 'Local Market')
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+    INSERT INTO market_price_history
+    (user_id, crop_name, location_name, latitude, longitude, current_price, min_price, max_price, market_name)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (user_id, crop_name, location_name, latitude, longitude, current_price, min_price, max_price, market_name))
+    conn.commit()
+    conn.close()
+
+    analysis = generate_price_analysis(current_price, min_price, max_price)
+
+    crop_display = crop_translations.get(crop_name.lower(), {"english": crop_name.capitalize(), "hindi": crop_name.capitalize()})
+
+    result = {
+        "status": "success",
+        "data": {
+            "market_price": {
+                "english": {
+                    "crop_name": crop_display["english"],
+                    "location": location_name,
+                    "market": market_name,
+                    "current_price": f"₹{current_price}/quintal",
+                    "min_price": f"₹{min_price}/quintal",
+                    "max_price": f"₹{max_price}/quintal",
+                    "analysis": analysis["english"]
+                },
+                "hindi": {
+                    "crop_name": crop_display["hindi"],
+                    "location": location_name,
+                    "market": market_name,
+                    "current_price": f"₹{current_price}/क्विंटल",
+                    "min_price": f"₹{min_price}/क्विंटल",
+                    "max_price": f"₹{max_price}/क्विंटल",
+                    "analysis": analysis["hindi"]
+                }
+            }
+        }
+    }
+
+    return jsonify(result)
+
+
+@app.route('/api/get-market-history', methods=['GET'])
+def get_market_history():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    user_id = session["user"]["id"]
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT id, crop_name, location_name, current_price, market_name, created_at
+    FROM market_price_history
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+    LIMIT 20
+    """, (user_id,))
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    history = []
+    for row in rows:
+        history.append({
+            "id": row[0],
+            "crop_name": row[1],
+            "location_name": row[2],
+            "current_price": row[3],
+            "market_name": row[4],
+            "created_at": row[5]
+        })
+
+    return jsonify({"status": "success", "data": history})
+
+
+@app.route('/delete-market-history', methods=['POST'])
+def delete_market_history():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    data = request.get_json()
+    history_id = data.get('id')
+    user_id = session["user"]["id"]
+
+    if not history_id:
+        return jsonify({"status": "error", "message": "ID required"}), 400
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    # Verify ownership
+    cursor.execute("SELECT user_id FROM market_price_history WHERE id = ?", (history_id,))
+    result = cursor.fetchone()
+
+    if not result or result[0] != user_id:
+        conn.close()
+        return jsonify({"status": "error", "message": "Not authorized"}), 403
+
+    cursor.execute("DELETE FROM market_price_history WHERE id = ?", (history_id,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status": "success", "message": "Deleted successfully"})
+
+
+# ─────────────────────────────────────────────
+# MARKET PRICE HELPER FUNCTIONS
+# ─────────────────────────────────────────────
+def normalize_price_field(record, fields):
+    for field in fields:
+        value = record.get(field)
+        if value is None:
+            continue
+        normalized = str(value).strip()
+        if normalized and normalized not in ["NA", "na", "--"]:
+            return normalized
+    return None
+
+
+def choose_best_market_record(records, location):
+    location_lower = location.lower().strip()
+    best = None
+    best_score = -1
+
+    for record in records:
+        score = 0
+        for field in ["market", "district", "state", "commodity"]:
+            value = str(record.get(field, "")).lower()
+            if location_lower and location_lower in value:
+                score += 2
+        if score > best_score:
+            best_score = score
+            best = record
+
+    return best or records[0]
+
+
+def fetch_crop_market_price(crop_name, location, lat, lon):
+    if not MARKET_API_KEY:
+        print("[MarketPrice] Missing MARKET_API_KEY")
+        return None
+
+    url = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+    params = {
+        "api-key": MARKET_API_KEY,
+        "format": "json",
+        "filters[commodity]": crop_name,
+        "q": location,
+        "limit": 15,
+        "offset": 0,
+    }
+    headers = {"User-Agent": "AgriAI Market Price Client"}
+
+    session = requests.Session()
+    retries = Retry(
+        total=3,
+        backoff_factor=0.5,
+        status_forcelist=[429, 500, 502, 503, 504],
+        raise_on_status=False,
+    )
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+
+    print(f"[MarketPrice] Request URL: {url}")
+    print(f"[MarketPrice] Request params: {params}")
+
+    try:
+        response = session.get(url, params=params, headers=headers, timeout=(5, 20))
+        response.raise_for_status()
+    except requests.exceptions.RequestException as exc:
+        print(f"[MarketPrice] API error: {exc}")
+        if hasattr(exc, "response") and exc.response is not None:
+            print(
+                "[MarketPrice] Response status:",
+                exc.response.status_code,
+                exc.response.text[:300],
+            )
+        return None
+
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        print(f"[MarketPrice] JSON decode failed: {exc}")
+        return None
+
+    records = payload.get("records") or []
+    if not records:
+        print("[MarketPrice] No records returned for", crop_name, "at", location)
+        return None
+
+    record = choose_best_market_record(records, location)
+    current_price = normalize_price_field(record, ["modal_price", "modal", "price"])
+    min_price = normalize_price_field(record, ["min_price", "minimum_price"])
+    max_price = normalize_price_field(record, ["max_price", "maximum_price"])
+    market_name = normalize_price_field(record, ["market", "market_name"]) or location
+
+    if not current_price and not min_price and not max_price:
+        print("[MarketPrice] No valid price values in record", record)
+        return None
+
+    return {
+        "current_price": current_price or "N/A",
+        "min_price": min_price or current_price or "N/A",
+        "max_price": max_price or current_price or "N/A",
+        "market_name": market_name,
+    }
+
+
+def generate_price_analysis(current, min_price, max_price):
+    """
+    Generate price analysis text
+    """
+    try:
+        curr_val = float(str(current).replace('₹', '').split('/')[0])
+        min_val = float(str(min_price).replace('₹', '').split('/')[0])
+        max_val = float(str(max_price).replace('₹', '').split('/')[0])
+    except:
+        curr_val = min_val = max_val = 0
+
+    if curr_val >= max_val * 0.9:
+        en_analysis = "Price is near maximum. Consider selling if possible."
+        hi_analysis = "कीमत अधिकतम के निकट है। यदि संभव हो तो बेचने पर विचार करें।"
+    elif curr_val <= min_val * 1.1:
+        en_analysis = "Price is near minimum. Wait for better rates if possible."
+        hi_analysis = "कीमत न्यूनतम के निकट है। यदि संभव हो तो बेहतर दरों के लिए प्रतीक्षा करें।"
+    else:
+        en_analysis = "Price is in average range. Monitor market trends."
+        hi_analysis = "कीमत औसत सीमा में है। बाजार के रुझानों पर नज़र रखें।"
+
+    return {"english": en_analysis, "hindi": hi_analysis}
 
 
 # ─────────────────────────────────────────────
@@ -375,6 +692,13 @@ def get_weather():
         "humidity": res["hourly"]["relativehumidity_2m"][0],
         "rainfall": res["hourly"]["precipitation_probability"][0]
     })
+
+# ─────────────────────────────────────────────
+# SERVE UPLOADED FILES
+# ─────────────────────────────────────────────
+@app.route('/uploads/<path:filename>')
+def serve_uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # ─────────────────────────────────────────────
 # LOGOUT
@@ -505,6 +829,77 @@ def reset_password(token):
 
     # ✅ GET → page open
     return render_template('auth/reset_password.html', token=token)
+
+# ─────────────────────────────────────────────
+# GOVERNMENT SCHEMES API
+# ─────────────────────────────────────────────
+@app.route('/api/schemes', methods=['GET'])
+def get_schemes():
+    """
+    Get government schemes with optional filtering
+    Query Parameters:
+    - state: Filter by state (or 'All' for national schemes)
+    - crop_type: Filter by crop type (or 'All' for all crops)
+    
+    Filtering Logic:
+    - If state = 'MP' → returns schemes with state='MP' OR state='All'
+    - If crop_type = 'Wheat' → returns schemes with crop_type='Wheat' OR crop_type='All'
+    """
+    try:
+        state = request.args.get('state', '').strip()
+        crop_type = request.args.get('crop_type', '').strip()
+        
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        
+        # Build query with filtering logic
+        query = "SELECT id, title, description, benefit, state, crop_type, eligibility, website_link, created_at FROM government_schemes WHERE 1=1"
+        params = []
+        
+        # Filter by state (include 'All' schemes)
+        if state and state != 'All':
+            query += " AND (state = ? OR state = 'All')"
+            params.append(state)
+        
+        # Filter by crop type (include 'All' schemes) - need to handle JSON field
+        if crop_type and crop_type != 'All':
+            # For JSON fields, we need to check both languages
+            query += " AND (json_extract(crop_type, '$.en') = ? OR json_extract(crop_type, '$.hi') = ? OR state = 'All')"
+            params.extend([crop_type, crop_type])
+        
+        # Order by state-specific schemes first, then national schemes
+        query += " ORDER BY CASE WHEN state = 'All' THEN 1 ELSE 0 END, title"
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+        
+        schemes = []
+        for row in rows:
+            schemes.append({
+                "id": row[0],
+                "title": json.loads(row[1]) if row[1] else {"en": "", "hi": ""},
+                "description": json.loads(row[2]) if row[2] else {"en": "", "hi": ""},
+                "benefit": json.loads(row[3]) if row[3] else {"en": "", "hi": ""},
+                "state": row[4],
+                "crop_type": json.loads(row[5]) if row[5] else {"en": "", "hi": ""},
+                "eligibility": json.loads(row[6]) if row[6] else {"en": "", "hi": ""},
+                "website_link": row[7],
+                "created_at": row[8]
+            })
+        
+        return jsonify({
+            "status": "success",
+            "count": len(schemes),
+            "schemes": schemes
+        })
+        
+    except Exception as e:
+        print(f"❌ Error fetching schemes: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Error fetching schemes"
+        }), 500
 
 # ─────────────────────────────────────────────
 # RUN SERVER

@@ -32,6 +32,11 @@ CREATE TABLE IF NOT EXISTS users (
     except sqlite3.OperationalError:
         pass  # Column already exists
 
+    try:
+        cursor.execute("ALTER TABLE farm_conditions ADD COLUMN location_name TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
     # ---------------- FARM CONDITIONS ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS farm_conditions (
@@ -48,6 +53,7 @@ CREATE TABLE IF NOT EXISTS users (
         potassium REAL,
         latitude REAL,
         longitude REAL,
+        location_name TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
@@ -96,11 +102,36 @@ CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         title TEXT NOT NULL,
-        description TEXT,
+        description TEXT NOT NULL,
+        image_url TEXT,
+        crop_type TEXT,
+        location TEXT,
+        likes_count INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
+
+    # Add missing columns to community_posts if they don't exist
+    try:
+        cursor.execute("ALTER TABLE community_posts ADD COLUMN image_url TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE community_posts ADD COLUMN crop_type TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE community_posts ADD COLUMN location TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE community_posts ADD COLUMN likes_count INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
 
     # ---------------- COMMENTS ----------------
     cursor.execute("""
@@ -110,6 +141,17 @@ CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER,
         comment TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(post_id) REFERENCES community_posts(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+
+    # ---------------- LIKES ----------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS community_likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER,
+        user_id INTEGER,
         FOREIGN KEY(post_id) REFERENCES community_posts(id),
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
@@ -136,14 +178,11 @@ CREATE TABLE IF NOT EXISTS government_schemes (
     title TEXT NOT NULL,
     description TEXT,
     benefit TEXT,
-    category TEXT,
     state TEXT,
     crop_type TEXT,
-    min_land REAL,
-    max_land REAL,
-    income_limit REAL,
+    eligibility TEXT,
     website_link TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT
 );
 """)
 
@@ -159,6 +198,37 @@ CREATE TABLE IF NOT EXISTS government_schemes (
         predicted_price REAL,
         predicted_revenue REAL,
         predicted_profit REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+
+    # ---------------- MARKET PRICE HISTORY ----------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS market_price_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        crop_name TEXT,
+        location_name TEXT,
+        latitude REAL,
+        longitude REAL,
+        current_price TEXT,
+        min_price TEXT,
+        max_price TEXT,
+        market_name TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+
+    # ---------------- AI CHAT HISTORY ----------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ai_chat_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        user_query TEXT NOT NULL,
+        ai_response TEXT NOT NULL,
+        language VARCHAR(10),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
