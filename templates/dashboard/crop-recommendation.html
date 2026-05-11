@@ -113,6 +113,7 @@
               </svg>
             </span>
           </div>
+          <div id="error-soil_type" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
 
         <!-- pH Level -->
@@ -150,6 +151,7 @@
               data-i18n-placeholder="crop_ph_placeholder"
             />
           </div>
+          <div id="error-ph_level" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
 
         <!-- Temperature -->
@@ -186,6 +188,7 @@
               data-i18n-placeholder="crop_temp_placeholder"
             />
           </div>
+          <div id="error-temperature" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
 
         <!-- Humidity -->
@@ -222,6 +225,7 @@
               data-i18n-placeholder="crop_humidity_placeholder"
             />
           </div>
+          <div id="error-humidity" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
 
         <!-- Rainfall -->
@@ -257,6 +261,7 @@
               data-i18n-placeholder="crop_rainfall_placeholder"
             />
           </div>
+          <div id="error-rainfall" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
 
         <!-- Soil Moisture -->
@@ -293,6 +298,7 @@
               data-i18n-placeholder="crop_moisture_placeholder"
             />
           </div>
+          <div id="error-soil_moisture" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
 
         <!-- Nitrogen -->
@@ -315,6 +321,7 @@
               data-i18n-placeholder="crop_nitrogen_placeholder"
             />
           </div>
+          <div id="error-nitrogen" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
 
         <!-- Phosphorus -->
@@ -337,6 +344,7 @@
               data-i18n-placeholder="crop_phosphorus_placeholder"
             />
           </div>
+          <div id="error-phosphorus" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
 
         <!-- Potassium -->
@@ -359,11 +367,12 @@
               data-i18n-placeholder="crop_potassium_placeholder"
             />
           </div>
+          <div id="error-potassium" class="text-xs text-red-600 mt-1 hidden"></div>
         </div>
-
-        <!-- spacer -->
-        <div class="hidden sm:block"></div>
       </div>
+
+      <!-- Error Summary -->
+      <div id="formErrors" class="mt-4 hidden bg-red-50 border border-red-200 rounded-lg p-4"></div>
 
       <!-- Submit Button -->
       <div class="mt-8">
@@ -391,6 +400,84 @@
       </div>
     </div>
     <!-- /form card -->
+
+    <!-- Result Card -->
+    <div id="resultCard" class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 mb-7 shadow-sm hidden">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1 h-5 rounded-full bg-green-400"></div>
+        <h2 class="text-xs font-bold uppercase tracking-widest text-textMid" data-i18n="crop_result_heading"></h2>
+      </div>
+
+      <!-- English Result -->
+      <div id="resultEnglish" class="mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <span id="resultIcon" class="text-4xl"></span>
+          <div>
+            <h3 id="resultName" class="text-2xl font-bold text-textDark"></h3>
+            <p id="resultAnalysis" class="text-sm text-textLight mt-1"></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-4">
+          <span class="text-xs uppercase font-semibold text-textMid" data-i18n="crop_result_confidence_label"></span>
+          <div class="flex-1 h-2 bg-backgroundLight rounded-full overflow-hidden">
+            <div id="resultBar" class="h-full bg-gradient-to-r from-primaryLight to-primary transition-all" style="width: 0%"></div>
+          </div>
+          <span id="resultConfText" class="text-sm font-bold text-primary"></span>
+        </div>
+        <div id="alternatives" class="mt-4"></div>
+      </div>
+
+      <!-- Hindi Result (if needed) -->
+      <div id="resultHindi" class="hidden pt-4 border-t border-backgroundDark mt-4">
+        <div class="flex items-center gap-3 mb-4">
+          <span id="resultIconHi" class="text-4xl"></span>
+          <div>
+            <h3 id="resultNameHi" class="text-2xl font-bold text-textDark"></h3>
+            <p id="resultAnalysisHi" class="text-sm text-textLight mt-1"></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-4">
+          <span class="text-xs uppercase font-semibold text-textMid" data-i18n="crop_result_confidence_label"></span>
+          <div class="flex-1 h-2 bg-backgroundLight rounded-full overflow-hidden">
+            <div id="resultBarHi" class="h-full bg-gradient-to-r from-primaryLight to-primary transition-all" style="width: 0%"></div>
+          </div>
+          <span id="resultConfTextHi" class="text-sm font-bold text-primary"></span>
+        </div>
+        <div id="alternativesHi" class="mt-4"></div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="bg-white rounded-2xl border border-red-200 p-6 sm:p-8 mb-7 shadow-sm hidden">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1 h-5 rounded-full bg-red-400"></div>
+        <h2 class="text-xs font-bold uppercase tracking-widest text-red-600" data-i18n="crop_error_title"></h2>
+      </div>
+      <p id="errorMsg" class="text-sm text-textLight"></p>
+      <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700" data-i18n="crop_error_retry"></button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 mb-7 shadow-sm hidden">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1 h-5 rounded-full bg-blue-400"></div>
+        <h2 class="text-xs font-bold uppercase tracking-widest text-textMid" data-i18n="crop_loading_text"></h2>
+      </div>
+      <div class="space-y-2">
+        <div class="h-3 bg-backgroundLight rounded-full animate-pulse"></div>
+        <div class="h-3 bg-backgroundLight rounded-full animate-pulse w-5/6"></div>
+      </div>
+      <p class="text-xs text-textLight mt-3" data-i18n="crop_loading_subtitle"></p>
+    </div>
+
+    <!-- History Section -->
+    <div id="historySection" class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm hidden">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+        <h2 class="text-xs font-bold uppercase tracking-widest text-textMid" data-i18n="crop_history_title"></h2>
+      </div>
+      <div id="historyList" class="space-y-2"></div>
+    </div>
   </div>
 </div>
 

@@ -64,6 +64,16 @@ CREATE TABLE IF NOT EXISTS users (
     CREATE TABLE IF NOT EXISTS crop_recommendations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
+        soil_type TEXT,
+        nitrogen REAL,
+        phosphorus REAL,
+        potassium REAL,
+        ph REAL,
+        temperature REAL,
+        humidity REAL,
+        rainfall REAL,
+        latitude REAL,
+        longitude REAL,
         recommended_crop TEXT,
         confidence REAL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -178,11 +188,15 @@ CREATE TABLE IF NOT EXISTS government_schemes (
     title TEXT NOT NULL,
     description TEXT,
     benefit TEXT,
+    category TEXT,
     state TEXT,
     crop_type TEXT,
     eligibility TEXT,
+    min_land REAL,
+    max_land REAL,
+    income_limit REAL,
     website_link TEXT,
-    created_at TEXT
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 """)
 
