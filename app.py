@@ -12,18 +12,16 @@ from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
 from routes.community_routes import community
-
+from routes.crop_routes import crop as crop_bp, generate_crop_response
 
 from utils.translator import get_translations
 
 import sqlite3
+import pandas as pd
+import joblib
 import os
 import sys
 import importlib.util
-
-import uuid
-from werkzeug.security import generate_password_hash
-
 
 # ─────────────────────────────────────────────
 # APP INIT
@@ -71,6 +69,10 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400
 
+# ✅ LOAD ML MODEL
+CROP_MODEL_PATH = os.path.join(BASE_DIR, "model", "crop_model.pkl")
+model = joblib.load(CROP_MODEL_PATH)
+
 
 
 
@@ -111,10 +113,10 @@ def inject_globals():
     current_app.logger.warning(f"CONTEXT PATH={request.path}, STRIPPED={path}, PAGE={page}, USER={bool(user)}, TRANS={len(t)}")
 
     return dict(
-    current_user=user or None,
-    t=t or {},
-    lang=lang or "en"
-)
+        current_user=user or None,
+        t=t or {},
+        lang=lang or "en"
+    )
 
 
 # ─────────────────────────────────────────────
@@ -122,8 +124,7 @@ def inject_globals():
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(community, url_prefix='/community')
-
-
+app.register_blueprint(crop_bp)
 
 create_tables()
 
@@ -172,7 +173,7 @@ def register():
     return render_template('auth/register.html')
 
 # ─────────────────────────────────────────────
-# DASHBOARD (SESSION CHECK)
+# DASHBOARD
 # ─────────────────────────────────────────────
 @app.route('/dashboard')
 def dashboard():
@@ -200,7 +201,7 @@ def profile():
     if not user:
         return redirect('/login')
     
-    return render_template('profile.html', user=user)
+    return render_template('layout/profile.html', user=user)
 
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
@@ -235,7 +236,6 @@ def update_profile():
     session["user"]["name"] = name
     
     return jsonify({"success": True, "message": "Profile updated successfully", "lat": lat, "lon": lon})
-
 @app.route('/change-password', methods=['POST'])
 def change_password():
     if "user" not in session:
@@ -275,12 +275,53 @@ def change_password():
     return jsonify({"success": True, "message": "Password changed successfully"})
 
 # ─────────────────────────────────────────────
-# FEATURE ROUTES
+# FEATURE PAGES
 # ─────────────────────────────────────────────
-@app.route('/crop-recommendation')
+@app.route('/crop-recommendation', methods=['GET', 'POST'])
 def crop_recommendation():
     if "user" not in session:
         return redirect('/login')
+
+    if request.method == "POST":
+        try:
+            data = {
+                "nitrogen": float(request.form.get("nitrogen", 0)),
+                "phosphorus": float(request.form.get("phosphorus", 0)),
+                "potassium": float(request.form.get("potassium", 0)),
+                "temperature": float(request.form.get("temperature", 0)),
+                "humidity": float(request.form.get("humidity", 0)),
+                "ph": float(request.form.get("ph", 0)),
+                "rainfall": float(request.form.get("rainfall", 0))
+            }
+
+            import pandas as pd
+
+            df = pd.DataFrame([[
+                data['nitrogen'],
+                data['phosphorus'],
+                data['potassium'],
+                data['temperature'],
+                data['humidity'],
+                data['ph'],
+                data['rainfall']
+            ]], columns=["nitrogen","phosphorus","potassium","temperature","humidity","ph","rainfall"])
+
+            prediction = model.predict(df)[0]
+            confidence = max(model.predict_proba(df)[0])
+
+            result = generate_crop_response(prediction, confidence, data)
+
+            return render_template(
+                'dashboard/crop-recommendation.html',
+                result=result
+            )
+
+        except:
+            return render_template(
+                'dashboard/crop-recommendation.html',
+                error="Prediction failed"
+            )
+
     return render_template('dashboard/crop-recommendation.html')
 
 
@@ -303,6 +344,46 @@ def fertilizer_guide():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/fertilizer-guide.html')
+
+
+# ─────────────────────────────────────────────
+# ✅ CROP PREDICTION API (MAIN FEATURE ADDED)
+# ─────────────────────────────────────────────
+@app.route('/api/predict-crop', methods=['POST'])
+def predict_crop():
+    try:
+        data = request.get_json()
+
+        required = ["nitrogen", "phosphorus", "potassium", "temperature", "humidity", "ph", "rainfall"]
+
+        if not data or not all(k in data for k in required):
+            return jsonify({
+                "status": "error",
+                "message": "Missing or invalid input data"
+            })
+
+        df = pd.DataFrame([[
+            float(data['nitrogen']),
+            float(data['phosphorus']),
+            float(data['potassium']),
+            float(data['temperature']),
+            float(data['humidity']),
+            float(data['ph']),
+            float(data['rainfall'])
+        ]], columns=required)
+
+        prediction = model.predict(df)[0]
+        confidence = max(model.predict_proba(df)[0])
+
+        result = generate_crop_response(prediction, confidence, data)
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": "Something went wrong"
+        })
 
 
 @app.route('/market-price')
@@ -660,17 +741,15 @@ def save_location():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    # Just store location (basic entry)
     cursor.execute("""
     INSERT INTO farm_conditions (user_id, latitude, longitude, location_name)
     VALUES (?, ?, ?, ?)
-""", (user_id, lat, lon, city))
+    """, (user_id, lat, lon, city))
 
     conn.commit()
     conn.close()
 
     return jsonify({"success": True})
-
 
 
 # ─────────────────────────────────────────────
@@ -830,6 +909,7 @@ def reset_password(token):
     # ✅ GET → page open
     return render_template('auth/reset_password.html', token=token)
 
+
 # ─────────────────────────────────────────────
 # GOVERNMENT SCHEMES API
 # ─────────────────────────────────────────────
@@ -900,6 +980,7 @@ def get_schemes():
             "status": "error",
             "message": "Error fetching schemes"
         }), 500
+
 
 # ─────────────────────────────────────────────
 # RUN SERVER

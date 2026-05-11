@@ -1,4 +1,4 @@
-const EMOJIS = {
+window.EMOJIS = {
   rice: "🌾",
   wheat: "🌾",
   maize: "🌽",
@@ -27,28 +27,104 @@ const EMOJIS = {
 };
 
 function showState(id) {
-  ["emptyState", "loadingState", "resultCard", "errorState"].forEach((s) =>
+  ["resultCard", "loadingState", "errorState"].forEach((s) =>
     document.getElementById(s).classList.add("hidden"),
   );
   document.getElementById(id).classList.remove("hidden");
 }
 
-function renderResult(crop) {
-  const name = crop.name || crop.crop || "Unknown";
-  const conf = parseFloat(crop.confidence || crop.score || 0);
-  const desc = crop.description || crop.reason || crop.details || "";
-  const emoji = EMOJIS[name.toLowerCase()] || EMOJIS.default;
+function clearErrors() {
+  document.querySelectorAll("[id^='error-']").forEach(el => {
+    el.classList.add("hidden");
+    el.textContent = "";
+  });
+  document.getElementById("formErrors").classList.add("hidden");
+}
 
-  document.getElementById("resultIcon").textContent = emoji;
-  document.getElementById("resultName").textContent = name;
-  document.getElementById("resultDesc").textContent = desc;
-  document.getElementById("resultConfBadge").textContent = conf + "%";
-  document.getElementById("resultConfText").textContent = conf + "%";
+function showError(fieldId, message) {
+  const errorEl = document.getElementById(`error-${fieldId}`);
+  if (errorEl) {
+    errorEl.textContent = message;
+    errorEl.classList.remove("hidden");
+  }
+}
+
+function validateInputs() {
+  clearErrors();
+  const errors = {};
+  const t = window.__i18n || {};
+
+  const nitrogen = document.getElementById("nitrogen").value.trim();
+  const phosphorus = document.getElementById("phosphorus").value.trim();
+  const potassium = document.getElementById("potassium").value.trim();
+  const temperature = document.getElementById("temperature").value.trim();
+  const humidity = document.getElementById("humidity").value.trim();
+  const ph_level = document.getElementById("ph_level").value.trim();
+  const rainfall = document.getElementById("rainfall").value.trim();
+
+  if (!nitrogen || isNaN(nitrogen)) {
+    errors.nitrogen = t["crop_error_nitrogen"] || "Nitrogen value required";
+  }
+  if (!phosphorus || isNaN(phosphorus)) {
+    errors.phosphorus = t["crop_error_phosphorus"] || "Phosphorus value required";
+  }
+  if (!potassium || isNaN(potassium)) {
+    errors.potassium = t["crop_error_potassium"] || "Potassium value required";
+  }
+  if (!temperature || isNaN(temperature)) {
+    errors.temperature = t["crop_error_temperature"] || "Temperature value required";
+  }
+  if (!humidity || isNaN(humidity)) {
+    errors.humidity = t["crop_error_humidity"] || "Humidity value required";
+  }
+  if (!ph_level || isNaN(ph_level)) {
+    errors.ph_level = t["crop_error_ph_level"] || "pH value required";
+  }
+  if (!rainfall || isNaN(rainfall)) {
+    errors.rainfall = t["crop_error_rainfall"] || "Rainfall value required";
+  }
+
+  return errors;
+}
+
+function displayErrors(errors) {
+  Object.entries(errors).forEach(([field, message]) => {
+    showError(field, message);
+  });
+}
+
+function renderBilingualResult(data) {
+  const lang = localStorage.getItem("lang") || "en";
+  const englishData = data.english || {};
+  const hindiData = data.hindi || {};
+
+  // English result
+  document.getElementById("resultIcon").textContent = 
+    window.EMOJIS[englishData.recommended_crop?.toLowerCase()] || window.EMOJIS.default;
+  document.getElementById("resultName").textContent = englishData.recommended_crop || "N/A";
+  document.getElementById("resultAnalysis").textContent = englishData.analysis || "";
+  const confPercent = parseFloat(englishData.confidence || 0);
+  document.getElementById("resultConfText").textContent = confPercent + "%";
+
+  // Render alternatives
+  const alternatives = englishData.alternatives || [];
+  let altHtml = "";
+  if (alternatives.length > 0) {
+    altHtml = "<div class='mt-3'><p class='text-xs font-semibold text-textMid mb-2'>Other Options:</p>";
+    altHtml += "<div class='flex flex-wrap gap-2'>";
+    alternatives.forEach(crop => {
+      altHtml += `<span class='text-xs bg-primaryLight/20 text-primary px-3 py-1 rounded-full'>${crop}</span>`;
+    });
+    altHtml += "</div></div>";
+  }
+  document.getElementById("alternatives").innerHTML = altHtml;
+
+  // Set confidence bar width
+  setTimeout(() => {
+    document.getElementById("resultBar").style.width = confPercent + "%";
+  }, 100);
 
   showState("resultCard");
-  setTimeout(() => {
-    document.getElementById("resultBar").style.width = conf + "%";
-  }, 120);
 }
 
 async function getCropRecommendation() {
@@ -56,66 +132,66 @@ async function getCropRecommendation() {
   const btnText = document.getElementById("btnText");
   const t = window.__i18n || {};
 
-  const payload = {
-    soil_type: document.getElementById("soil_type").value,
-    ph_level: document.getElementById("ph_level").value,
-    temperature: document.getElementById("temperature").value,
-    humidity: document.getElementById("humidity").value,
-    rainfall: document.getElementById("rainfall").value,
-    soil_moisture: document.getElementById("soil_moisture").value,
-    nitrogen: document.getElementById("nitrogen").value,
-    phosphorus: document.getElementById("phosphorus").value,
-    potassium: document.getElementById("potassium").value,
-    latitude: document.getElementById("latitude").value,
-    longitude: document.getElementById("longitude").value,
-  };
+  clearErrors();
 
-  if (!payload.soil_type) {
-    alert(
-      t["crop_alert_soil"] || "Please select a soil type before proceeding.",
-    );
+  // Validate inputs
+  const errors = validateInputs();
+  if (Object.keys(errors).length > 0) {
+    displayErrors(errors);
     return;
   }
 
   btn.disabled = true;
-  btn.style.opacity = "0.7";
   btnText.textContent = t["crop_btn_analyzing"] || "Analyzing…";
   showState("loadingState");
 
+  const userId = window._currentUserId;
+  const lat = localStorage.getItem(`lat_${userId}`) || 0;
+  const lon = localStorage.getItem(`lon_${userId}`) || 0;
+
+  const payload = {
+    nitrogen: parseFloat(document.getElementById("nitrogen").value),
+    phosphorus: parseFloat(document.getElementById("phosphorus").value),
+    potassium: parseFloat(document.getElementById("potassium").value),
+    temperature: parseFloat(document.getElementById("temperature").value),
+    humidity: parseFloat(document.getElementById("humidity").value),
+    ph: parseFloat(document.getElementById("ph_level").value),
+    rainfall: parseFloat(document.getElementById("rainfall").value),
+    soil_type: document.getElementById("soil_type").value,
+    latitude: parseFloat(lat),
+    longitude: parseFloat(lon),
+  };
+
   try {
-    const res = await fetch("/api/crop-recommendation/", {
+    const res = await fetch("/api/crop-recommendation", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": getCsrf(),
       },
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) throw new Error("Server error " + res.status);
-
     const data = await res.json();
-    const crops =
-      data.crops ||
-      data.recommendations ||
-      data.results ||
-      (Array.isArray(data) ? data : null);
 
-    if (!crops || !crops.length)
-      throw new Error(
-        t["crop_error_no_result"] || "No recommendations received.",
-      );
+    if (!res.ok || data.status === "error") {
+      if (data.errors) {
+        displayErrors(data.errors);
+      }
+      document.getElementById("errorMsg").textContent =
+        data.message || t["crop_error_no_result"] || "Unexpected error.";
+      showState("errorState");
+      return;
+    }
 
-    renderResult(crops[0]);
+    renderBilingualResult(data.data?.crop_recommendation || {});
   } catch (err) {
+    console.error("Error:", err);
     document.getElementById("errorMsg").textContent =
-      err.message || "Unexpected error.";
+      err.message || "Server error. Please try again.";
     showState("errorState");
   } finally {
     btn.disabled = false;
-    btn.style.opacity = "1";
-    btnText.textContent =
-      (window.__i18n || {})["crop_btn_analyze"] || "Get Crop Recommendation";
+    btnText.textContent = t["crop_btn_analyze"] || "Get Crop Recommendation";
   }
 }
 

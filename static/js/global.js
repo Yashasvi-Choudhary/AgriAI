@@ -4,19 +4,14 @@
    ============================================================ */
 window.DEV_MODE = window.DEV_MODE ?? true;
 
-let currentLang = window.__lang || localStorage.getItem("lang") || "en";
+window.currentLang = window.__lang || localStorage.getItem("lang") || "en";
 
 // ─────────────────────────────────────────────────────────────
 // APPLY TRANSLATIONS
 // ─────────────────────────────────────────────────────────────
 function applyLang() {
   var i18n = window.__i18n || {};
-  console.log(
-    "Applying language. Current lang:",
-    currentLang,
-    "Translations loaded:",
-    Object.keys(i18n).length,
-  );
+  console.log('Applying language. Current lang:', window.currentLang, 'Translations loaded:', Object.keys(i18n).length);
 
   document.querySelectorAll("[data-i18n]").forEach(function (el) {
     var key = el.getAttribute("data-i18n");
@@ -51,14 +46,14 @@ function applyLang() {
 
   // Find and highlight the active language button by checking onclick attribute
   buttons.forEach(function (btn) {
-    var onclick = btn.getAttribute("onclick") || "";
-    if (onclick.includes("setLang('" + currentLang + "')")) {
+    var onclick = btn.getAttribute('onclick') || '';
+    if (onclick.includes("setLang('" + window.currentLang + "')")) {
       btn.classList.add("bg-accent", "text-white", "font-semibold");
       btn.classList.remove("text-white/50");
     }
   });
-
-  console.log("Language applied successfully:", currentLang);
+  
+  console.log('Language applied successfully:', window.currentLang);
 }
 
 // Translation helper
@@ -104,7 +99,7 @@ function setLang(lang) {
   console.log("Setting language to:", lang);
   document.cookie = "lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax";
   localStorage.setItem("lang", lang);
-  currentLang = lang;
+  window.currentLang = lang;
   window.location.reload();
 }
 
