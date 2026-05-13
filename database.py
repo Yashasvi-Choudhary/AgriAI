@@ -81,6 +81,67 @@ CREATE TABLE IF NOT EXISTS users (
     )
     """)
 
+    # Add missing columns to crop_recommendations if they don't exist
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN soil_type TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN nitrogen REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN phosphorus REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN potassium REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN ph REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN temperature REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN humidity REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN rainfall REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN latitude REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN longitude REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN recommended_crop TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN confidence REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
     # ---------------- FERTILIZER ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS fertilizer_recommendations (
