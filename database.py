@@ -1,7 +1,9 @@
+import os
 import sqlite3
 
 def connect_db():
-    conn = sqlite3.connect("database.db")
+    db_path = os.path.join(os.path.dirname(__file__), "database.db")
+    conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign keys
     return conn
 
@@ -74,6 +76,28 @@ CREATE TABLE IF NOT EXISTS users (
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
+
+    # Add missing columns safely for existing databases
+    crop_columns = [
+        ("soil_type", "TEXT"),
+        ("nitrogen", "REAL"),
+        ("phosphorus", "REAL"),
+        ("potassium", "REAL"),
+        ("ph", "REAL"),
+        ("temperature", "REAL"),
+        ("humidity", "REAL"),
+        ("rainfall", "REAL"),
+        ("latitude", "REAL"),
+        ("longitude", "REAL"),
+        ("recommended_crop", "TEXT"),
+        ("confidence", "REAL"),
+        ("created_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"),
+    ]
+    for column, column_type in crop_columns:
+        try:
+            cursor.execute(f"ALTER TABLE crop_recommendations ADD COLUMN {column} {column_type}")
+        except sqlite3.OperationalError:
+            pass
 
     # ---------------- FERTILIZER ----------------
     cursor.execute("""
