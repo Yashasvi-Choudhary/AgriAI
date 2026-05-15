@@ -2,12 +2,34 @@
 import os
 import sqlite3
 import traceback
+import pandas as pd
 from flask import Blueprint, request, jsonify, current_app, session, redirect
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 MODEL_PATH = os.path.join(BASE_DIR, 'model', 'crop_model.pkl')
 DB_PATH = os.path.join(BASE_DIR, 'database.db')
 _crop_model = None
+
+VALID_SOIL_TYPES = {
+    'alluvial',
+    'black',
+    'red',
+    'laterite',
+    'arid',
+    'saline',
+    'peaty',
+    'forest',
+}
+
+FEATURE_COLUMNS = [
+    'nitrogen',
+    'phosphorus',
+    'potassium',
+    'temperature',
+    'humidity',
+    'ph',
+    'rainfall',
+]
 
 crop = Blueprint('crop', __name__)
 
@@ -61,13 +83,30 @@ def connect_db():
     return conn
 
 
+def retrain_crop_model():
+    try:
+        from train_crop_model import train_model
+
+        train_model()
+    except Exception as exc:
+        current_app.logger.error(
+            "Crop model retrain failed: %s\n%s",
+            exc,
+            traceback.format_exc(),
+        )
+
+
 def load_crop_model():
     global _crop_model
     if _crop_model is not None:
         return _crop_model
 
     if not os.path.isfile(MODEL_PATH):
-        current_app.logger.error("Crop model file missing at path: %s", MODEL_PATH)
+        current_app.logger.warning("Crop model missing. Attempting retrain.")
+        retrain_crop_model()
+
+    if not os.path.isfile(MODEL_PATH):
+        current_app.logger.error("Crop model still missing after retrain: %s", MODEL_PATH)
         _crop_model = None
         return None
 
@@ -75,6 +114,18 @@ def load_crop_model():
         import joblib
 
         _crop_model = joblib.load(MODEL_PATH)
+        if hasattr(_crop_model, "feature_names_in_"):
+            stored_features = [str(f) for f in _crop_model.feature_names_in_]
+            if stored_features != FEATURE_COLUMNS:
+                current_app.logger.warning(
+                    "Crop model feature names mismatch: %s, expected: %s. Retraining model.",
+                    stored_features,
+                    FEATURE_COLUMNS,
+                )
+                _crop_model = None
+                retrain_crop_model()
+                if os.path.isfile(MODEL_PATH):
+                    _crop_model = joblib.load(MODEL_PATH)
         current_app.logger.info("Crop model loaded successfully from %s", MODEL_PATH)
     except Exception as exc:
         current_app.logger.error(
@@ -84,6 +135,20 @@ def load_crop_model():
             traceback.format_exc(),
         )
         _crop_model = None
+        try:
+            current_app.logger.warning("Attempting retrain after failed model load.")
+            retrain_crop_model()
+            if os.path.isfile(MODEL_PATH):
+                import joblib
+
+                _crop_model = joblib.load(MODEL_PATH)
+        except Exception as retrain_exc:
+            current_app.logger.error(
+                "Failed to retrain crop model after load failure: %s\n%s",
+                retrain_exc,
+                traceback.format_exc(),
+            )
+            _crop_model = None
     return _crop_model
 
 
@@ -104,12 +169,14 @@ def build_bilingual_response(crop_name, confidence, alternatives):
         "english": {
             "recommended_crop": crop_name,
             "confidence": f"{confidence}%",
+            "confidence_score": confidence,
             "alternatives": alternatives,
             "analysis": f"{crop_name} is predicted as the best crop for your soil and climate conditions with {confidence}% confidence.",
         },
         "hindi": {
             "recommended_crop": crop_name,
             "confidence": f"{confidence}%",
+            "confidence_score": confidence,
             "alternatives": alternatives,
             "analysis": f"आपकी मिट्टी और जलवायु परिस्थितियों के अनुसार {crop_name} को {confidence}% विश्वसनीयता के साथ सर्वश्रेष्ठ फसल बताया गया है।",
         },
@@ -118,15 +185,24 @@ def build_bilingual_response(crop_name, confidence, alternatives):
 
 @crop.route('/api/crop-recommendation', methods=['POST'])
 def crop_recommendation_api():
+    current_app.logger.info("=== CROP RECOMMENDATION API CALLED ===")
+    current_app.logger.info("Request method: %s", request.method)
+    current_app.logger.info("Request headers: %s", dict(request.headers))
+    current_app.logger.info("Request data (raw): %s", request.data)
+    
     if "user" not in session:
+        current_app.logger.warning("User not in session")
         return jsonify({"status": "error", "message": "Not logged in"}), 401
 
     data = request.get_json(silent=True)
+    current_app.logger.info("Parsed JSON data: %s", data)
+    
     if not data:
         current_app.logger.warning("Invalid JSON payload received for crop recommendation")
         return jsonify({"status": "error", "message": "Invalid JSON payload", "errors": {"payload": "Invalid JSON"}}), 400
 
     errors = {}
+    soil_type = str(data.get("soil_type", "")).strip().lower()
     nitrogen = parse_numeric_field(data, "nitrogen", errors)
     phosphorus = parse_numeric_field(data, "phosphorus", errors)
     potassium = parse_numeric_field(data, "potassium", errors)
@@ -135,9 +211,34 @@ def crop_recommendation_api():
     ph = parse_numeric_field(data, "ph", errors)
     rainfall = parse_numeric_field(data, "rainfall", errors)
 
+    if not soil_type:
+        errors["soil_type"] = "Required"
+    elif soil_type not in VALID_SOIL_TYPES:
+        errors["soil_type"] = "Invalid soil type"
+
+    if nitrogen is not None and (nitrogen < 0 or nitrogen > 500):
+        errors["nitrogen"] = "Nitrogen must be between 0 and 500"
+    if phosphorus is not None and (phosphorus < 0 or phosphorus > 500):
+        errors["phosphorus"] = "Phosphorus must be between 0 and 500"
+    if potassium is not None and (potassium < 0 or potassium > 500):
+        errors["potassium"] = "Potassium must be between 0 and 500"
+    if temperature is not None and (temperature < -20 or temperature > 60):
+        errors["temperature"] = "Temperature must be between -20 and 60"
+    if humidity is not None and (humidity < 0 or humidity > 100):
+        errors["humidity"] = "Humidity must be between 0 and 100"
+    if ph is not None and (ph < 0 or ph > 14):
+        errors["ph"] = "pH must be between 0 and 14"
+    if rainfall is not None and (rainfall < 0 or rainfall > 1000):
+        errors["rainfall"] = "Rainfall must be between 0 and 1000"
+
+    current_app.logger.info("Parsed fields - soil_type: %s, nitrogen: %s, phosphorus: %s, potassium: %s, temperature: %s, humidity: %s, ph: %s, rainfall: %s",
+                          soil_type, nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall)
+
     if errors:
         current_app.logger.warning("Crop recommendation validation failed: %s", errors)
         return jsonify({"status": "error", "message": "Validation failed", "errors": errors}), 400
+
+    current_app.logger.info("Validation passed. Loading model.")
 
     crop_model = load_crop_model()
     if crop_model is None:
@@ -147,12 +248,24 @@ def crop_recommendation_api():
             "details": {"model_path": MODEL_PATH},
         }), 500
 
-    features = [[nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall]]
+    feature_values = {
+        "nitrogen": nitrogen,
+        "phosphorus": phosphorus,
+        "potassium": potassium,
+        "temperature": temperature,
+        "humidity": humidity,
+        "ph": ph,
+        "rainfall": rainfall,
+    }
+    features = pd.DataFrame([feature_values], columns=FEATURE_COLUMNS)
+
     try:
         prediction = crop_model.predict(features)
         predicted_crop = str(prediction[0])
         confidence = 0.0
         alternatives = []
+
+        current_app.logger.info("Prediction successful: crop=%s", predicted_crop)
 
         if hasattr(crop_model, "predict_proba"):
             probabilities = crop_model.predict_proba(features)[0]
@@ -165,6 +278,8 @@ def crop_recommendation_api():
                 alternatives = [name for name, _ in ranked if name != predicted_crop][:3]
         else:
             confidence = 0.0
+
+        current_app.logger.info("Confidence: %s%%, Alternatives: %s", confidence, alternatives)
 
     except Exception as exc:
         current_app.logger.error(
@@ -179,13 +294,26 @@ def crop_recommendation_api():
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO crop_recommendations
-            (user_id, soil_type, nitrogen, phosphorus, potassium, ph, temperature, humidity, rainfall, latitude, longitude, recommended_crop, confidence)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            SELECT 1 FROM crop_recommendations
+            WHERE user_id = ?
+              AND soil_type = ?
+              AND nitrogen = ?
+              AND phosphorus = ?
+              AND potassium = ?
+              AND ph = ?
+              AND temperature = ?
+              AND humidity = ?
+              AND rainfall = ?
+              AND latitude = ?
+              AND longitude = ?
+              AND recommended_crop = ?
+              AND confidence = ?
+            ORDER BY created_at DESC
+            LIMIT 1
             """,
             (
                 session["user"]["id"],
-                data.get("soil_type", ""),
+                soil_type,
                 nitrogen,
                 phosphorus,
                 potassium,
@@ -199,7 +327,34 @@ def crop_recommendation_api():
                 confidence,
             ),
         )
-        conn.commit()
+        duplicate = cursor.fetchone()
+        if not duplicate:
+            cursor.execute(
+                """
+                INSERT INTO crop_recommendations
+                (user_id, soil_type, nitrogen, phosphorus, potassium, ph, temperature, humidity, rainfall, latitude, longitude, recommended_crop, confidence)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    session["user"]["id"],
+                    soil_type,
+                    nitrogen,
+                    phosphorus,
+                    potassium,
+                    ph,
+                    temperature,
+                    humidity,
+                    rainfall,
+                    float(data.get("latitude") or 0),
+                    float(data.get("longitude") or 0),
+                    predicted_crop,
+                    confidence,
+                ),
+            )
+            conn.commit()
+            current_app.logger.info("Recommendation saved to database successfully")
+        else:
+            current_app.logger.info("Duplicate recommendation detected; skipping duplicate history insert")
     except Exception as exc:
         current_app.logger.error(
             "Failed to save crop recommendation: %s\n%s",
@@ -212,12 +367,72 @@ def crop_recommendation_api():
         except Exception:
             pass
 
-    return jsonify({
+    response_data = {
         "status": "success",
         "data": {
-            "crop_recommendation": build_bilingual_response(predicted_crop, confidence, alternatives)
+            "primary_crop": predicted_crop,
+            "confidence_score": confidence,
+            "crop_recommendation": build_bilingual_response(predicted_crop, confidence, alternatives),
         }
-    })
+    }
+    
+    current_app.logger.info("=== SENDING RESPONSE ===")
+    current_app.logger.info("Response status: 200")
+    current_app.logger.info("Response data: %s", response_data)
+    
+    return jsonify(response_data)
+
+
+@crop.route('/api/crop-recommendation/history', methods=['GET'])
+def crop_recommendation_history_api():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT soil_type, nitrogen, phosphorus, potassium, ph, temperature, humidity, rainfall, latitude, longitude, recommended_crop, confidence, created_at
+            FROM crop_recommendations
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT 20
+            """,
+            (session["user"]["id"],),
+        )
+        rows = cursor.fetchall()
+        history = [
+            {
+                "soil_type": row[0] or "",
+                "nitrogen": row[1],
+                "phosphorus": row[2],
+                "potassium": row[3],
+                "ph": row[4],
+                "temperature": row[5],
+                "humidity": row[6],
+                "rainfall": row[7],
+                "latitude": row[8],
+                "longitude": row[9],
+                "recommended_crop": row[10],
+                "confidence": round(row[11] or 0, 2),
+                "created_at": row[12],
+            }
+            for row in rows
+        ]
+        return jsonify({"status": "success", "data": {"history": history}})
+    except Exception as exc:
+        current_app.logger.error(
+            "Failed to fetch crop recommendation history: %s\n%s",
+            exc,
+            traceback.format_exc(),
+        )
+        return jsonify({"status": "error", "message": "Unable to load history"}), 500
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 
 # ========================

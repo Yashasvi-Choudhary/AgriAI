@@ -71,9 +71,51 @@ app.config['PERMANENT_SESSION_LIFETIME'] = 86400
 
 # ✅ LOAD ML MODEL
 CROP_MODEL_PATH = os.path.join(BASE_DIR, "model", "crop_model.pkl")
-model = joblib.load(CROP_MODEL_PATH)
+_crop_model = None
 
+def load_crop_model_app():
+    global _crop_model
+    if _crop_model is not None:
+        return _crop_model
 
+    if not os.path.isfile(CROP_MODEL_PATH):
+        try:
+            from train_crop_model import train_model
+            train_model()
+        except Exception as exc:
+            app.logger.error("Unable to retrain crop model: %s", exc)
+
+    if not os.path.isfile(CROP_MODEL_PATH):
+        _crop_model = None
+        return None
+
+    try:
+        _crop_model = joblib.load(CROP_MODEL_PATH)
+        if hasattr(_crop_model, "feature_names_in_"):
+            stored_features = [str(f) for f in _crop_model.feature_names_in_]
+            expected = [
+                "nitrogen",
+                "phosphorus",
+                "potassium",
+                "temperature",
+                "humidity",
+                "ph",
+                "rainfall",
+            ]
+            if stored_features != expected:
+                app.logger.warning(
+                    "Legacy crop model feature mismatch: %s, expected: %s. Retraining model.",
+                    stored_features,
+                    expected,
+                )
+                _crop_model = None
+                from train_crop_model import train_model
+                train_model()
+                _crop_model = joblib.load(CROP_MODEL_PATH)
+    except Exception as exc:
+        app.logger.error("Failed to load crop model from %s: %s", CROP_MODEL_PATH, exc)
+        _crop_model = None
+    return _crop_model
 
 
 # ─────────────────────────────────────────────
@@ -290,21 +332,30 @@ def crop_recommendation():
                 "potassium": float(request.form.get("potassium", 0)),
                 "temperature": float(request.form.get("temperature", 0)),
                 "humidity": float(request.form.get("humidity", 0)),
-                "ph": float(request.form.get("ph", 0)),
-                "rainfall": float(request.form.get("rainfall", 0))
+                "ph": float(request.form.get("ph_level", 0)),
+                "rainfall": float(request.form.get("rainfall", 0)),
             }
 
             import pandas as pd
 
-            df = pd.DataFrame([[
-                data['nitrogen'],
-                data['phosphorus'],
-                data['potassium'],
-                data['temperature'],
-                data['humidity'],
-                data['ph'],
-                data['rainfall']
-            ]], columns=["nitrogen","phosphorus","potassium","temperature","humidity","ph","rainfall"])
+            df = pd.DataFrame([
+                [
+                    data['nitrogen'],
+                    data['phosphorus'],
+                    data['potassium'],
+                    data['temperature'],
+                    data['humidity'],
+                    data['ph'],
+                    data['rainfall'],
+                ]
+            ], columns=["nitrogen", "phosphorus", "potassium", "temperature", "humidity", "ph", "rainfall"])
+
+            model = load_crop_model_app()
+            if model is None:
+                return render_template(
+                    'dashboard/crop-recommendation.html',
+                    error="Model not available"
+                )
 
             prediction = model.predict(df)[0]
             confidence = max(model.predict_proba(df)[0])
@@ -316,7 +367,7 @@ def crop_recommendation():
                 result=result
             )
 
-        except:
+        except Exception:
             return render_template(
                 'dashboard/crop-recommendation.html',
                 error="Prediction failed"
@@ -372,6 +423,10 @@ def predict_crop():
             float(data['rainfall'])
         ]], columns=required)
 
+        model = load_crop_model_app()
+        if model is None:
+            return jsonify({"status": "error", "message": "Model not available"}), 500
+
         prediction = model.predict(df)[0]
         confidence = max(model.predict_proba(df)[0])
 
@@ -379,7 +434,7 @@ def predict_crop():
 
         return jsonify(result)
 
-    except Exception as e:
+    except Exception:
         return jsonify({
             "status": "error",
             "message": "Something went wrong"

@@ -1,7 +1,9 @@
+import os
 import sqlite3
 
 def connect_db():
-    conn = sqlite3.connect("database.db")
+    db_path = os.path.join(os.path.dirname(__file__), "database.db")
+    conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign keys
     return conn
 
@@ -80,67 +82,6 @@ CREATE TABLE IF NOT EXISTS users (
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
-
-    # Add missing columns to crop_recommendations if they don't exist
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN soil_type TEXT")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN nitrogen REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN phosphorus REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN potassium REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN ph REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN temperature REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN humidity REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN rainfall REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN latitude REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN longitude REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN recommended_crop TEXT")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-
-    try:
-        cursor.execute("ALTER TABLE crop_recommendations ADD COLUMN confidence REAL")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
 
     # ---------------- FERTILIZER ----------------
     cursor.execute("""
@@ -242,24 +183,24 @@ CREATE TABLE IF NOT EXISTS users (
     )
     """)
 
-  # ---------------- GOVERNMENT SCHEMES ----------------
+      # ---------------- GOVERNMENT SCHEMES ----------------
     cursor.execute("""
-CREATE TABLE IF NOT EXISTS government_schemes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    description TEXT,
-    benefit TEXT,
-    category TEXT,
-    state TEXT,
-    crop_type TEXT,
-    eligibility TEXT,
-    min_land REAL,
-    max_land REAL,
-    income_limit REAL,
-    website_link TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-""")
+    CREATE TABLE IF NOT EXISTS government_schemes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        benefit TEXT,
+        category TEXT,
+        state TEXT,
+        crop_type TEXT,
+        eligibility TEXT,
+        min_land REAL,
+        max_land REAL,
+        income_limit REAL,
+        website_link TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
 
     # ---------------- PROFIT ----------------
     cursor.execute("""
