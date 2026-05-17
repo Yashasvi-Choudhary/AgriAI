@@ -18,9 +18,6 @@ import os
 import sys
 import importlib.util
 
-import uuid
-from werkzeug.security import generate_password_hash
-
 
 # ─────────────────────────────────────────────
 # APP INIT
@@ -323,10 +320,15 @@ def profit_analyzer():
 
 @app.route('/api/profit-analysis', methods=['POST'])
 def api_profit_analysis():
+    print('Profit analysis API called')
+    print('Session user:', session.get("user"))
+    
     if "user" not in session:
+        print('User not in session')
         return jsonify({"status": "error", "message": "Not logged in"}), 401
 
     data = request.get_json(silent=True) or {}
+    print('Received data:', data)
     errors = {}
 
     crop_name = str(data.get('crop_name', '') or '').strip()
@@ -378,6 +380,7 @@ def api_profit_analysis():
         longitude = None
 
     if errors:
+        print('Validation errors:', errors)
         return jsonify({"status": "error", "errors": errors}), 400
 
     transport_cost = transport_cost or 0.0
@@ -418,75 +421,81 @@ def api_profit_analysis():
             f"अनुमानित हानि {money(abs(estimated_profit))} है। कुल निवेश {money(total_investment)} है और अनुमानित आय {money(expected_revenue)} है।"
         )
 
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO profit_analysis (user_id, crop_name, soil_type, land_area, production_cost, fertilizer_cost, labor_cost, irrigation_cost, transport_cost, other_expenses, expected_yield, market_price, total_investment, expected_revenue, estimated_profit, profit_percentage, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (
-            session['user']['id'],
-            crop_name,
-            soil_type,
-            land_area,
-            production_cost,
-            fertilizer_cost,
-            labor_cost,
-            irrigation_cost,
-            transport_cost,
-            other_expenses,
-            expected_yield,
-            market_price,
-            total_investment,
-            expected_revenue,
-            estimated_profit,
-            profit_percentage,
-            latitude,
-            longitude,
-        ),
-    )
-    conn.commit()
-    cursor.execute(
-        "SELECT crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
-        (session['user']['id'],),
-    )
-    rows = cursor.fetchall()
-    conn.close()
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO profit_analysis (user_id, crop_name, soil_type, land_area, production_cost, fertilizer_cost, labor_cost, irrigation_cost, transport_cost, other_expenses, expected_yield, market_price, total_investment, expected_revenue, estimated_profit, profit_percentage, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                session['user']['id'],
+                crop_name,
+                soil_type,
+                land_area,
+                production_cost,
+                fertilizer_cost,
+                labor_cost,
+                irrigation_cost,
+                transport_cost,
+                other_expenses,
+                expected_yield,
+                market_price,
+                total_investment,
+                expected_revenue,
+                estimated_profit,
+                profit_percentage,
+                latitude,
+                longitude,
+            ),
+        )
+        conn.commit()
+        cursor.execute(
+            "SELECT crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
+            (session['user']['id'],),
+        )
+        rows = cursor.fetchall()
+        conn.close()
 
-    history = [
-        {
-            "crop_name": row[0] or "N/A",
-            "estimated_profit": row[1] if row[1] is not None else 0,
-            "expected_revenue": row[2] if row[2] is not None else 0,
-            "created_at": row[3] or "",
-        }
-        for row in rows
-    ]
+        history = [
+            {
+                "crop_name": row[0] or "N/A",
+                "estimated_profit": row[1] if row[1] is not None else 0,
+                "expected_revenue": row[2] if row[2] is not None else 0,
+                "created_at": row[3] or "",
+            }
+            for row in rows
+        ]
 
-    response = {
-        "status": "success",
-        "data": {
-            "profit_analysis": {
-                "english": {
-                    "total_investment": money(total_investment),
-                    "expected_revenue": money(expected_revenue),
-                    "estimated_profit": money(estimated_profit),
-                    "profit_percentage": f"{profit_percentage:.2f}%",
-                    "profit_status": profit_status,
-                    "analysis": analysis_en,
+        response = {
+            "status": "success",
+            "data": {
+                "profit_analysis": {
+                    "english": {
+                        "total_investment": money(total_investment),
+                        "expected_revenue": money(expected_revenue),
+                        "estimated_profit": money(estimated_profit),
+                        "profit_percentage": f"{profit_percentage:.2f}%",
+                        "profit_status": profit_status,
+                        "analysis": analysis_en,
+                    },
+                    "hindi": {
+                        "total_investment": money(total_investment),
+                        "expected_revenue": money(expected_revenue),
+                        "estimated_profit": money(estimated_profit),
+                        "profit_percentage": f"{profit_percentage:.2f}%",
+                        "profit_status": profit_status_hi,
+                        "analysis": analysis_hi,
+                    },
                 },
-                "hindi": {
-                    "total_investment": money(total_investment),
-                    "expected_revenue": money(expected_revenue),
-                    "estimated_profit": money(estimated_profit),
-                    "profit_percentage": f"{profit_percentage:.2f}%",
-                    "profit_status": profit_status_hi,
-                    "analysis": analysis_hi,
-                },
+                "history": history,
             },
-            "history": history,
-        },
-    }
+        }
 
-    return jsonify(response)
+        print('Returning successful response')
+        return jsonify(response), 200
+    except Exception as e:
+        print('Error in profit analysis:', str(e))
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 
 @app.route('/predict', methods=['POST'])
