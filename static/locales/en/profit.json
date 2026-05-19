@@ -52,6 +52,7 @@
   "profit_history_crop": "Crop",
   "profit_history_revenue": "Revenue",
   "profit_history_profit": "Profit",
+  "profit_history_delete": "Delete",
   "profit_history_date": "Date",
   "profit_analysis_no_history": "No profit analysis history found yet.",
   "profit_error_required": "This field is required.",
