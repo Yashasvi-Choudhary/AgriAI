@@ -11,7 +11,6 @@ let currentLang = window.__lang || localStorage.getItem("lang") || "en";
 // ─────────────────────────────────────────────────────────────
 function applyLang() {
   var i18n = window.__i18n || {};
-  console.log('Applying language. Current lang:', currentLang, 'Translations loaded:', Object.keys(i18n).length);
 
   document.querySelectorAll("[data-i18n]").forEach(function (el) {
     var key = el.getAttribute("data-i18n");
@@ -48,8 +47,6 @@ function applyLang() {
       btn.classList.remove("text-white/50");
     }
   });
-  
-  console.log('Language applied successfully:', currentLang);
 }
 
 // Translation helper
@@ -207,294 +204,9 @@ async function loadHeaderWeather() {
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    waitForUserAndLoadWeather();
-    updateLocationDisplay();
-    if (document.getElementById("historyTable")) loadMarketHistory();
-  });
+  document.addEventListener("DOMContentLoaded", waitForUserAndLoadWeather);
 } else {
   waitForUserAndLoadWeather();
-  updateLocationDisplay();
-  if (document.getElementById("historyTable")) loadMarketHistory();
-}
-
-// ─────────────────────────────────────────────────────────────
-// MARKET PRICE FUNCTIONS
-// ─────────────────────────────────────────────────────────────
-
-function updateLocationDisplay() {
-  const userId = window._currentUserId;
-  if (!userId) return;
-
-  const locationName = localStorage.getItem(`location_name_${userId}`);
-  const displayEl = document.getElementById("locationDisplay");
-  if (displayEl) {
-    displayEl.value = locationName || "Not set";
-  }
-}
-
-async function updateLocation() {
-  const locationInput = document.getElementById("locationDisplay");
-  const locationName = locationInput.value.trim();
-  const userId = window._currentUserId;
-
-  if (!locationName || locationName === "Not set") return;
-
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}&limit=1`,
-    );
-    const data = await res.json();
-
-    if (data.length > 0) {
-      const lat = data[0].lat;
-      const lon = data[0].lon;
-
-      localStorage.setItem(`lat_${userId}`, lat);
-      localStorage.setItem(`lon_${userId}`, lon);
-      localStorage.setItem(`location_name_${userId}`, locationName);
-
-      // Update displays across app
-      updateLocationDisplay();
-      // Update header if exists
-      const headerLocation = document.getElementById("headerLocation");
-      if (headerLocation) headerLocation.textContent = locationName;
-    } else {
-      showMarketError(
-        window.__i18n?.["market_error_invalid_location"] ||
-          "Invalid location. Please enter a valid location.",
-      );
-    }
-  } catch (err) {
-    console.error("Geocoding error:", err);
-    showMarketError(
-      window.__i18n?.["market_error_geocode_error"] ||
-        "Error updating location. Please try again.",
-    );
-  }
-}
-
-async function getMarketPrice() {
-  const t = window.__i18n || {};
-  const cropName = document.getElementById("cropName").value;
-  const userId = window._currentUserId;
-
-  if (!cropName) {
-    showMarketError(t["market_error_no_crop"] || "Please select a crop");
-    return;
-  }
-
-  // Check if location input differs from stored, update if needed
-  const locationInput = document.getElementById("locationDisplay");
-  const currentLocationValue = locationInput.value.trim();
-  const storedLocation = localStorage.getItem(`location_name_${userId}`);
-  if (
-    currentLocationValue &&
-    currentLocationValue !== storedLocation &&
-    currentLocationValue !== "Not set"
-  ) {
-    await updateLocation();
-  }
-
-  const latitude = localStorage.getItem(`lat_${userId}`);
-  const longitude = localStorage.getItem(`lon_${userId}`);
-  const locationName = localStorage.getItem(`location_name_${userId}`);
-
-  if (!latitude || !longitude || !locationName) {
-    showMarketError(
-      t["market_error_no_location"] ||
-        "Location not found. Please set your location first",
-    );
-    return;
-  }
-
-  const btn = document.getElementById("checkPriceBtn");
-  const btnText = document.getElementById("checkBtnText");
-  const spinner = document.getElementById("checkSpinner");
-
-  btn.disabled = true;
-  btnText.textContent = t["market_btn_checking"] || "Checking…";
-  spinner.classList.remove("hidden");
-  showMarketState("loading");
-
-  try {
-    const res = await fetch("/api/get-market-price", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        crop_name: cropName,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        location_name: locationName,
-      }),
-    });
-
-    let data;
-    try {
-      data = await res.json();
-    } catch (parseError) {
-      console.error("Market price JSON parse error:", parseError);
-      showMarketError(
-        t["market_error_api_error"] || "Error fetching market data",
-      );
-      return;
-    }
-
-    if (!res.ok || data.status === "error" || !data.data?.market_price) {
-      showMarketError(
-        data.message ||
-          t["market_error_api_error"] ||
-          "Error fetching market data",
-      );
-      return;
-    }
-
-    renderMarketResult(data.data.market_price);
-    loadMarketHistory();
-  } catch (err) {
-    console.error("Market price fetch error:", err);
-    showMarketError(
-      t["market_error_server_error"] || "Server error. Please try again later",
-    );
-  } finally {
-    btn.disabled = false;
-    btnText.textContent = t["market_btn_check"] || "Check Price";
-    spinner.classList.add("hidden");
-  }
-}
-
-function renderMarketResult(marketData) {
-  const t = window.__i18n || {};
-  const lang = localStorage.getItem("lang") || "en";
-  const data = marketData[lang] || marketData.english;
-
-  const resultContent = document.getElementById("resultContent");
-  resultContent.innerHTML = `
-    <div class="flex items-start gap-2">
-      <span class="text-textLight text-xs uppercase font-semibold min-w-max" data-i18n="market_result_crop"></span>
-      <span class="text-textDark font-semibold">${data.crop_name}</span>
-    </div>
-    <div class="flex items-start gap-2">
-      <span class="text-textLight text-xs uppercase font-semibold min-w-max" data-i18n="market_result_location"></span>
-      <span class="text-textDark font-semibold">${data.location}</span>
-    </div>
-    <div class="flex items-start gap-2">
-      <span class="text-textLight text-xs uppercase font-semibold min-w-max" data-i18n="market_result_market"></span>
-      <span class="text-textDark font-semibold">${data.market}</span>
-    </div>
-    <div class="flex items-start gap-2">
-      <span class="text-textLight text-xs uppercase font-semibold min-w-max" data-i18n="market_result_current_price"></span>
-      <span class="text-primary font-bold text-lg">${data.current_price}</span>
-    </div>
-    <div class="flex items-start gap-2">
-      <span class="text-textLight text-xs uppercase font-semibold min-w-max" data-i18n="market_result_min_price"></span>
-      <span class="text-textDark font-semibold">${data.min_price}</span>
-    </div>
-    <div class="flex items-start gap-2">
-      <span class="text-textLight text-xs uppercase font-semibold min-w-max" data-i18n="market_result_max_price"></span>
-      <span class="text-textDark font-semibold">${data.max_price}</span>
-    </div>
-  `;
-
-  document.getElementById("analysisText").textContent = data.analysis;
-  showMarketState("result");
-}
-
-async function loadMarketHistory() {
-  try {
-    const res = await fetch("/api/get-market-history", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    const data = await res.json();
-
-    if (data.status !== "success") return;
-
-    const history = data.data || [];
-    const historyEmpty = document.getElementById("historyEmpty");
-    const historyTable = document.getElementById("historyTable");
-    const historyBody = document.getElementById("historyBody");
-
-    if (history.length === 0) {
-      historyEmpty.classList.remove("hidden");
-      historyTable.classList.add("hidden");
-      return;
-    }
-
-    historyEmpty.classList.add("hidden");
-    historyTable.classList.remove("hidden");
-
-    historyBody.innerHTML = history
-      .map((item) => {
-        const date = new Date(item.created_at).toLocaleDateString();
-        return `
-          <tr class="border-b border-backgroundDark hover:bg-backgroundLight transition-all">
-            <td class="py-3 px-4 text-sm text-textDark text-left">${date}</td>
-            <td class="py-3 px-4 text-sm text-textDark text-left">${item.crop_name}</td>
-            <td class="py-3 px-4 text-sm text-textDark text-left">${item.market_name}</td>
-            <td class="py-3 px-4 text-sm font-semibold text-primary text-left">${item.current_price}</td>
-            <td class="py-3 px-4 text-left">
-              <button
-                onclick="deleteHistoryItem(${item.id})"
-                class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-all"
-                title="Delete"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </td>
-          </tr>
-        `;
-      })
-      .join("");
-  } catch (err) {
-    console.error("Error loading market history:", err);
-  }
-}
-
-async function deleteHistoryItem(id) {
-  try {
-    const res = await fetch("/delete-market-history", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id }),
-    });
-
-    const data = await res.json();
-
-    if (data.status === "success") {
-      loadMarketHistory();
-    }
-  } catch (err) {
-    console.error("Error deleting history:", err);
-  }
-}
-
-function showMarketState(state) {
-  document.getElementById("resultCard").classList.add("hidden");
-  document.getElementById("errorState").classList.add("hidden");
-  document.getElementById("loadingState").classList.add("hidden");
-
-  if (state === "result") {
-    document.getElementById("resultCard").classList.remove("hidden");
-  } else if (state === "error") {
-    document.getElementById("errorState").classList.remove("hidden");
-  } else if (state === "loading") {
-    document.getElementById("loadingState").classList.remove("hidden");
-  }
-}
-
-function showMarketError(message) {
-  document.getElementById("errorMsg").textContent = message;
-  showMarketState("error");
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -615,6 +327,266 @@ async function changePassword() {
   }
 }
 
+function clearProfitErrors() {
+  document.querySelectorAll('#profitForm [id^="error-"]').forEach(el => {
+    el.classList.add('hidden');
+    el.textContent = '';
+  });
+}
+
+function showProfitError(field, message) {
+  const errorEl = document.getElementById(`error-${field}`);
+  if (!errorEl) return;
+  errorEl.textContent = t(message, message);
+  errorEl.classList.remove('hidden');
+}
+
+function renderProfitHistory(history) {
+  const wrapper = document.getElementById('profitHistoryWrapper');
+  if (!wrapper) {
+    console.error('History wrapper not found');
+    return;
+  }
+  wrapper.innerHTML = '';
+
+  if (!Array.isArray(history) || history.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'text-sm text-textMid';
+    empty.textContent = t('profit_analysis_no_history', 'No calculations yet');
+    wrapper.appendChild(empty);
+    return;
+  }
+
+  history.forEach((record) => {
+    const card = document.createElement('div');
+    card.className = 'profit-history-card rounded-lg border border-backgroundDark p-4 bg-surface';
+    if (record.id) {
+      card.dataset.profitId = record.id;
+    }
+    card.innerHTML = `
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-textMid">${t('profit_history_crop', 'Crop')}</p>
+          <p class="mt-1 font-semibold text-textDark text-sm">${record.crop_name || 'N/A'}</p>
+        </div>
+        <button type="button" class="profit-history-delete inline-flex items-center justify-center rounded-full p-2 text-textLight hover:text-red-600 transition-colors" aria-label="${t('profit_history_delete', 'Delete')}">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M6.293 6.293a1 1 0 011.414 0L10 8.586l2.293-2.293a1 1 0 111.414 1.414L11.414 10l2.293 2.293a1 1 0 01-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L8.586 10 6.293 7.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <p class="text-xs text-textMid">${t('profit_history_revenue', 'Revenue')}</p>
+          <p class="mt-1 font-semibold">₹${Number(record.expected_revenue || 0).toFixed(2)}</p>
+        </div>
+        <div>
+          <p class="text-xs text-textMid">${t('profit_history_profit', 'Profit')}</p>
+          <p class="mt-1 font-semibold">₹${Number(record.estimated_profit || 0).toFixed(2)}</p>
+        </div>
+      </div>
+    `;
+    wrapper.appendChild(card);
+  });
+}
+
+async function deleteProfitHistoryRecord(profitId, card) {
+  if (!profitId) return;
+
+  try {
+    const response = await fetch(`/api/profit-analysis/${profitId}`, {
+      method: 'DELETE',
+    });
+    const data = await response.json();
+
+    if (!response.ok || data.status !== 'success') {
+      console.error('Failed to delete profit history record:', data);
+      alert(t('profit_error_failed', 'Unable to delete record. Please try again.'));
+      return;
+    }
+
+    card.remove();
+    const wrapper = document.getElementById('profitHistoryWrapper');
+    if (wrapper && !wrapper.querySelector('.profit-history-card')) {
+      const empty = document.createElement('p');
+      empty.className = 'text-sm text-textMid';
+      empty.textContent = t('profit_analysis_no_history', 'No calculations yet');
+      wrapper.appendChild(empty);
+    }
+  } catch (err) {
+    console.error('Delete request failed:', err);
+    alert(t('profit_error_failed', 'Unable to delete record. Please try again.'));
+  }
+}
+
+function initProfitHistoryActions() {
+  const wrapper = document.getElementById('profitHistoryWrapper');
+  if (!wrapper) return;
+  wrapper.addEventListener('click', function (event) {
+    const deleteButton = event.target.closest('.profit-history-delete');
+    if (!deleteButton) return;
+    const card = deleteButton.closest('.profit-history-card');
+    const profitId = card?.dataset?.profitId;
+    if (card && profitId) {
+      deleteProfitHistoryRecord(profitId, card);
+    }
+  });
+}
+
+function renderProfitOutput(payload) {
+  if (!payload) {
+    console.error('Payload is null or undefined');
+    return;
+  }
+
+  const lang = currentLang === 'hi' ? 'hindi' : 'english';
+  const current = payload[lang];
+
+  if (!current) {
+    console.error('No data for language:', lang, 'Available keys:', Object.keys(payload));
+    return;
+  }
+
+  const resultCard = document.getElementById('profitResultCard');
+  if (!resultCard) {
+    console.error('Result card element not found');
+    return;
+  }
+
+  // Update all elements
+  const totalInvEl = document.getElementById('result_total_investment');
+  const revenueEl = document.getElementById('result_expected_revenue');
+  const profitEl = document.getElementById('result_estimated_profit');
+  const percentEl = document.getElementById('result_profit_percentage');
+  const statusEl = document.getElementById('result_profit_status');
+  const analysisEl = document.getElementById('result_analysis');
+
+  if (totalInvEl) {
+    totalInvEl.textContent = current.total_investment || '₹0.00';
+  }
+  if (revenueEl) {
+    revenueEl.textContent = current.expected_revenue || '₹0.00';
+  }
+  if (profitEl) {
+    profitEl.textContent = current.estimated_profit || '₹0.00';
+  }
+  if (percentEl) {
+    percentEl.textContent = current.profit_percentage || '0.00%';
+  }
+  if (statusEl) {
+    statusEl.textContent = current.profit_status || 'N/A';
+  }
+  if (analysisEl) {
+    analysisEl.textContent = current.analysis || '';
+  }
+
+  resultCard.classList.remove('hidden');
+
+  setTimeout(() => {
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+async function getProfitAnalysis(event) {
+  if (event) {
+    event.preventDefault();
+  }
+
+  clearProfitErrors();
+
+  const submitButton = document.getElementById('profitSubmitBtn');
+  const spinner = document.getElementById('btnSpinner');
+  
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.classList.add('opacity-70', 'cursor-not-allowed');
+  }
+  if (spinner) {
+    spinner.classList.remove('hidden');
+  }
+
+  const payload = {
+    crop_name: (document.getElementById('crop_name')?.value || '').trim(),
+    land_area: document.getElementById('land_area')?.value || '',
+    production_cost: document.getElementById('production_cost')?.value || '',
+    fertilizer_cost: document.getElementById('fertilizer_cost')?.value || '',
+    labor_cost: document.getElementById('labor_cost')?.value || '',
+    irrigation_cost: document.getElementById('irrigation_cost')?.value || '',
+    expected_yield: document.getElementById('expected_yield')?.value || '',
+    market_price: document.getElementById('market_price')?.value || '',
+    transport_cost: document.getElementById('transport_cost')?.value || '',
+    other_expenses: document.getElementById('other_expenses')?.value || '',
+    soil_type: document.getElementById('soil_type')?.value || '',
+  };
+
+  const userId = window._currentUserId || 'guest';
+  payload.latitude = localStorage.getItem(`lat_${userId}`) || '';
+  payload.longitude = localStorage.getItem(`lon_${userId}`) || '';
+
+  try {
+    const response = await fetch('/api/profit-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    
+    let data;
+    let responseText = '';
+    try {
+      responseText = await response.text();
+      data = JSON.parse(responseText);
+    } catch (jsonErr) {
+      console.error('Failed to parse JSON response:', jsonErr);
+      console.error('Response body was:', responseText);
+      alert(t('profit_error_failed', 'Server returned invalid response'));
+      return;
+    }
+
+    if (!response.ok) {
+      console.error('Response not OK. Status:', response.status);
+      console.error('Error response:', data);
+      if (data && data.errors) {
+        Object.entries(data.errors).forEach(([field, message]) => {
+          showProfitError(field, message);
+        });
+      } else {
+        alert(t('profit_error_failed', 'Unable to calculate profit. Please try again.'));
+      }
+      return;
+    }
+
+    if (data && data.data) {
+      renderProfitOutput(data.data.profit_analysis);
+      renderProfitHistory(data.data.history || []);
+    } else {
+      console.error('Unexpected response structure:', data);
+      alert(t('profit_error_failed', 'Invalid response format'));
+    }
+  } catch (err) {
+    console.error('Profit analysis error:', err);
+    console.error('Error details:', err.message, err.stack);
+    alert(t('profit_error_failed', 'Unable to calculate profit. Please try again.'));
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.classList.remove('opacity-70', 'cursor-not-allowed');
+    }
+    if (spinner) {
+      spinner.classList.add('hidden');
+    }
+  }
+}
+
+function initProfitAnalyzer() {
+  const profitForm = document.getElementById('profitForm');
+  if (!profitForm) {
+    console.warn('Profit form not found on this page');
+    return;
+  }
+  profitForm.addEventListener('submit', getProfitAnalysis);
+  initProfitHistoryActions();
+}
+
 // Event listeners for profile page
 if (document.getElementById('profile-form')) {
   initializeProfileLocationField();
@@ -629,4 +601,17 @@ if (document.getElementById('password-form')) {
     e.preventDefault();
     changePassword();
   });
+}
+
+// Initialize profit analyzer when DOM is ready
+function initOnDOMReady() {
+  setTimeout(function() {
+    initProfitAnalyzer();
+  }, 100);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initOnDOMReady);
+} else {
+  initOnDOMReady();
 }

@@ -299,7 +299,7 @@ def profit_analyzer():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
+        "SELECT id, crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
         (session["user"]["id"],),
     )
     rows = cursor.fetchall()
@@ -307,10 +307,11 @@ def profit_analyzer():
 
     history = [
         {
-            "crop_name": row[0] or "N/A",
-            "estimated_profit": row[1] if row[1] is not None else 0,
-            "expected_revenue": row[2] if row[2] is not None else 0,
-            "created_at": row[3] or "",
+            "id": row[0],
+            "crop_name": row[1] or "N/A",
+            "estimated_profit": row[2] if row[2] is not None else 0,
+            "expected_revenue": row[3] if row[3] is not None else 0,
+            "created_at": row[4] or "",
         }
         for row in rows
     ]
@@ -396,7 +397,7 @@ def api_profit_analysis():
     )
     expected_revenue = expected_yield * market_price
     estimated_profit = expected_revenue - total_investment
-    profit_percentage = (estimated_profit / total_investment * 100) if total_investment else 0.0
+    profit_percentage = (estimated_profit / expected_revenue * 100) if expected_revenue else 0.0
 
     profit_status = 'Profit' if estimated_profit >= 0 else 'Loss'
     profit_status_hi = 'मुनाफ़ा' if estimated_profit >= 0 else 'नुकसान'
@@ -449,7 +450,7 @@ def api_profit_analysis():
         )
         conn.commit()
         cursor.execute(
-            "SELECT crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
+            "SELECT id, crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
             (session['user']['id'],),
         )
         rows = cursor.fetchall()
@@ -457,10 +458,11 @@ def api_profit_analysis():
 
         history = [
             {
-                "crop_name": row[0] or "N/A",
-                "estimated_profit": row[1] if row[1] is not None else 0,
-                "expected_revenue": row[2] if row[2] is not None else 0,
-                "created_at": row[3] or "",
+                "id": row[0],
+                "crop_name": row[1] or "N/A",
+                "estimated_profit": row[2] if row[2] is not None else 0,
+                "expected_revenue": row[3] if row[3] is not None else 0,
+                "created_at": row[4] or "",
             }
             for row in rows
         ]
@@ -496,6 +498,30 @@ def api_profit_analysis():
         print('Error in profit analysis:', str(e))
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+@app.route('/api/profit-analysis/<int:profit_id>', methods=['DELETE'])
+def api_delete_profit_analysis(profit_id):
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            "DELETE FROM profit_analysis WHERE id=? AND user_id=?",
+            (profit_id, session['user']['id']),
+        )
+        deleted = cursor.rowcount
+        conn.commit()
+        conn.close()
+
+        if deleted == 0:
+            return jsonify({"status": "error", "message": "Record not found"}), 404
+
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        print('Error deleting profit analysis:', str(e))
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route('/predict', methods=['POST'])
