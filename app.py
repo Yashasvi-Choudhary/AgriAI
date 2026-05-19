@@ -1,23 +1,27 @@
 import uuid
 import datetime
+import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.geolocation import geocode_location
 
-from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for
+from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for, send_from_directory
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 from dotenv import load_dotenv
 from database import create_tables
 from routes.auth_routes import auth_bp
+from routes.community_routes import community
+from routes.crop_routes import crop as crop_bp, generate_crop_response
 
 from utils.translator import get_translations
 
 import sqlite3
+import pandas as pd
+import joblib
 import os
 import sys
 import importlib.util
-
 
 # ─────────────────────────────────────────────
 # APP INIT
@@ -42,6 +46,11 @@ mail = Mail(app)
 app.secret_key = "super_secret_key_123"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Upload configuration
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 MARKET_API_KEY = os.getenv("MARKET_API_KEY")
 sys.path.insert(0, BASE_DIR)
@@ -60,7 +69,53 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400
 
+# ✅ LOAD ML MODEL
+CROP_MODEL_PATH = os.path.join(BASE_DIR, "model", "crop_model.pkl")
+_crop_model = None
 
+def load_crop_model_app():
+    global _crop_model
+    if _crop_model is not None:
+        return _crop_model
+
+    if not os.path.isfile(CROP_MODEL_PATH):
+        try:
+            from train_crop_model import train_model
+            train_model()
+        except Exception as exc:
+            app.logger.error("Unable to retrain crop model: %s", exc)
+
+    if not os.path.isfile(CROP_MODEL_PATH):
+        _crop_model = None
+        return None
+
+    try:
+        _crop_model = joblib.load(CROP_MODEL_PATH)
+        if hasattr(_crop_model, "feature_names_in_"):
+            stored_features = [str(f) for f in _crop_model.feature_names_in_]
+            expected = [
+                "nitrogen",
+                "phosphorus",
+                "potassium",
+                "temperature",
+                "humidity",
+                "ph",
+                "rainfall",
+            ]
+            if stored_features != expected:
+                app.logger.warning(
+                    "Legacy crop model feature mismatch: %s, expected: %s. Retraining model.",
+                    stored_features,
+                    expected,
+                )
+                _crop_model = None
+                from train_crop_model import train_model
+                train_model()
+                _crop_model = joblib.load(CROP_MODEL_PATH)
+    except Exception as exc:
+        app.logger.error("Failed to load crop model from %s: %s", CROP_MODEL_PATH, exc)
+        _crop_model = None
+    return _crop_model
 
 
 # ─────────────────────────────────────────────
@@ -84,27 +139,34 @@ def inject_globals():
     "plant-disease-detection": "plant-disease-detection",
     "fertilizer-guide": "fertilizer-guide",
     "market-price": "market",
-    "profit-analyzer": "profit",
-    "profile": "profile",   # ✅ ADD THIS
+    "government-schemes": "government-schemes",
+    "community": "community",
+    "assistant": "assistant",
+    "profile": "profile",
 }
 
     page = page_map.get(path, "dashboard")
     t = get_translations(lang, page) or {}
 
     user = session.get("user")
+    
+    # Debug logging
+    from flask import current_app
+    current_app.logger.warning(f"CONTEXT PATH={request.path}, STRIPPED={path}, PAGE={page}, USER={bool(user)}, TRANS={len(t)}")
 
     return dict(
-    current_user=user or None,
-    t=t or {},
-    lang=lang or "en"
-)
+        current_user=user or None,
+        t=t or {},
+        lang=lang or "en"
+    )
 
 
 # ─────────────────────────────────────────────
 # BLUEPRINTS
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
-
+app.register_blueprint(community, url_prefix='/community')
+app.register_blueprint(crop_bp)
 
 create_tables()
 
@@ -153,13 +215,15 @@ def register():
     return render_template('auth/register.html')
 
 # ─────────────────────────────────────────────
-# DASHBOARD (SESSION CHECK)
+# DASHBOARD
 # ─────────────────────────────────────────────
 @app.route('/dashboard')
 def dashboard():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/dashboard.html')
+
+
 
 
 # ─────────────────────────────────────────────
@@ -179,7 +243,7 @@ def profile():
     if not user:
         return redirect('/login')
     
-    return render_template('profile.html', user=user)
+    return render_template('layout/profile.html', user=user)
 
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
@@ -214,7 +278,6 @@ def update_profile():
     session["user"]["name"] = name
     
     return jsonify({"success": True, "message": "Profile updated successfully", "lat": lat, "lon": lon})
-
 @app.route('/change-password', methods=['POST'])
 def change_password():
     if "user" not in session:
@@ -254,12 +317,62 @@ def change_password():
     return jsonify({"success": True, "message": "Password changed successfully"})
 
 # ─────────────────────────────────────────────
-# FEATURE ROUTES
+# FEATURE PAGES
 # ─────────────────────────────────────────────
-@app.route('/crop-recommendation')
+@app.route('/crop-recommendation', methods=['GET', 'POST'])
 def crop_recommendation():
     if "user" not in session:
         return redirect('/login')
+
+    if request.method == "POST":
+        try:
+            data = {
+                "nitrogen": float(request.form.get("nitrogen", 0)),
+                "phosphorus": float(request.form.get("phosphorus", 0)),
+                "potassium": float(request.form.get("potassium", 0)),
+                "temperature": float(request.form.get("temperature", 0)),
+                "humidity": float(request.form.get("humidity", 0)),
+                "ph": float(request.form.get("ph_level", 0)),
+                "rainfall": float(request.form.get("rainfall", 0)),
+            }
+
+            import pandas as pd
+
+            df = pd.DataFrame([
+                [
+                    data['nitrogen'],
+                    data['phosphorus'],
+                    data['potassium'],
+                    data['temperature'],
+                    data['humidity'],
+                    data['ph'],
+                    data['rainfall'],
+                ]
+            ], columns=["nitrogen", "phosphorus", "potassium", "temperature", "humidity", "ph", "rainfall"])
+
+            model = load_crop_model_app()
+            if model is None:
+                return render_template(
+                    'dashboard/crop-recommendation.html',
+                    error="Model not available"
+                )
+
+            prediction = model.predict(df)[0]
+            confidence = max(model.predict_proba(df)[0])
+
+            result = generate_crop_response(prediction, confidence, data)
+
+            return render_template(
+                'dashboard/crop-recommendation.html',
+                result=result
+            )
+
+        except Exception:
+            return render_template(
+                'dashboard/crop-recommendation.html',
+                error="Prediction failed"
+            )
+
     return render_template('dashboard/crop-recommendation.html')
 
 
@@ -284,6 +397,50 @@ def fertilizer_guide():
     return render_template('dashboard/fertilizer-guide.html')
 
 
+# ─────────────────────────────────────────────
+# ✅ CROP PREDICTION API (MAIN FEATURE ADDED)
+# ─────────────────────────────────────────────
+@app.route('/api/predict-crop', methods=['POST'])
+def predict_crop():
+    try:
+        data = request.get_json()
+
+        required = ["nitrogen", "phosphorus", "potassium", "temperature", "humidity", "ph", "rainfall"]
+
+        if not data or not all(k in data for k in required):
+            return jsonify({
+                "status": "error",
+                "message": "Missing or invalid input data"
+            })
+
+        df = pd.DataFrame([[
+            float(data['nitrogen']),
+            float(data['phosphorus']),
+            float(data['potassium']),
+            float(data['temperature']),
+            float(data['humidity']),
+            float(data['ph']),
+            float(data['rainfall'])
+        ]], columns=required)
+
+        model = load_crop_model_app()
+        if model is None:
+            return jsonify({"status": "error", "message": "Model not available"}), 500
+
+        prediction = model.predict(df)[0]
+        confidence = max(model.predict_proba(df)[0])
+
+        result = generate_crop_response(prediction, confidence, data)
+
+        return jsonify(result)
+
+    except Exception:
+        return jsonify({
+            "status": "error",
+            "message": "Something went wrong"
+        })
+
+
 @app.route('/market-price')
 def market_price():
     if "user" not in session:
@@ -291,237 +448,11 @@ def market_price():
     return render_template('dashboard/market_price.html')
 
 
-@app.route('/profit-analyzer')
-def profit_analyzer():
+@app.route('/government-schemes')
+def government_schemes():
     if "user" not in session:
         return redirect('/login')
-
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT id, crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
-        (session["user"]["id"],),
-    )
-    rows = cursor.fetchall()
-    conn.close()
-
-    history = [
-        {
-            "id": row[0],
-            "crop_name": row[1] or "N/A",
-            "estimated_profit": row[2] if row[2] is not None else 0,
-            "expected_revenue": row[3] if row[3] is not None else 0,
-            "created_at": row[4] or "",
-        }
-        for row in rows
-    ]
-
-    return render_template('dashboard/profit_analyzer.html', history=history)
-
-
-@app.route('/api/profit-analysis', methods=['POST'])
-def api_profit_analysis():
-    print('Profit analysis API called')
-    print('Session user:', session.get("user"))
-    
-    if "user" not in session:
-        print('User not in session')
-        return jsonify({"status": "error", "message": "Not logged in"}), 401
-
-    data = request.get_json(silent=True) or {}
-    print('Received data:', data)
-    errors = {}
-
-    crop_name = str(data.get('crop_name', '') or '').strip()
-    if not crop_name:
-        errors['crop_name'] = 'profit_error_required'
-
-    def parse_number(key, required=True):
-        value = data.get(key)
-        if value is None or value == '':
-            if required:
-                errors[key] = 'profit_error_required'
-            return None
-        try:
-            amount = float(value)
-        except (ValueError, TypeError):
-            errors[key] = 'profit_error_invalid'
-            return None
-        if required and amount <= 0:
-            errors[key] = 'profit_error_positive'
-            return None
-        if not required and amount < 0:
-            errors[key] = 'profit_error_positive'
-            return None
-        return amount
-
-    land_area = parse_number('land_area')
-    production_cost = parse_number('production_cost')
-    fertilizer_cost = parse_number('fertilizer_cost')
-    labor_cost = parse_number('labor_cost')
-    irrigation_cost = parse_number('irrigation_cost')
-    expected_yield = parse_number('expected_yield')
-    market_price = parse_number('market_price')
-    transport_cost = parse_number('transport_cost', required=False)
-    other_expenses = parse_number('other_expenses', required=False)
-
-    soil_type = str(data.get('soil_type', '') or '').strip() or None
-
-    latitude = None
-    longitude = None
-    try:
-        if data.get('latitude') not in (None, ''):
-            latitude = float(data.get('latitude'))
-    except (TypeError, ValueError):
-        latitude = None
-    try:
-        if data.get('longitude') not in (None, ''):
-            longitude = float(data.get('longitude'))
-    except (TypeError, ValueError):
-        longitude = None
-
-    if errors:
-        print('Validation errors:', errors)
-        return jsonify({"status": "error", "errors": errors}), 400
-
-    transport_cost = transport_cost or 0.0
-    other_expenses = other_expenses or 0.0
-
-    total_investment = (
-        production_cost
-        + fertilizer_cost
-        + labor_cost
-        + irrigation_cost
-        + transport_cost
-        + other_expenses
-    )
-    expected_revenue = expected_yield * market_price
-    estimated_profit = expected_revenue - total_investment
-    profit_percentage = (estimated_profit / expected_revenue * 100) if expected_revenue else 0.0
-
-    profit_status = 'Profit' if estimated_profit >= 0 else 'Loss'
-    profit_status_hi = 'मुनाफ़ा' if estimated_profit >= 0 else 'नुकसान'
-
-    def money(value):
-        return f"₹{value:,.2f}"
-
-    if estimated_profit >= 0:
-        analysis_en = (
-            f"Your estimated profit is {money(estimated_profit)} on a total investment of {money(total_investment)}. "
-            f"Expected revenue is {money(expected_revenue)} and profit percentage is {profit_percentage:.2f}%."
-        )
-        analysis_hi = (
-            f"आपका अनुमानित लाभ {money(estimated_profit)} है, कुल निवेश {money(total_investment)} पर। "
-            f"आय {money(expected_revenue)} है और लाभ प्रतिशत {profit_percentage:.2f}% है।"
-        )
-    else:
-        analysis_en = (
-            f"Expected loss is {money(abs(estimated_profit))}. Total investment is {money(total_investment)} and expected revenue is {money(expected_revenue)}."
-        )
-        analysis_hi = (
-            f"अनुमानित हानि {money(abs(estimated_profit))} है। कुल निवेश {money(total_investment)} है और अनुमानित आय {money(expected_revenue)} है।"
-        )
-
-    try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO profit_analysis (user_id, crop_name, soil_type, land_area, production_cost, fertilizer_cost, labor_cost, irrigation_cost, transport_cost, other_expenses, expected_yield, market_price, total_investment, expected_revenue, estimated_profit, profit_percentage, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                session['user']['id'],
-                crop_name,
-                soil_type,
-                land_area,
-                production_cost,
-                fertilizer_cost,
-                labor_cost,
-                irrigation_cost,
-                transport_cost,
-                other_expenses,
-                expected_yield,
-                market_price,
-                total_investment,
-                expected_revenue,
-                estimated_profit,
-                profit_percentage,
-                latitude,
-                longitude,
-            ),
-        )
-        conn.commit()
-        cursor.execute(
-            "SELECT id, crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
-            (session['user']['id'],),
-        )
-        rows = cursor.fetchall()
-        conn.close()
-
-        history = [
-            {
-                "id": row[0],
-                "crop_name": row[1] or "N/A",
-                "estimated_profit": row[2] if row[2] is not None else 0,
-                "expected_revenue": row[3] if row[3] is not None else 0,
-                "created_at": row[4] or "",
-            }
-            for row in rows
-        ]
-
-        response = {
-            "status": "success",
-            "data": {
-                "profit_analysis": {
-                    "english": {
-                        "total_investment": money(total_investment),
-                        "expected_revenue": money(expected_revenue),
-                        "estimated_profit": money(estimated_profit),
-                        "profit_percentage": f"{profit_percentage:.2f}%",
-                        "profit_status": profit_status,
-                        "analysis": analysis_en,
-                    },
-                    "hindi": {
-                        "total_investment": money(total_investment),
-                        "expected_revenue": money(expected_revenue),
-                        "estimated_profit": money(estimated_profit),
-                        "profit_percentage": f"{profit_percentage:.2f}%",
-                        "profit_status": profit_status_hi,
-                        "analysis": analysis_hi,
-                    },
-                },
-                "history": history,
-            },
-        }
-
-        print('Returning successful response')
-        return jsonify(response), 200
-    except Exception as e:
-        print('Error in profit analysis:', str(e))
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
-@app.route('/api/profit-analysis/<int:profit_id>', methods=['DELETE'])
-def api_delete_profit_analysis(profit_id):
-    if "user" not in session:
-        return jsonify({"status": "error", "message": "Not logged in"}), 401
-
-    try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute(
-            "DELETE FROM profit_analysis WHERE id=? AND user_id=?",
-            (profit_id, session['user']['id']),
-        )
-        deleted = cursor.rowcount
-        conn.commit()
-        conn.close()
-
-        if deleted == 0:
-            return jsonify({"status": "error", "message": "Record not found"}), 404
-
-        return jsonify({"status": "success"}), 200
-    except Exception as e:
-        print('Error deleting profit analysis:', str(e))
-        return jsonify({"status": "error", "message": str(e)}), 500
+    return render_template('dashboard/government_schemes.html')
 
 
 @app.route('/predict', methods=['POST'])
@@ -865,17 +796,15 @@ def save_location():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    # Just store location (basic entry)
     cursor.execute("""
     INSERT INTO farm_conditions (user_id, latitude, longitude, location_name)
     VALUES (?, ?, ?, ?)
-""", (user_id, lat, lon, city))
+    """, (user_id, lat, lon, city))
 
     conn.commit()
     conn.close()
 
     return jsonify({"success": True})
-
 
 
 # ─────────────────────────────────────────────
@@ -897,6 +826,13 @@ def get_weather():
         "humidity": res["hourly"]["relativehumidity_2m"][0],
         "rainfall": res["hourly"]["precipitation_probability"][0]
     })
+
+# ─────────────────────────────────────────────
+# SERVE UPLOADED FILES
+# ─────────────────────────────────────────────
+@app.route('/uploads/<path:filename>')
+def serve_uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # ─────────────────────────────────────────────
 # LOGOUT
@@ -1027,6 +963,79 @@ def reset_password(token):
 
     # ✅ GET → page open
     return render_template('auth/reset_password.html', token=token)
+
+
+# ─────────────────────────────────────────────
+# GOVERNMENT SCHEMES API
+# ─────────────────────────────────────────────
+@app.route('/api/schemes', methods=['GET'])
+def get_schemes():
+    """
+    Get government schemes with optional filtering
+    Query Parameters:
+    - state: Filter by state (or 'All' for national schemes)
+    - crop_type: Filter by crop type (or 'All' for all crops)
+    
+    Filtering Logic:
+    - If state = 'MP' → returns schemes with state='MP' OR state='All'
+    - If crop_type = 'Wheat' → returns schemes with crop_type='Wheat' OR crop_type='All'
+    """
+    try:
+        state = request.args.get('state', '').strip()
+        crop_type = request.args.get('crop_type', '').strip()
+        
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        
+        # Build query with filtering logic
+        query = "SELECT id, title, description, benefit, state, crop_type, eligibility, website_link, created_at FROM government_schemes WHERE 1=1"
+        params = []
+        
+        # Filter by state (include 'All' schemes)
+        if state and state != 'All':
+            query += " AND (state = ? OR state = 'All')"
+            params.append(state)
+        
+        # Filter by crop type (include 'All' schemes) - need to handle JSON field
+        if crop_type and crop_type != 'All':
+            # For JSON fields, we need to check both languages
+            query += " AND (json_extract(crop_type, '$.en') = ? OR json_extract(crop_type, '$.hi') = ? OR state = 'All')"
+            params.extend([crop_type, crop_type])
+        
+        # Order by state-specific schemes first, then national schemes
+        query += " ORDER BY CASE WHEN state = 'All' THEN 1 ELSE 0 END, title"
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+        
+        schemes = []
+        for row in rows:
+            schemes.append({
+                "id": row[0],
+                "title": json.loads(row[1]) if row[1] else {"en": "", "hi": ""},
+                "description": json.loads(row[2]) if row[2] else {"en": "", "hi": ""},
+                "benefit": json.loads(row[3]) if row[3] else {"en": "", "hi": ""},
+                "state": row[4],
+                "crop_type": json.loads(row[5]) if row[5] else {"en": "", "hi": ""},
+                "eligibility": json.loads(row[6]) if row[6] else {"en": "", "hi": ""},
+                "website_link": row[7],
+                "created_at": row[8]
+            })
+        
+        return jsonify({
+            "status": "success",
+            "count": len(schemes),
+            "schemes": schemes
+        })
+        
+    except Exception as e:
+        print(f"❌ Error fetching schemes: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Error fetching schemes"
+        }), 500
+
 
 # ─────────────────────────────────────────────
 # RUN SERVER
