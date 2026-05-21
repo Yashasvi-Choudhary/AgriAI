@@ -143,6 +143,7 @@ def inject_globals():
     "community": "community",
     "assistant": "assistant",
     "profile": "profile",
+    "profit": "profit",
 }
 
     page = page_map.get(path, "dashboard")
@@ -224,6 +225,11 @@ def dashboard():
     return render_template('dashboard/dashboard.html')
 
 
+@app.route('/profit')
+def profit_analyzer():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/profit_analyzer.html')
 
 
 # ─────────────────────────────────────────────
