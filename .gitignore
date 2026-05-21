@@ -5,3 +5,9 @@ database.db
 .env
 uploads/
 node_modules/
+data/
+model/
+*.pkl
+*.h5
+.venv/
+__pycache__/

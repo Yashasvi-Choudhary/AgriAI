@@ -2,9 +2,19 @@
    global.js — clean version, no opacity tricks needed
    The flash is eliminated by matching html background color.
    ============================================================ */
-const DEV_MODE = true;
+if (typeof DEV_MODE === "undefined") {
+  const DEV_MODE = true;
+  window.DEV_MODE = DEV_MODE;
+}
 
-let currentLang = window.__lang || localStorage.getItem("lang") || "en";
+if (typeof currentLang === "undefined") {
+  const currentLang = window.__lang || localStorage.getItem("lang") || "en";
+  window.currentLang = currentLang;
+}
+
+// Use window globals for compatibility
+DEV_MODE = window.DEV_MODE;
+currentLang = window.currentLang;
 
 // ─────────────────────────────────────────────────────────────
 // APPLY TRANSLATIONS
@@ -119,8 +129,7 @@ function waitForUserAndLoadWeather() {
 window.globalWeatherData = null;
 
 async function fetchWeatherData() {
-
-// remove this when API is ready, for testing without hitting rate limits
+  // remove this when API is ready, for testing without hitting rate limits
 
   if (DEV_MODE) {
     console.log("⚠️ Dev mode: skipping API call");
@@ -138,7 +147,18 @@ async function fetchWeatherData() {
   const lat = localStorage.getItem(`lat_${userId}`);
   const lon = localStorage.getItem(`lon_${userId}`);
 
-  if (!lat || !lon) return null;
+  if (!lat || !lon) {
+    console.warn(
+      "No stored location coordinates found, using fallback weather values",
+    );
+    return {
+      temperature: "--",
+      windspeed: "--",
+      humidity: "--",
+      rainfall: "--",
+      description: "N/A",
+    };
+  }
 
   try {
     const res = await fetch("/api/weather", {
@@ -160,8 +180,12 @@ async function fetchWeatherData() {
 }
 
 async function loadHeaderWeather() {
+  console.log("loadHeaderWeather: Fetching weather data");
   const data = await fetchWeatherData();
-  if (!data) return;
+  if (!data) {
+    console.warn("loadHeaderWeather: No weather data returned");
+    return;
+  }
 
   const userId = window._currentUserId;
   const city = localStorage.getItem(`location_name_${userId}`);
@@ -174,16 +198,26 @@ async function loadHeaderWeather() {
   const condEl = document.getElementById("headerCondition");
   const mobileEl = document.getElementById("mobileWeather");
 
+  console.log("Weather elements found:", {
+    temp: !!tempEl,
+    wind: !!windEl,
+    loc: !!locEl,
+    humidity: !!humidityEl,
+    rain: !!rainEl,
+    cond: !!condEl,
+    mobile: !!mobileEl,
+  });
+
   if (tempEl) tempEl.textContent = data.temperature + "°C";
   if (windEl) windEl.textContent = data.windspeed + " km/h";
   if (locEl) locEl.textContent = city || "Your Location";
-
   if (humidityEl) humidityEl.textContent = data.humidity + "%";
   if (rainEl) rainEl.textContent = data.rainfall + "%";
   if (condEl) condEl.textContent = data.description || "Clear";
   if (mobileEl) {
     mobileEl.textContent = `${data.temperature}°C · ${city}`;
   }
+  console.log("Weather data loaded and displayed");
 }
 
 if (document.readyState === "loading") {
