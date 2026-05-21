@@ -25,8 +25,9 @@ def get_translations(lang, page):
             return {}
 
     common = load_json(os.path.join(base, "common.json"))
+    dashboard_t = load_json(os.path.join(base, "dashboard.json"))
     page_t = load_json(os.path.join(base, f"{page}.json"))
 
-    merged = {**common, **page_t}
+    merged = {**common, **dashboard_t, **page_t}
     _cache[cache_key] = merged
     return merged

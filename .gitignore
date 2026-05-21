@@ -1,13 +1,24 @@
-# Git ignore file
+# Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Database
 database.db
+
+# Environment
 .env
-uploads/
-node_modules/
-data/
-model/
-*.pkl
-*.h5
 .venv/
-__pycache__/
+
+# Uploads / temp
+uploads/
+
+# Node (if any frontend)
+node_modules/
+
+# 🔥 ML Models (IMPORTANT)
+model/*.pkl
+model/*.h5
+
+# Data files (optional but recommended)
+data/

@@ -1,0 +1,31 @@
+{
+  "govt_schemes_page_title": "सरकारी योजनाएं – Labhansh.ai",
+  "govt_schemes_title": "सरकारी योजनाएं",
+  "govt_schemes_subtitle": "अपने खेत और फसल के लिए तैयार सरकारी योजनाओं की खोज करें",
+
+  "govt_schemes_filter_section_title": "योजनाओं को फ़िल्टर करें",
+  "govt_schemes_filter_state": "राज्य चुनें",
+  "govt_schemes_filter_crop": "फसल का प्रकार चुनें",
+  "govt_schemes_search_placeholder": "योजनाओं को खोजें",
+
+  "govt_schemes_loading": "योजनाएं लोड हो रही हैं...",
+  "govt_schemes_apply_now": "अभी आवेदन करें",
+
+  "govt_schemes_empty_title": "कोई योजना नहीं मिली",
+  "govt_schemes_empty_description": "प्रासंगिक सरकारी योजनाएं खोजने के लिए अपने फ़िल्टर या खोज शब्दों को समायोजित करने का प्रयास करें।",
+
+  "govt_schemes_error_title": "योजनाएं लोड करने में त्रुटि",
+  "govt_schemes_error_message": "योजनाएं लोड नहीं कर सकते। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।",
+
+  "govt_schemes_info_title": "सरकारी योजनाओं के बारे में",
+  "govt_schemes_info_description": "ये योजनाएं किसानों को वित्तीय सहायता, तकनीकी मार्गदर्शन, बीमा कवरेज और बुनियादी ढांचे के विकास में सहायता प्रदान करने के लिए डिज़ाइन की गई हैं। आधिकारिक योजना वेबसाइट पर जाने और अपना आवेदन जमा करने के लिए 'अभी आवेदन करें' पर क्लिक करें। आवेदन करने से पहले सभी पात्रता मानदंडों को सत्यापित करें।",
+
+  "govt_schemes_state_all": "सभी राज्य",
+  "govt_schemes_state_national": "राष्ट्रीय योजनाएं",
+  "govt_schemes_crop_all": "सभी फसल प्रकार",
+
+  "govt_schemes_benefit_label": "लाभ",
+  "govt_schemes_eligibility_label": "पात्रता",
+  "govt_schemes_state_label": "राज्य",
+  "govt_schemes_crop_label": "फसल का प्रकार"
+}
