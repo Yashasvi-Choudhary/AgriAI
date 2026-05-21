@@ -5,6 +5,88 @@ def connect_db():
     conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign keys
     return conn
 
+def column_exists(conn, table_name, column_name):
+    """Check if a column exists in a table."""
+    cursor = conn.cursor()
+    cursor.execute(f"PRAGMA table_info({table_name})")
+    columns = [row[1] for row in cursor.fetchall()]
+    return column_name in columns
+
+def migrate_fertilizer_history():
+    """Migrate fertilizer_history table to add missing columns if needed."""
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Check if table exists
+        cursor.execute("""
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name='fertilizer_history'
+        """)
+        
+        if cursor.fetchone():
+            # Table exists. Ensure it only contains the minimal set of columns
+            # we want to keep in history. If legacy columns (advice/reason/
+            # recommended_quantity) exist, rebuild the table without them.
+            cursor.execute("PRAGMA table_info(fertilizer_history)")
+            existing = [row[1] for row in cursor.fetchall()]
+
+            # Desired columns to keep in history
+            desired = [
+                'id', 'user_id', 'crop_type', 'soil_type', 'temperature',
+                'humidity', 'moisture', 'nitrogen', 'phosphorus', 'potassium',
+                'fertilizer_name_en', 'fertilizer_name_hi', 'created_at'
+            ]
+
+            # Columns we consider extraneous and want removed from history
+            extraneous_prefixes = [
+                'recommended_quantity', 'reason', 'advice'
+            ]
+
+            has_extraneous = any(
+                any(col.startswith(prefix) for prefix in extraneous_prefixes)
+                for col in existing
+            )
+
+            if has_extraneous:
+                print("Rebuilding fertilizer_history without extraneous columns...")
+                cols_to_select = [c for c in existing if c in desired]
+                select_clause = ", ".join(cols_to_select)
+
+                # Create a new table with the desired schema
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS fertilizer_history_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER,
+                        crop_type TEXT,
+                        soil_type TEXT,
+                        temperature REAL,
+                        humidity REAL,
+                        moisture REAL,
+                        nitrogen REAL,
+                        phosphorus REAL,
+                        potassium REAL,
+                        fertilizer_name_en TEXT,
+                        fertilizer_name_hi TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+
+                # Copy available columns from old table into new table
+                if select_clause:
+                    cursor.execute(f"INSERT INTO fertilizer_history_new ({select_clause}) SELECT {select_clause} FROM fertilizer_history")
+
+                # Replace old table
+                cursor.execute("DROP TABLE fertilizer_history")
+                cursor.execute("ALTER TABLE fertilizer_history_new RENAME TO fertilizer_history")
+                conn.commit()
+                print("fertilizer_history table rebuilt without extraneous columns")
+        
+        conn.close()
+    except Exception as ex:
+        print(f"Migration error: {ex}")
+        conn.close()
+
 def create_tables():
     conn = connect_db()
     cursor = conn.cursor()
@@ -62,6 +144,25 @@ def create_tables():
         recommended_fertilizer TEXT,
         dosage TEXT,
         confidence REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fertilizer_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        crop_type TEXT,
+        soil_type TEXT,
+        temperature REAL,
+        humidity REAL,
+        moisture REAL,
+        nitrogen REAL,
+        phosphorus REAL,
+        potassium REAL,
+        fertilizer_name_en TEXT,
+        fertilizer_name_hi TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )

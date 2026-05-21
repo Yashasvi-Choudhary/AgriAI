@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for
 import requests
-from database import create_tables
+from database import create_tables, migrate_fertilizer_history
 from routes.auth_routes import auth_bp
 
 from utils.translator import get_translations
@@ -72,8 +72,8 @@ def inject_globals():
 # ─────────────────────────────────────────────
 app.register_blueprint(auth_bp, url_prefix='/auth')
 
-
 create_tables()
+migrate_fertilizer_history()
 
 MODEL_PATH = os.path.join(BASE_DIR, "model", "fertilizer_model.pkl")
 _model = None
@@ -229,6 +229,9 @@ def fertilizer_guide():
     return render_template('dashboard/fertilizer-guide.html')
 
 
+# Note: QA-only helper was removed.
+
+
 @app.route('/predict', methods=['POST'])
 def predict_fertilizer():
     payload = request.get_json(silent=True)
@@ -248,7 +251,143 @@ def predict_fertilizer():
         return jsonify({"status": "error", "message": "Missing or invalid input data"}), 400
 
     result = fertilizer_utils.build_response(prediction, validated)
+
+    # Ensure the history table schema is up to date before saving
+    migrate_fertilizer_history()
+
+    # Save fertilizer history for logged-in users
+    if "user" in session and session["user"]:
+        try:
+            user_id = session["user"]["id"]
+            crop_type = payload.get("crop_type", "").strip()
+            soil_type = payload.get("soil_type", "").strip()
+            fertilizer_data = result["data"]["fertilizer_recommendation"]
+            fertilizer_en = fertilizer_data["english"]
+            fertilizer_hi = fertilizer_data["hindi"]
+
+            app.logger.info(f"Saving fertilizer history for user {user_id}: crop={crop_type}, soil={soil_type}")
+            
+            conn = sqlite3.connect("database.db")
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT INTO fertilizer_history (
+                user_id,
+                crop_type,
+                soil_type,
+                temperature,
+                humidity,
+                moisture,
+                nitrogen,
+                phosphorus,
+                potassium,
+                fertilizer_name_en,
+                fertilizer_name_hi
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                user_id,
+                crop_type,
+                soil_type,
+                validated.get("temperature"),
+                validated.get("humidity"),
+                validated.get("moisture"),
+                validated.get("nitrogen"),
+                validated.get("phosphorus"),
+                validated.get("potassium"),
+                fertilizer_en.get("fertilizer_name"),
+                fertilizer_hi.get("fertilizer_name"),
+            ))
+            conn.commit()
+            conn.close()
+            app.logger.info("Fertilizer history saved successfully")
+        except Exception as ex:
+            app.logger.error(f"Failed to save fertilizer history: {ex}", exc_info=True)
+
     return jsonify(result)
+
+
+@app.route('/api/fertilizer/history', methods=['GET'])
+def get_fertilizer_history():
+    try:
+        if "user" not in session or not session.get("user"):
+            app.logger.warning("History request: User not in session")
+            return jsonify({"success": False, "message": "Not logged in", "history": []}), 401
+
+        user_id = session["user"].get("id")
+        if not user_id:
+            app.logger.warning("History request: user_id missing from session")
+            return jsonify({"success": False, "message": "Invalid user", "history": []}), 401
+
+        app.logger.info(f"Fetching history for user_id: {user_id}")
+        migrate_fertilizer_history()
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='fertilizer_history'")
+        if not cursor.fetchone():
+            app.logger.warning("fertilizer_history table does not exist")
+            conn.close()
+            return jsonify({"success": False, "message": "Table not found", "history": []}), 500
+
+        cursor.execute("PRAGMA table_info(fertilizer_history)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if not columns:
+            conn.close()
+            return jsonify({"success": False, "message": "Could not read table schema", "history": []}), 500
+
+        select_cols = ", ".join(columns)
+        cursor.execute(f"SELECT {select_cols} FROM fertilizer_history WHERE user_id = ? ORDER BY created_at DESC", (user_id,))
+        rows = cursor.fetchall()
+        conn.close()
+
+        history = []
+        for row in rows:
+            record = {columns[idx]: row[idx] for idx in range(len(columns))}
+            history.append({
+                "id": record.get("id"),
+                "crop_type": record.get("crop_type"),
+                "soil_type": record.get("soil_type"),
+                "nitrogen": record.get("nitrogen"),
+                "phosphorus": record.get("phosphorus"),
+                "potassium": record.get("potassium"),
+                "fertilizer_name_en": record.get("fertilizer_name_en", ""),
+                "fertilizer_name_hi": record.get("fertilizer_name_hi", ""),
+                "created_at": record.get("created_at"),
+            })
+
+        app.logger.info(f"Returning {len(history)} history records for user {user_id}")
+        return jsonify({"success": True, "history": history})
+    
+    except Exception as ex:
+        app.logger.error(f"Error fetching fertilizer history: {ex}")
+        return jsonify({"success": False, "message": str(ex), "history": []}), 500
+
+
+@app.route('/api/fertilizer/history/<int:record_id>', methods=['DELETE'])
+def delete_fertilizer_history(record_id):
+    if "user" not in session:
+        return jsonify({"success": False, "message": "Not logged in"}), 401
+
+    user_id = session["user"]["id"]
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT user_id FROM fertilizer_history WHERE id = ?",
+        (record_id,),
+    )
+    row = cursor.fetchone()
+    if not row or row[0] != user_id:
+        conn.close()
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+
+    cursor.execute(
+        "DELETE FROM fertilizer_history WHERE id = ?",
+        (record_id,),
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True})
 
 
 # ─────────────────────────────────────────────
