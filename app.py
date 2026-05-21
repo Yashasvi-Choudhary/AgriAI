@@ -229,9 +229,6 @@ def fertilizer_guide():
     return render_template('dashboard/fertilizer-guide.html')
 
 
-# Note: QA-only helper was removed.
-
-
 @app.route('/predict', methods=['POST'])
 def predict_fertilizer():
     payload = request.get_json(silent=True)

@@ -186,7 +186,6 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           </div>
         </div>
 
-        
         <!-- Temperature (optional) -->
         <div>
           <label
@@ -535,40 +534,42 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           <!-- Populated by JS -->
         </div>
       </div>
-
-      <!-- ── SCHEDULE CARD ── -->
-      <div
-        class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm"
-      >
-        <div class="flex items-center gap-2 mb-5">
-          <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
-          <h2
-            class="text-xs font-bold uppercase tracking-widest text-textMid"
-            data-i18n="fert_schedule_title"
-          ></h2>
-        </div>
-        <div id="scheduleList" class="space-y-3">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-
-      <!-- ── TIPS CARD ── -->
-      <div
-        class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm"
-      >
-        <div class="flex items-center gap-2 mb-5">
-          <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
-          <h2
-            class="text-xs font-bold uppercase tracking-widest text-textMid"
-            data-i18n="fert_tips_title"
-          ></h2>
-        </div>
-        <ul id="tipsList" class="space-y-3">
-          <!-- Populated by JS -->
-        </ul>
-      </div>
     </div>
     <!-- /result dashboard -->
+
+    <!-- ── HISTORY CARD ── -->
+    <div
+      class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm mt-10"
+    >
+      <div class="flex items-center justify-between gap-3 mb-5">
+        <div>
+          <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+          <h2
+            class="text-xs font-bold uppercase tracking-widest text-textMid"
+            data-i18n="fert_history_title"
+          ></h2>
+        </div>
+        <button
+          id="fertHistoryToggle"
+          type="button"
+          class="inline-flex items-center gap-2 rounded-full border border-backgroundDark bg-slate-50 px-4 py-2 text-sm font-semibold text-textDark transition hover:bg-slate-100"
+        >
+          <span
+            id="fertHistoryToggleLabel"
+            data-i18n="fert_history_show"
+          ></span>
+        </button>
+      </div>
+      <div id="fertHistoryPanel" class="hidden space-y-4">
+        <div id="fertHistoryList" class="space-y-4"></div>
+        <p
+          id="fertHistoryEmpty"
+          class="text-sm text-textMid hidden"
+          data-i18n="fert_history_no_records"
+        ></p>
+      </div>
+    </div>
+    <!-- /history card -->
   </div>
 </div>
 

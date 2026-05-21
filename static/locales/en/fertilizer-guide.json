@@ -5,7 +5,6 @@
   "fert_form_section_title": "Enter Farm Details",
   "fert_nutrient_section_title": "Soil Nutrient Levels (mg/kg)",
 
-
   "fert_label_crop": "Crop Type",
   "fert_crop_placeholder": "Select a crop…",
   "fert_crop_barley": "Barley",
@@ -28,7 +27,6 @@
   "fert_soil_laterite": "Laterite Soil",
   "fert_soil_sandy": "Sandy Soil",
   "fert_soil_clay": "Clay Soil",
-
 
   "fert_label_temperature": "Temperature (°C) — Optional",
   "fert_temp_placeholder": "e.g. 28",
@@ -84,5 +82,16 @@
   "fert_tip_1": "Always conduct a soil test before applying fertilizers.",
   "fert_tip_2": "Apply fertilizers in the early morning or evening to reduce evaporation loss.",
   "fert_tip_3": "Avoid applying fertilizers before heavy rain to prevent nutrient runoff.",
-  "fert_tip_4": "Use organic compost alongside chemical fertilizers for best results."
+  "fert_tip_4": "Use organic compost alongside chemical fertilizers for best results.",
+
+  "fert_history_title": "Recommendation History",
+  "fert_history_show": "Show History",
+  "fert_history_hide": "Hide History",
+  "fert_history_no_records": "No saved fertilizer recommendations yet.",
+  "fert_history_crop_label": "Crop",
+  "fert_history_fertilizer_label": "Fertilizer",
+  "fert_history_npk_label": "NPK",
+  "fert_history_date_label": "Date",
+  "fert_history_delete": "Delete",
+  "fert_history_delete_confirm": "Delete this recommendation?"
 }

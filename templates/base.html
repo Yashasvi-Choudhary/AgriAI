@@ -87,14 +87,18 @@
     </script>
 
     <script>
-      let userData = {};
-      try {
-        userData = JSON.parse(document.getElementById("userData").textContent);
-      } catch (e) {
-        console.warn("User data parse failed");
+      if (typeof userData === "undefined") {
+        let userData = {};
+        try {
+          userData = JSON.parse(
+            document.getElementById("userData").textContent,
+          );
+        } catch (e) {
+          console.warn("User data parse failed");
+        }
+        window.userData = userData;
       }
-
-      window._currentUserId = userData?.id || null;
+      window._currentUserId = window.userData?.id || null;
     </script>
 
     <script>
