@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Labhansh.ai – Smart Agriculture</title>
-
     <link
       href="{{ url_for('static', filename='css/output.css') }}"
       rel="stylesheet"
@@ -14,7 +13,6 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-
     <style type="text/tailwindcss">
       @layer base {
         body {
@@ -71,41 +69,46 @@
       }
     </style>
   </head>
-
   <body data-page="{% block page_name %}dashboard{% endblock %}">
     {% include "layout/sidebar.html" %} {% include "layout/navbar.html" %}
-
-    <div class="md:pl-[240px] flex flex-col min-h-screen">
+    <div class="md:pl-[240px] pt-[84px] flex flex-col min-h-screen">
       <div class="flex-1 pb-16 md:pb-0">{% block content %}{% endblock %}</div>
     </div>
+    {% include "layout/footer.html" %} {% include "layout/mobile_nav.html" %}
 
-    {% include "layout/footer.html" %} {% include "layout/mobile_nav.html" %}{%
-    block scripts %}
+    <!-- BASE SCRIPTS: always load on every page, before child page scripts. -->
 
+    <!-- 1. Inject server-side user data as JSON so JS can read it safely. -->
     <script id="userData" type="application/json">
       {{ current_user | default({}) | tojson }}
     </script>
-
     <script>
-      var userData = window.userData || {};
-      try {
-        userData = JSON.parse(document.getElementById("userData").textContent);
-      } catch (e) {
-        console.warn("User data parse failed");
-      }
-      window.userData = userData;
-      window._currentUserId = userData?.id || null;
+      (function () {
+        var userData = {};
+        try {
+          var raw = document.getElementById("userData");
+          if (raw && raw.textContent.trim()) {
+            userData = JSON.parse(raw.textContent);
+          }
+        } catch (e) {
+          console.warn("User data parse failed:", e);
+        }
+        window.userData = userData;
+        window._currentUserId = userData && userData.id ? userData.id : null;
+      })();
     </script>
 
+    <!-- 2. i18n translations dictionary — used by community.js and global.js -->
     <script>
       window.__i18n = {{ (t or {}) | tojson | safe }};
+      window.__lang  = "{{ lang }}";
       window.__lang = "{{ lang }}";
-
-      console.log("Translations loaded:", window.__i18n);
     </script>
 
+    <!-- 3. Global utilities (sidebar toggle, language switcher, weather header, etc.) -->
     <script src="{{ url_for('static', filename='js/global.js') }}"></script>
 
+    <!-- 4. Apply translated strings after DOM is ready. -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         if (typeof applyLang === "function") {
@@ -114,6 +117,7 @@
       });
     </script>
 
-    {% endblock %}
+    <!-- Child page scripts (loaded after base scripts above): -->
+    {% block scripts %}{% endblock %}
   </body>
 </html>

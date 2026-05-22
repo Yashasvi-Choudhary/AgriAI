@@ -1,58 +1,26 @@
 {
-  "profile_title": "प्रोफ़ाइल सेटिंग्स",
-  "profile_subtitle": "अपनी व्यक्तिगत जानकारी और खाता विवरण प्रबंधित करें",
-  "profile_section_info": "व्यक्तिगत जानकारी",
-  "profile_section_security": "खाता सुरक्षा",
-  "profile_member_since": "सदस्य बने",
-
-  "profile_label_name": "पूरा नाम",
-  "profile_label_email": "ईमेल पता",
-  "profile_label_phone": "फ़ोन",
-  "profile_label_location": "स्थान",
-  "profile_optional": "(वैकल्पिक)",
-
-  "profile_placeholder_name": "आपका पूरा नाम",
-  "profile_placeholder_email": "you@example.com",
-  "profile_placeholder_phone": "+91 98765 43210",
-  "profile_placeholder_location": "शहर, राज्य",
-
-  "profile_btn_update": "प्रोफ़ाइल अपडेट करें",
-  "profile_btn_saving": "सहेजा जा रहा है…",
-  "profile_btn_reset": "रीसेट करें",
-
-  "profile_active": "सक्रिय खाता",
-
-  "profile_error_name_required": "पूरा नाम आवश्यक है।",
-  "profile_error_email_required": "ईमेल पता आवश्यक है।",
-  "profile_error_email_invalid": "कृपया एक वैध ईमेल पता दर्ज करें।",
-  "profile_error_save_failed": "प्रोफ़ाइल सहेजने में विफल। कृपया पुनः प्रयास करें।",
-  "profile_success_saved": "प्रोफ़ाइल सफलतापूर्वक सहेजी गई।",
-
-  "password_label_current": "वर्तमान पासवर्ड",
-  "password_label_new": "नया पासवर्ड",
-  "password_label_confirm": "नया पासवर्ड दोहराएँ",
-
-  "password_placeholder_current": "अपना वर्तमान पासवर्ड दर्ज करें",
-  "password_placeholder_new": "न्यूनतम 6 अक्षर",
-  "password_placeholder_confirm": "नया पासवर्ड दोहराएँ",
-
-  "password_btn_update": "पासवर्ड अपडेट करें",
-  "password_btn_updating": "अपडेट हो रहा है…",
-  "password_btn_cancel": "रद्द करें",
-
-  "password_strength_weak": "कमज़ोर",
-  "password_strength_fair": "ठीक-ठाक",
-  "password_strength_good": "अच्छा",
-  "password_strength_strong": "मज़बूत",
-
-  "password_match": "पासवर्ड मेल खाते हैं ✓",
-  "password_no_match": "पासवर्ड मेल नहीं खाते",
-
-  "password_error_current_required": "कृपया अपना वर्तमान पासवर्ड दर्ज करें।",
-  "password_error_too_short": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।",
-  "password_error_no_match": "नए पासवर्ड मेल नहीं खाते।",
-  "password_error_same_as_old": "नया पासवर्ड वर्तमान से अलग होना चाहिए।",
-  "password_error_wrong_current": "वर्तमान पासवर्ड गलत है।",
-  "password_error_failed": "पासवर्ड अपडेट करने में विफल। कृपया पुनः प्रयास करें।",
-  "password_success": "पासवर्ड सफलतापूर्वक अपडेट किया गया।"
+  "profile_title": "प्रोफ़ाइल",
+  "welcome_back": "वापसी पर स्वागत!",
+  "update_profile": "प्रोफ़ाइल अपडेट करें",
+  "username": "उपयोगकर्ता नाम",
+  "email": "ईमेल",
+  "phone": "फ़ोन",
+  "location": "स्थान",
+  "update_profile_btn": "प्रोफ़ाइल अपडेट करें",
+  "change_password": "पासवर्ड बदलें",
+  "current_password": "वर्तमान पासवर्ड",
+  "new_password": "नया पासवर्ड",
+  "confirm_password": "पासवर्ड की पुष्टि करें",
+  "change_password_btn": "पासवर्ड बदलें",
+  "password_error_too_short": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
+  "password_error_no_match": "पासवर्ड मेल नहीं खाते",
+  "password_error_wrong_current": "वर्तमान पासवर्ड गलत है",
+  "password_error_general": "सभी पासवर्ड फ़ील्ड आवश्यक हैं",
+  "profile_error_name_required": "उपयोगकर्ता नाम आवश्यक है",
+  "profile_error_phone_invalid": "फ़ोन संख्या होना चाहिए",
+  "profile_error_location_too_short": "स्थान कम से कम 3 अक्षरों का होना चाहिए",
+  "password_success": "पासवर्ड सफलतापूर्वक बदला गया",
+  "password_error_failed": "एक त्रुटि हुई। कृपया पुनः प्रयास करें।",
+  "profile_success": "प्रोफ़ाइल सफलतापूर्वक अपडेट की गई",
+  "profile_error_failed": "एक त्रुटि हुई। कृपया पुनः प्रयास करें।"
 }
