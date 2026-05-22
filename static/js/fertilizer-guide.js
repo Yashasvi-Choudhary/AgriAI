@@ -1,4 +1,4 @@
-console.log("fertilizer-guide.js loaded");
+// ...existing code...
 
 if (!window.__fertilizerGuideInitialized) {
   window.__fertilizerGuideInitialized = true;
@@ -113,6 +113,7 @@ if (!window.__fertilizerGuideInitialized) {
   `;
 
     setViewState("resultDashboard");
+    setButtonLoading(false); // Allow user to interact again
     loadFertilizerHistory();
   }
 
@@ -141,7 +142,7 @@ if (!window.__fertilizerGuideInitialized) {
           </div>
 
           <div>
-            <p class="text-xs text-textMid">${getTranslation("fert_history_npk_label", "NPK")}</p>
+           
             <div class="flex gap-2 mt-2">
               <div class="rounded-2xl border border-backgroundDark bg-white px-3 py-2 text-center w-14">
                 <p class="text-[10px] uppercase text-textMid">N</p>
@@ -207,10 +208,10 @@ if (!window.__fertilizerGuideInitialized) {
       const response = await fetch("/api/fertilizer/history");
       if (!response.ok) return setHistoryPanel([]);
       const data = await response.json().catch(() => ({}));
-      if (!data.success) return setHistoryPanel([]);
+      if (data.status !== "success") return setHistoryPanel([]);
       setHistoryPanel(data.history || []);
     } catch (err) {
-      console.error("Failed to load fertilizer history:", err);
+      // Optionally log error in dev only
       setHistoryPanel([]);
     }
   }
@@ -321,6 +322,7 @@ if (!window.__fertilizerGuideInitialized) {
       })
       .catch((err) => {
         setError(err.message || messages.apiError[pageLang]);
+        setButtonLoading(false); // Always reset button on error
       });
   }
 

@@ -28,13 +28,13 @@
   "fert_soil_sandy": "Sandy Soil",
   "fert_soil_clay": "Clay Soil",
 
-  "fert_label_temperature": "Temperature (°C) — Optional",
+  "fert_label_temperature": "Temperature (°C)",
   "fert_temp_placeholder": "e.g. 28",
 
-  "fert_label_humidity": "Humidity (%) — Optional",
+  "fert_label_humidity": "Humidity (%)",
   "fert_humidity_placeholder": "e.g. 40",
 
-  "fert_label_moisture": "Soil Moisture (%) — Optional",
+  "fert_label_moisture": "Soil Moisture (%)",
   "fert_moisture_placeholder": "e.g. 45",
 
   "fert_label_nitrogen": "Nitrogen (N) — mg/kg",
@@ -90,7 +90,7 @@
   "fert_history_no_records": "No saved fertilizer recommendations yet.",
   "fert_history_crop_label": "Crop",
   "fert_history_fertilizer_label": "Fertilizer",
-  "fert_history_npk_label": "NPK",
+
   "fert_history_date_label": "Date",
   "fert_history_delete": "Delete",
   "fert_history_delete_confirm": "Delete this recommendation?"

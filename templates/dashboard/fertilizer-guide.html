@@ -186,7 +186,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           </div>
         </div>
 
-        <!-- Temperature (optional) -->
+        <!-- Temperature (required) -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
@@ -216,6 +216,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
               name="temperature"
               min="-20"
               max="60"
+              required
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
               data-i18n-placeholder="fert_temp_placeholder"
               placeholder="Temperature"
@@ -223,7 +224,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           </div>
         </div>
 
-        <!-- Humidity (optional) -->
+        <!-- Humidity (required) -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
@@ -253,6 +254,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
               name="humidity"
               min="0"
               max="100"
+              required
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
               data-i18n-placeholder="fert_humidity_placeholder"
               placeholder="Humidity"
@@ -260,7 +262,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           </div>
         </div>
 
-        <!-- Soil Moisture (optional) -->
+        <!-- Soil Moisture (required) -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
@@ -290,6 +292,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
               name="soil_moisture"
               min="0"
               max="100"
+              required
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
               data-i18n-placeholder="fert_moisture_placeholder"
             />
@@ -574,5 +577,5 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
 </div>
 
 {% block scripts %} {{ super() }}
-<script src="{{ url_for('static', filename='js/fertilizer-guide.js') }}"></script>
+<script src="{{ url_for('static', filename='js/fertilizer-guide.js') }}?v=2"></script>
 {% endblock %} {% endblock %}

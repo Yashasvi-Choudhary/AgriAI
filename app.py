@@ -8,8 +8,10 @@ from flask import Flask, jsonify, render_template, session, redirect, request, f
 import requests
 from database import create_tables, migrate_fertilizer_history
 from routes.auth_routes import auth_bp
+
 from routes.community_routes import community
 from routes.crop_routes import crop as crop_bp, generate_crop_response
+from fertilizer_history_routes import fertilizer_history_bp
 
 from utils.translator import get_translations
 
@@ -166,7 +168,12 @@ def inject_globals():
 # ─────────────────────────────────────────────
 # BLUEPRINTS
 # ─────────────────────────────────────────────
+
+# Register blueprints
+
 app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(community, url_prefix='/community')
+app.register_blueprint(fertilizer_history_bp, url_prefix='/api')
 
 
 create_tables()
@@ -227,7 +234,7 @@ def dashboard():
 
 
 @app.route('/profit')
-def profit_analyzer():
+def profit_page():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/profit_analyzer.html')
