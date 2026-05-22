@@ -36,6 +36,18 @@ def _get_user_id():
     for key in ("user_id", "id", "userId", "user"):
         val = session.get(key)
         if val is not None:
+            # If the value is a dict (e.g., session["user"] = {"id": 123, ...}), extract the id
+            if isinstance(val, dict):
+                # Try common id keys
+                for id_key in ("user_id", "id", "userId"):
+                    if id_key in val:
+                        return val[id_key]
+                # Fallback: if only one key and it's int/str, use it
+                if len(val) == 1:
+                    v = list(val.values())[0]
+                    if isinstance(v, (int, str)):
+                        return v
+                return None
             return val
     return None
 
@@ -73,10 +85,8 @@ def save_fertilizer_history():
                 (user_id, crop_type, soil_type,
                  nitrogen, phosphorus, potassium,
                  temperature, humidity, moisture,
-                 fertilizer_name_en, fertilizer_name_hi,
-                 recommended_quantity_en, recommended_quantity_hi,
-                 reason_en, reason_hi)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 fertilizer_name_en, fertilizer_name_hi)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             user_id,
             data["crop_type"],
@@ -89,10 +99,6 @@ def save_fertilizer_history():
             data.get("moisture"),
             data["fertilizer_name_en"],
             data["fertilizer_name_hi"],
-            data.get("recommended_quantity_en", ""),
-            data.get("recommended_quantity_hi", ""),
-            data.get("reason_en", ""),
-            data.get("reason_hi", ""),
         ))
         new_id = cursor.lastrowid
         conn.commit()
@@ -125,8 +131,6 @@ def get_fertilizer_history():
                    nitrogen, phosphorus, potassium,
                    temperature, humidity, moisture,
                    fertilizer_name_en, fertilizer_name_hi,
-                   recommended_quantity_en, recommended_quantity_hi,
-                   reason_en, reason_hi,
                    created_at
             FROM fertilizer_history
             WHERE user_id = ?
