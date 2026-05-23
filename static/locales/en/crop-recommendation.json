@@ -64,5 +64,24 @@
   "crop_error_retry":           "Try Again",
   "crop_error_no_result":       "No recommendations received.",
 
-  "crop_alert_soil":            "Please select a soil type before proceeding."
+  "crop_alert_soil":            "Please select a soil type before proceeding.",
+
+  "crop_error_nitrogen":        "Nitrogen value required",
+  "crop_error_phosphorus":      "Phosphorus value required",
+  "crop_error_potassium":       "Potassium value required",
+  "crop_error_temperature":     "Temperature value required",
+  "crop_error_humidity":        "Humidity value required",
+  "crop_error_ph_level":        "pH value required",
+  "crop_error_rainfall":        "Rainfall value required",
+
+  "crop_history_title":         "Recommendation History",
+
+  "dd_profile": "View Profile",
+  "dd_settings": "Settings",
+  "dd_logout": "Logout",
+
+  "f_about": "About",
+  "f_contact": "Contact",
+  "f_help": "Help & Support",
+  "f_terms": "Terms & Privacy"
 }

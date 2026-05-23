@@ -64,5 +64,24 @@
   "crop_error_retry": "पुनः प्रयास करें",
   "crop_error_no_result": "कोई अनुशंसा प्राप्त नहीं हुई।",
 
-  "crop_alert_soil": "कृपया आगे बढ़ने से पहले मिट्टी का प्रकार चुनें।"
+  "crop_alert_soil": "कृपया आगे बढ़ने से पहले मिट्टी का प्रकार चुनें।",
+
+  "crop_error_nitrogen": "नाइट्रोजन मान आवश्यक है",
+  "crop_error_phosphorus": "फॉस्फोरस मान आवश्यक है",
+  "crop_error_potassium": "पोटैशियम मान आवश्यक है",
+  "crop_error_temperature": "तापमान मान आवश्यक है",
+  "crop_error_humidity": "आर्द्रता मान आवश्यक है",
+  "crop_error_ph_level": "pH मान आवश्यक है",
+  "crop_error_rainfall": "वर्षा मान आवश्यक है",
+
+  "crop_history_title": "अनुशंसा इतिहास",
+
+  "dd_profile": "प्रोफ़ाइल देखें",
+  "dd_settings": "सेटिंग्स",
+  "dd_logout": "लॉगआउट",
+
+  "f_about": "हमारे बारे में",
+  "f_contact": "संपर्क",
+  "f_help": "सहायता और समर्थन",
+  "f_terms": "नियम और गोपनीयता"
 }
