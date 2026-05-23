@@ -138,6 +138,7 @@ def inject_globals():
     "crop-yield-prediction": "crop-yield-prediction",
     "plant-disease-detection": "plant-disease-detection",
     "fertilizer-guide": "fertilizer-guide",
+    "profit-analyzer": "profit",
     "market-price": "market",
     "government-schemes": "government-schemes",
     "community": "community",
@@ -395,6 +396,275 @@ def fertilizer_guide():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/fertilizer-guide.html')
+
+
+@app.route('/profit-analyzer')
+def profit_analyzer():
+    if "user" not in session:
+        return redirect('/login')
+
+    user_id = session["user"]["id"]
+    history = []
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT id, crop_name, expected_revenue, estimated_profit, created_at
+        FROM profit_analysis
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT 20
+        """,
+        (user_id,)
+    )
+    rows = cursor.fetchall()
+    conn.close()
+
+    for row in rows:
+        history.append({
+            "id": row[0],
+            "crop_name": row[1] or "",
+            "expected_revenue": row[2] or 0,
+            "estimated_profit": row[3] or 0,
+            "created_at": row[4] or ""
+        })
+
+    return render_template('dashboard/profit_analyzer.html', history=history)
+
+
+@app.route('/api/profit-analysis', methods=['POST'])
+def api_profit_analysis():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    payload = request.get_json(silent=True) or {}
+
+    crop_name = str(payload.get('crop_name', '')).strip()
+    soil_type = str(payload.get('soil_type', '')).strip()
+    user_id = session["user"]["id"]
+
+    def parse_float(value):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    land_area = parse_float(payload.get('land_area'))
+    production_cost = parse_float(payload.get('production_cost'))
+    fertilizer_cost = parse_float(payload.get('fertilizer_cost'))
+    labor_cost = parse_float(payload.get('labor_cost'))
+    irrigation_cost = parse_float(payload.get('irrigation_cost'))
+    transport_cost = parse_float(payload.get('transport_cost'))
+    other_expenses = parse_float(payload.get('other_expenses'))
+    expected_yield = parse_float(payload.get('expected_yield'))
+    market_price = parse_float(payload.get('market_price'))
+    latitude = payload.get('latitude')
+    longitude = payload.get('longitude')
+
+    errors = {}
+    if not crop_name:
+        errors['crop_name'] = 'Crop type is required'
+    if land_area is None or land_area < 0:
+        errors['land_area'] = 'Land area must be a valid number'
+    if production_cost is None or production_cost < 0:
+        errors['production_cost'] = 'Production cost must be a valid number'
+    if fertilizer_cost is None or fertilizer_cost < 0:
+        errors['fertilizer_cost'] = 'Fertilizer cost must be a valid number'
+    if labor_cost is None or labor_cost < 0:
+        errors['labor_cost'] = 'Labor cost must be a valid number'
+    if irrigation_cost is None or irrigation_cost < 0:
+        errors['irrigation_cost'] = 'Irrigation cost must be a valid number'
+    if expected_yield is None or expected_yield < 0:
+        errors['expected_yield'] = 'Expected yield must be a valid number'
+    if market_price is None or market_price < 0:
+        errors['market_price'] = 'Market price must be a valid number'
+    if transport_cost is None:
+        transport_cost = 0.0
+    if other_expenses is None:
+        other_expenses = 0.0
+
+    if errors:
+        return jsonify({"status": "error", "errors": errors}), 400
+
+    total_investment = (
+        production_cost
+        + fertilizer_cost
+        + labor_cost
+        + irrigation_cost
+        + transport_cost
+        + other_expenses
+    )
+    expected_revenue = expected_yield * market_price
+    estimated_profit = expected_revenue - total_investment
+    profit_percentage = 0.0 if total_investment == 0 else (estimated_profit / total_investment) * 100
+
+    if estimated_profit > 0:
+        profit_status_en = 'Profitable'
+        profit_status_hi = 'लाभ'
+        analysis_en = 'Your farming plan is profitable based on current inputs.'
+        analysis_hi = 'वर्तमान इनपुट के आधार पर आपकी खेती लाभकारी है।'
+    elif estimated_profit < 0:
+        profit_status_en = 'Loss'
+        profit_status_hi = 'नुकसान'
+        analysis_en = 'Costs exceed expected revenue. Review your expenses and pricing.'
+        analysis_hi = 'लागत अनुमानित राजस्व से अधिक है। अपने खर्चों और कीमत की समीक्षा करें।'
+    else:
+        profit_status_en = 'Break-even'
+        profit_status_hi = 'समान'
+        analysis_en = 'Your projected profit is neutral. Adjust inputs to improve returns.'
+        analysis_hi = 'आपका अपेक्षित लाभ शून्य है। रिटर्न बढ़ाने के लिए इनपुट समायोजित करें।'
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO profit_analysis (
+            user_id,
+            crop_name,
+            soil_type,
+            land_area,
+            production_cost,
+            fertilizer_cost,
+            labor_cost,
+            irrigation_cost,
+            transport_cost,
+            other_expenses,
+            expected_yield,
+            market_price,
+            total_investment,
+            expected_revenue,
+            estimated_profit,
+            profit_percentage,
+            latitude,
+            longitude
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            user_id,
+            crop_name,
+            soil_type,
+            land_area,
+            production_cost,
+            fertilizer_cost,
+            labor_cost,
+            irrigation_cost,
+            transport_cost,
+            other_expenses,
+            expected_yield,
+            market_price,
+            total_investment,
+            expected_revenue,
+            estimated_profit,
+            profit_percentage,
+            latitude,
+            longitude,
+        ),
+    )
+    conn.commit()
+
+    cursor.execute(
+        "SELECT id, crop_name, expected_revenue, estimated_profit, created_at FROM profit_analysis WHERE user_id = ? ORDER BY created_at DESC LIMIT 20",
+        (user_id,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+
+    history = []
+    for row in rows:
+        history.append({
+            "id": row[0],
+            "crop_name": row[1] or "",
+            "expected_revenue": row[2] or 0,
+            "estimated_profit": row[3] or 0,
+            "created_at": row[4] or ""
+        })
+
+    return jsonify({
+        "status": "success",
+        "data": {
+            "profit_analysis": {
+                "english": {
+                    "total_investment": f"₹{total_investment:.2f}",
+                    "expected_revenue": f"₹{expected_revenue:.2f}",
+                    "estimated_profit": f"₹{estimated_profit:.2f}",
+                    "profit_percentage": f"{profit_percentage:.2f}%",
+                    "profit_status": profit_status_en,
+                    "analysis": analysis_en,
+                },
+                "hindi": {
+                    "total_investment": f"₹{total_investment:.2f}",
+                    "expected_revenue": f"₹{expected_revenue:.2f}",
+                    "estimated_profit": f"₹{estimated_profit:.2f}",
+                    "profit_percentage": f"{profit_percentage:.2f}%",
+                    "profit_status": profit_status_hi,
+                    "analysis": analysis_hi,
+                },
+            },
+            "history": history,
+        },
+    })
+
+
+@app.route('/api/profit-history', methods=['GET'])
+def get_profit_history():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    user_id = session["user"]["id"]
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT id, crop_name, expected_revenue, estimated_profit, created_at
+        FROM profit_analysis
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT 20
+        """,
+        (user_id,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+
+    history = []
+    for row in rows:
+        history.append({
+            "id": row[0],
+            "crop_name": row[1] or "",
+            "expected_revenue": row[2] or 0,
+            "estimated_profit": row[3] or 0,
+            "created_at": row[4] or ""
+        })
+
+    return jsonify({"status": "success", "data": {"history": history}})
+
+
+@app.route('/api/delete-profit-history', methods=['POST'])
+def delete_profit_history():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    data = request.get_json(silent=True) or {}
+    history_id = data.get('id')
+    user_id = session["user"]["id"]
+
+    if not history_id:
+        return jsonify({"status": "error", "message": "ID required"}), 400
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM profit_analysis WHERE id = ?", (history_id,))
+    result = cursor.fetchone()
+    if not result or result[0] != user_id:
+        conn.close()
+        return jsonify({"status": "error", "message": "Not authorized"}), 403
+
+    cursor.execute("DELETE FROM profit_analysis WHERE id = ?", (history_id,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status": "success", "message": "Deleted successfully"})
 
 
 # ─────────────────────────────────────────────

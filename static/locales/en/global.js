@@ -344,6 +344,75 @@ function showProfitError(field, message) {
   errorEl.classList.remove('hidden');
 }
 
+let profitHistoryVisible = true;
+
+function updateProfitHistoryToggleLabel() {
+  const textEl = document.getElementById('profitHistoryToggleText');
+  if (!textEl) return;
+  textEl.textContent = profitHistoryVisible ? t('profit_history_hide_button') : t('profit_history_show_button');
+}
+
+function setProfitHistoryVisibility(visible) {
+  const content = document.getElementById('profitHistoryContent');
+  if (!content) return;
+  profitHistoryVisible = visible;
+  content.classList.toggle('hidden', !visible);
+  updateProfitHistoryToggleLabel();
+}
+
+async function toggleProfitHistory() {
+  setProfitHistoryVisibility(!profitHistoryVisible);
+  if (profitHistoryVisible) {
+    await loadProfitHistory();
+  }
+}
+
+async function deleteProfitHistoryRecord(id, cardElement) {
+  if (!id) return;
+  try {
+    const response = await fetch('/api/delete-profit-history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    const data = await response.json();
+    if (response.ok && data.status === 'success') {
+      if (cardElement) cardElement.remove();
+      const wrapper = document.getElementById('profitHistoryWrapper');
+      if (wrapper && wrapper.children.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'text-sm text-textMid';
+        empty.textContent = t('profit_analysis_no_history');
+        wrapper.appendChild(empty);
+      }
+    } else {
+      alert(data.message || t('profit_error_failed', 'Unable to delete history item.'));
+    }
+  } catch (err) {
+    console.error('Failed to delete profit history:', err);
+    alert(t('profit_error_failed', 'Unable to delete history item.'));
+  }
+}
+
+function bindProfitHistoryActions() {
+  const wrapper = document.getElementById('profitHistoryWrapper');
+  if (wrapper) {
+    wrapper.addEventListener('click', event => {
+      const button = event.target.closest('.profit-history-delete');
+      if (!button) return;
+      const card = button.closest('[data-profit-id]');
+      const historyId = card?.dataset.profitId;
+      if (!historyId) return;
+      deleteProfitHistoryRecord(historyId, card);
+    });
+  }
+
+  const toggleBtn = document.getElementById('profitHistoryToggleBtn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', toggleProfitHistory);
+  }
+}
+
 function renderProfitHistory(history) {
   const wrapper = document.getElementById('profitHistoryWrapper');
   if (!wrapper) return;
@@ -359,31 +428,54 @@ function renderProfitHistory(history) {
 
   history.forEach(record => {
     const card = document.createElement('div');
-    card.className = 'rounded-3xl border border-backgroundDark p-4 bg-surface';
+    card.className = 'profit-history-card rounded-lg border border-backgroundDark p-4 bg-surface';
+    card.dataset.profitId = record.id;
     card.innerHTML = `
-      <div class="flex items-center justify-between gap-3">
+      <div class="flex items-start justify-between gap-3 mb-3">
         <div>
-          <p class="text-sm text-textMid">${t('profit_history_crop')}</p>
-          <p class="mt-1 font-semibold text-textDark">${record.crop_name || 'N/A'}</p>
+          <p class="text-xs font-semibold uppercase tracking-wider text-textMid">${t('profit_history_crop')}</p>
+          <p class="mt-1 font-semibold text-textDark text-sm">${record.crop_name || 'N/A'}</p>
         </div>
-        <div class="text-right">
-          <p class="text-sm text-textMid">${t('profit_history_date')}</p>
-          <p class="mt-1 text-sm text-textDark">${record.created_at || ''}</p>
+        <button type="button" class="profit-history-delete inline-flex items-center justify-center rounded-full p-2 text-textLight hover:text-red-600 transition-colors" aria-label="${t('profit_history_delete', 'Delete')}" title="${t('profit_history_delete', 'Delete')}">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M6.293 6.293a1 1 0 011.414 0L10 8.586l2.293-2.293a1 1 0 111.414 1.414L11.414 10l2.293 2.293a1 1 0 01-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L8.586 10 6.293 7.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
+        <div>
+          <p class="text-xs text-textMid">${t('profit_history_revenue')}</p>
+          <p class="mt-1 font-semibold text-textDark">₹${Number(record.expected_revenue || 0).toFixed(2)}</p>
+        </div>
+        <div>
+          <p class="text-xs text-textMid">${t('profit_history_profit')}</p>
+          <p class="mt-1 font-semibold text-textDark">₹${Number(record.estimated_profit || 0).toFixed(2)}</p>
         </div>
       </div>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 mt-4 text-sm text-textDark">
-        <div>
-          <p class="text-textMid">${t('profit_history_revenue')}</p>
-          <p class="mt-1 font-semibold">₹${Number(record.expected_revenue || 0).toFixed(2)}</p>
-        </div>
-        <div>
-          <p class="text-textMid">${t('profit_history_profit')}</p>
-          <p class="mt-1 font-semibold">₹${Number(record.estimated_profit || 0).toFixed(2)}</p>
-        </div>
+      <div class="mt-4 text-xs text-textMid text-right">
+        ${record.created_at ? `<span>${t('profit_history_date')}: ${record.created_at}</span>` : ''}
       </div>
     `;
     wrapper.appendChild(card);
   });
+}
+
+async function loadProfitHistory() {
+  const wrapper = document.getElementById('profitHistoryWrapper');
+  if (!wrapper) return;
+
+  try {
+    const response = await fetch('/api/profit-history');
+    const data = await response.json();
+    if (response.ok && data.status === 'success') {
+      renderProfitHistory(data.data.history || []);
+    } else {
+      wrapper.innerHTML = `<p class="text-sm text-textMid">${data.message || t('profit_analysis_no_history')}</p>`;
+    }
+  } catch (err) {
+    console.error('Failed to load profit history:', err);
+    wrapper.innerHTML = `<p class="text-sm text-textMid">${t('profit_analysis_no_history')}</p>`;
+  }
 }
 
 function renderProfitOutput(payload) {
@@ -468,10 +560,16 @@ async function getProfitAnalysis(event) {
   }
 }
 
-function initProfitAnalyzer() {
+async function initProfitAnalyzer() {
   const profitForm = document.getElementById('profitForm');
-  if (!profitForm) return;
-  profitForm.addEventListener('submit', getProfitAnalysis);
+  const profitHistorySection = document.getElementById('profitHistorySection');
+
+  if (!profitForm && !profitHistorySection) return;
+  if (profitForm) {
+    profitForm.addEventListener('submit', getProfitAnalysis);
+  }
+  bindProfitHistoryActions();
+  await loadProfitHistory();
 }
 
 // Event listeners for profile page
