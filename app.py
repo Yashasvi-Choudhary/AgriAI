@@ -226,11 +226,6 @@ def dashboard():
     return render_template('dashboard/dashboard.html')
 
 
-@app.route('/profit')
-def profit_analyzer():
-    if "user" not in session:
-        return redirect('/login')
-    return render_template('dashboard/profit_analyzer.html')
 
 
 # ─────────────────────────────────────────────
@@ -634,6 +629,9 @@ def predict_fertilizer():
 
 @app.route('/predict-yield', methods=['POST'])
 def predict_yield():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Authentication required"}), 401
+
     payload = request.get_json(silent=True)
     validated = utils_yield.validate_input(payload)
 
@@ -650,8 +648,65 @@ def predict_yield():
     except Exception:
         return jsonify({"status": "error", "message": "Prediction failed"}), 500
 
+    predicted_yield = float(prediction)
+    productivity = "medium"
+    if predicted_yield > 2000:
+        productivity = "high"
+    elif predicted_yield < 1000:
+        productivity = "low"
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO yield_predictions (user_id, crop_type, predicted_yield, area, productivity) VALUES (?, ?, ?, ?, ?)",
+        (session["user"]["id"], validated["crop"], predicted_yield, validated["area"], productivity),
+    )
+    conn.commit()
+    history_id = cursor.lastrowid
+    conn.close()
+
     result = utils_yield.build_response(prediction)
+    result["data"]["history_id"] = history_id
     return jsonify(result)
+
+
+@app.route('/api/yield-history', methods=['GET'])
+def get_yield_history():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Authentication required"}), 401
+
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    rows = cursor.execute(
+        "SELECT id, crop_type, predicted_yield, area, productivity, created_at FROM yield_predictions WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
+        (session["user"]["id"],),
+    ).fetchall()
+    conn.close()
+
+    history = [dict(row) for row in rows]
+    return jsonify({"status": "success", "data": history})
+
+
+@app.route('/api/yield-history/<int:history_id>', methods=['DELETE'])
+def delete_yield_history(history_id):
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Authentication required"}), 401
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "DELETE FROM yield_predictions WHERE id = ? AND user_id = ?",
+        (history_id, session["user"]["id"]),
+    )
+    deleted = cursor.rowcount
+    conn.commit()
+    conn.close()
+
+    if deleted == 0:
+        return jsonify({"status": "error", "message": "History item not found"}), 404
+
+    return jsonify({"status": "success", "message": "History deleted"})
 
 
 # ─────────────────────────────────────────────

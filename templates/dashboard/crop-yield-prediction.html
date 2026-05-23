@@ -85,14 +85,10 @@
                 selected
                 data-i18n="yield_crop_placeholder"
               ></option>
-              <option value="wheat" data-i18n="yield_crop_wheat"></option>
               <option value="rice" data-i18n="yield_crop_rice"></option>
               <option value="maize" data-i18n="yield_crop_maize"></option>
+              <option value="chickpea" data-i18n="yield_crop_chickpea"></option>
               <option value="cotton" data-i18n="yield_crop_cotton"></option>
-              <option
-                value="sugarcane"
-                data-i18n="yield_crop_sugarcane"
-              ></option>
             </select>
             <span
               class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-textLight"
@@ -568,6 +564,45 @@
         </ul>
       </div>
       <!-- /result dashboard -->
+    </div>
+
+    <div
+      class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div class="flex items-center gap-2">
+          <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+          <h2
+            class="text-xs font-bold uppercase tracking-widest text-textMid"
+            data-i18n="yield_history_title"
+          ></h2>
+        </div>
+
+        <button
+          id="yieldHistoryToggle"
+          type="button"
+          onclick="toggleYieldHistory()"
+          aria-expanded="false"
+          class="inline-flex items-center justify-center rounded-xl border border-backgroundDark bg-background px-4 py-2 text-sm font-semibold text-textDark transition-all duration-200 hover:border-primaryLight hover:text-primaryDark"
+        >
+          <span
+            id="yieldHistoryToggleText"
+            data-i18n="yield_history_show"
+          ></span>
+        </button>
+      </div>
+
+      <div
+        id="yieldHistoryContent"
+        class="hidden overflow-hidden transition-all duration-300"
+      >
+        <div id="yieldHistoryList" class="space-y-3"></div>
+        <p
+          id="yieldHistoryEmpty"
+          class="text-sm text-textLight"
+          data-i18n="yield_history_empty"
+        ></p>
+      </div>
     </div>
   </div>
 
