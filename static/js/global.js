@@ -11,12 +11,17 @@ let currentLang = window.__lang || localStorage.getItem("lang") || "en";
 // ─────────────────────────────────────────────────────────────
 function applyLang() {
   var i18n = window.__i18n || {};
-  console.log('Applying language. Current lang:', currentLang, 'Translations loaded:', Object.keys(i18n).length);
+  console.log(
+    "Applying language. Current lang:",
+    currentLang,
+    "Translations loaded:",
+    Object.keys(i18n).length,
+  );
 
   document.querySelectorAll("[data-i18n]").forEach(function (el) {
     var key = el.getAttribute("data-i18n");
     if (!i18n[key]) {
-      console.warn('Missing translation key:', key);
+      console.warn("Missing translation key:", key);
       return;
     }
     if (el.tagName === "OPTION") {
@@ -39,21 +44,21 @@ function applyLang() {
     btn.classList.remove("bg-accent", "text-white", "font-semibold");
     btn.classList.add("text-white/50");
   });
-  
+
   // Find and highlight the active language button by checking onclick attribute
   buttons.forEach(function (btn) {
-    var onclick = btn.getAttribute('onclick') || '';
+    var onclick = btn.getAttribute("onclick") || "";
     if (onclick.includes("setLang('" + currentLang + "')")) {
       btn.classList.add("bg-accent", "text-white", "font-semibold");
       btn.classList.remove("text-white/50");
     }
   });
-  
-  console.log('Language applied successfully:', currentLang);
+
+  console.log("Language applied successfully:", currentLang);
 }
 
 // Translation helper
-window.t = function(key, fallback) {
+window.t = function (key, fallback) {
   const i18n = window.__i18n || {};
   return i18n[key] || fallback || key;
 };
@@ -62,11 +67,11 @@ window.t = function(key, fallback) {
 // LANGUAGE SWITCHER
 // ─────────────────────────────────────────────────────────────
 function setLang(lang) {
-  if (!lang || (lang !== 'en' && lang !== 'hi')) {
-    console.warn('Invalid language:', lang);
+  if (!lang || (lang !== "en" && lang !== "hi")) {
+    console.warn("Invalid language:", lang);
     return;
   }
-  console.log('Setting language to:', lang);
+  console.log("Setting language to:", lang);
   document.cookie = "lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax";
   localStorage.setItem("lang", lang);
   currentLang = lang;
@@ -369,6 +374,7 @@ function renderMarketResult(marketData) {
   const t = window.__i18n || {};
   const lang = localStorage.getItem("lang") || "en";
   const data = marketData[lang] || marketData.english;
+  const isNearby = Boolean(data.is_nearby);
 
   const resultContent = document.getElementById("resultContent");
   resultContent.innerHTML = `
@@ -382,7 +388,14 @@ function renderMarketResult(marketData) {
     </div>
     <div class="flex items-start gap-2">
       <span class="text-textLight text-xs uppercase font-semibold min-w-max" data-i18n="market_result_market"></span>
-      <span class="text-textDark font-semibold">${data.market}</span>
+      <div class="flex flex-col gap-1">
+        <span class="text-textDark font-semibold">${data.market}</span>
+        ${
+          isNearby
+            ? `<span class="inline-flex w-fit rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">${t.market_result_nearby_market || "Nearby Market"}</span>`
+            : ""
+        }
+      </div>
     </div>
     <div class="flex items-start gap-2">
       <span class="text-textLight text-xs uppercase font-semibold min-w-max" data-i18n="market_result_current_price"></span>
@@ -402,6 +415,78 @@ function renderMarketResult(marketData) {
   showMarketState("result");
 }
 
+function setupMarketHistoryToggle() {
+  const button = document.getElementById("historyToggleBtn");
+  const content = document.getElementById("historyContent");
+
+  if (!button || !content || button.dataset.bound === "true") {
+    return;
+  }
+
+  button.dataset.bound = "true";
+  window.marketHistoryVisible = window.marketHistoryVisible ?? false;
+
+  const updateToggleState = () => {
+    const isVisible = !content.classList.contains("hidden");
+    button.setAttribute("aria-expanded", String(isVisible));
+
+    const label = document.getElementById("historyToggleLabel");
+    const icon = document.getElementById("historyToggleIcon");
+    const t = window.__i18n || {};
+
+    if (label) {
+      label.textContent = isVisible
+        ? t.market_history_hide || "Hide History"
+        : t.market_history_show || "Show History";
+    }
+
+    if (icon) {
+      icon.classList.toggle("rotate-180", isVisible);
+    }
+  };
+
+  const toggleMarketHistory = () => {
+    const isHidden = content.classList.contains("hidden");
+    content.classList.toggle("hidden");
+    window.marketHistoryVisible = !content.classList.contains("hidden");
+    updateToggleState();
+  };
+
+  button.addEventListener("click", toggleMarketHistory);
+  updateToggleState();
+}
+
+function syncMarketHistoryVisibility() {
+  const content = document.getElementById("historyContent");
+  if (!content) {
+    return;
+  }
+
+  content.classList.toggle("hidden", !window.marketHistoryVisible);
+  const button = document.getElementById("historyToggleBtn");
+  if (button) {
+    button.setAttribute(
+      "aria-expanded",
+      String(!content.classList.contains("hidden")),
+    );
+  }
+
+  const label = document.getElementById("historyToggleLabel");
+  const icon = document.getElementById("historyToggleIcon");
+  const t = window.__i18n || {};
+
+  const isVisible = !content.classList.contains("hidden");
+  if (label) {
+    label.textContent = isVisible
+      ? t.market_history_hide || "Hide History"
+      : t.market_history_show || "Show History";
+  }
+
+  if (icon) {
+    icon.classList.toggle("rotate-180", isVisible);
+  }
+}
+
 async function loadMarketHistory() {
   try {
     const res = await fetch("/api/get-market-history", {
@@ -417,42 +502,71 @@ async function loadMarketHistory() {
 
     const history = data.data || [];
     const historyEmpty = document.getElementById("historyEmpty");
-    const historyTable = document.getElementById("historyTable");
-    const historyBody = document.getElementById("historyBody");
+    const historyList = document.getElementById("historyList");
+    const t = window.__i18n || {};
+
+    setupMarketHistoryToggle();
+
+    if (!historyList) return;
 
     if (history.length === 0) {
-      historyEmpty.classList.remove("hidden");
-      historyTable.classList.add("hidden");
-      return;
-    }
-
-    historyEmpty.classList.add("hidden");
-    historyTable.classList.remove("hidden");
-
-    historyBody.innerHTML = history
-      .map((item) => {
-        const date = new Date(item.created_at).toLocaleDateString();
-        return `
-          <tr class="border-b border-backgroundDark hover:bg-backgroundLight transition-all">
-            <td class="py-3 px-4 text-sm text-textDark text-left">${date}</td>
-            <td class="py-3 px-4 text-sm text-textDark text-left">${item.crop_name}</td>
-            <td class="py-3 px-4 text-sm text-textDark text-left">${item.market_name}</td>
-            <td class="py-3 px-4 text-sm font-semibold text-primary text-left">${item.current_price}</td>
-            <td class="py-3 px-4 text-left">
+      historyEmpty?.classList.remove("hidden");
+      historyList.classList.add("hidden");
+    } else {
+      historyEmpty?.classList.add("hidden");
+      historyList.classList.remove("hidden");
+      historyList.innerHTML = history
+        .map(
+          (item) => `
+          <article class="rounded-2xl border border-backgroundDark bg-slate-50/70 p-4 shadow-sm sm:p-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-textLight">
+                  ${t.market_history_crop || "Crop"}
+                </p>
+                <p class="mt-1 text-sm font-semibold text-textDark">${item.crop_name}</p>
+              </div>
               <button
+                type="button"
                 onclick="deleteHistoryItem(${item.id})"
-                class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-all"
-                title="Delete"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-50"
+                aria-label="${t.market_history_delete || "Delete"}"
+                title="${t.market_history_delete || "Delete"}"
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
-            </td>
-          </tr>
-        `;
-      })
-      .join("");
+            </div>
+
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <div class="rounded-xl bg-white px-3 py-3">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-textLight">
+                  ${t.market_result_location || "Location"}
+                </p>
+                <p class="mt-1 text-sm text-textDark">${item.location_name || "—"}</p>
+              </div>
+              <div class="rounded-xl bg-white px-3 py-3">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-textLight">
+                  ${t.market_history_market || "Market"}
+                </p>
+                <p class="mt-1 text-sm text-textDark">${item.market_name || "—"}</p>
+              </div>
+            </div>
+
+            <div class="mt-3 rounded-xl bg-emerald-50 px-3 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-textLight">
+                ${t.market_history_price || "Price"}
+              </p>
+              <p class="mt-1 text-base font-bold text-primary">${item.current_price || "—"}</p>
+            </div>
+          </article>
+        `,
+        )
+        .join("");
+    }
+
+    syncMarketHistoryVisibility();
   } catch (err) {
     console.error("Error loading market history:", err);
   }
@@ -501,12 +615,12 @@ function showMarketError(message) {
 // PROFILE FUNCTIONS
 // ─────────────────────────────────────────────────────────────
 function getProfileLocationStorageKey() {
-  const userId = window._currentUserId || 'guest';
+  const userId = window._currentUserId || "guest";
   return `location_name_${userId}`;
 }
 
 function initializeProfileLocationField() {
-  const locationInput = document.getElementById('location');
+  const locationInput = document.getElementById("location");
   if (!locationInput) return;
 
   const storedLocation = localStorage.getItem(getProfileLocationStorageKey());
@@ -514,27 +628,30 @@ function initializeProfileLocationField() {
     locationInput.value = storedLocation;
   }
 
-  locationInput.addEventListener('input', function () {
-    localStorage.setItem(getProfileLocationStorageKey(), locationInput.value.trim());
+  locationInput.addEventListener("input", function () {
+    localStorage.setItem(
+      getProfileLocationStorageKey(),
+      locationInput.value.trim(),
+    );
   });
 }
 
 async function updateProfile() {
-  const name = document.getElementById('name').value.trim();
-  const phone = document.getElementById('phone').value.trim();
-  const locationValue = document.getElementById('location').value.trim();
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const locationValue = document.getElementById("location").value.trim();
 
   // Clear previous errors
-  document.querySelectorAll('[id^="error-"]').forEach(el => {
-    el.classList.add('hidden');
-    el.textContent = '';
+  document.querySelectorAll('[id^="error-"]').forEach((el) => {
+    el.classList.add("hidden");
+    el.textContent = "";
   });
 
   try {
-    const res = await fetch('/update-profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, location: locationValue })
+    const res = await fetch("/update-profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone, location: locationValue }),
     });
 
     const data = await res.json();
@@ -543,56 +660,63 @@ async function updateProfile() {
       for (const [field, msg] of Object.entries(data.errors)) {
         const errorEl = document.getElementById(`error-${field}`);
         if (errorEl) {
-          errorEl.textContent = t(`profile_error_${field}_required`, msg) || t(`profile_error_${field}_invalid`, msg) || t(`profile_error_${field}_too_short`, msg) || msg;
-          errorEl.classList.remove('hidden');
+          errorEl.textContent =
+            t(`profile_error_${field}_required`, msg) ||
+            t(`profile_error_${field}_invalid`, msg) ||
+            t(`profile_error_${field}_too_short`, msg) ||
+            msg;
+          errorEl.classList.remove("hidden");
         }
       }
     } else {
       localStorage.setItem(getProfileLocationStorageKey(), locationValue);
       if (data.lat && data.lon) {
-        const userId = window._currentUserId || 'guest';
+        const userId = window._currentUserId || "guest";
         localStorage.setItem(`lat_${userId}`, data.lat);
         localStorage.setItem(`lon_${userId}`, data.lon);
         localStorage.setItem(`location_name_${userId}`, locationValue);
       }
-      alert(t('profile_success', 'Profile updated successfully'));
+      alert(t("profile_success", "Profile updated successfully"));
       window.location.reload();
     }
   } catch (err) {
-    console.error('Profile update error:', err);
-    alert(t('profile_error_failed', 'An error occurred. Please try again.'));
+    console.error("Profile update error:", err);
+    alert(t("profile_error_failed", "An error occurred. Please try again."));
   }
 }
 
 async function changePassword() {
-  const current = document.getElementById('current_password').value;
-  const newPass = document.getElementById('new_password').value;
-  const confirm = document.getElementById('confirm_password').value;
+  const current = document.getElementById("current_password").value;
+  const newPass = document.getElementById("new_password").value;
+  const confirm = document.getElementById("confirm_password").value;
 
   // Clear previous errors
-  document.querySelectorAll('[id^="error-"]').forEach(el => {
-    el.classList.add('hidden');
-    el.textContent = '';
+  document.querySelectorAll('[id^="error-"]').forEach((el) => {
+    el.classList.add("hidden");
+    el.textContent = "";
   });
 
   if (newPass.length > 0 && newPass.length < 6) {
-    const errorEl = document.getElementById('error-new_password');
+    const errorEl = document.getElementById("error-new_password");
     if (errorEl) {
-      errorEl.textContent = t('password_error_too_short', 'Password must be at least 6 characters long');
-      errorEl.classList.remove('hidden');
+      errorEl.textContent = t(
+        "password_error_too_short",
+        "Password must be at least 6 characters long",
+      );
+      errorEl.classList.remove("hidden");
     }
     return;
   }
 
   try {
-    const res = await fetch('/change-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         current_password: current,
         new_password: newPass,
-        confirm_password: confirm
-      })
+        confirm_password: confirm,
+      }),
     });
 
     const data = await res.json();
@@ -602,31 +726,35 @@ async function changePassword() {
         const errorEl = document.getElementById(`error-${field}`);
         if (errorEl) {
           errorEl.textContent = t(`password_error_${field}`, msg);
-          errorEl.classList.remove('hidden');
+          errorEl.classList.remove("hidden");
         }
       }
     } else {
-      alert(t('password_success', 'Password changed successfully'));
-      document.getElementById('password-form').reset();
+      alert(t("password_success", "Password changed successfully"));
+      document.getElementById("password-form").reset();
     }
   } catch (err) {
-    console.error('Password change error:', err);
-    alert(t('password_error_failed', 'An error occurred. Please try again.'));
+    console.error("Password change error:", err);
+    alert(t("password_error_failed", "An error occurred. Please try again."));
   }
 }
 
 // Event listeners for profile page
-if (document.getElementById('profile-form')) {
+if (document.getElementById("profile-form")) {
   initializeProfileLocationField();
-  document.getElementById('profile-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    updateProfile();
-  });
+  document
+    .getElementById("profile-form")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+      updateProfile();
+    });
 }
 
-if (document.getElementById('password-form')) {
-  document.getElementById('password-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    changePassword();
-  });
+if (document.getElementById("password-form")) {
+  document
+    .getElementById("password-form")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+      changePassword();
+    });
 }
