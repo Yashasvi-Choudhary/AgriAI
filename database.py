@@ -204,10 +204,22 @@ CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER,
         crop_type TEXT,
         predicted_yield REAL,
+        area REAL,
+        productivity TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )
     """)
+
+    try:
+        cursor.execute("ALTER TABLE yield_predictions ADD COLUMN area REAL")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE yield_predictions ADD COLUMN productivity TEXT")
+    except sqlite3.OperationalError:
+        pass
 
     # ---------------- COMMUNITY POSTS ----------------
     cursor.execute("""
