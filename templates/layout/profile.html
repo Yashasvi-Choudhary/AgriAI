@@ -87,7 +87,7 @@ block content %}
   }
 </style>
 
-<div class="bg-background py-10 relative">
+<div class="bg-background py-20 relative">
   <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
     <!-- ── PAGE HEADER ── -->
     <div class="mb-8">
@@ -199,7 +199,9 @@ block content %}
         </div>
 
         <form id="profileForm" novalidate>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 max-w-2xl mx-auto"
+          >
             <!-- Full Name -->
             <div>
               <label
@@ -233,7 +235,7 @@ block content %}
                   autocomplete="name"
                   data-i18n-placeholder="profile_placeholder_name"
                   placeholder="Your full name"
-                  class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                  class="max-w-xs w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
                 />
               </div>
               <p
@@ -278,7 +280,7 @@ block content %}
                   autocomplete="email"
                   data-i18n-placeholder="profile_placeholder_email"
                   placeholder="you@example.com"
-                  class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                  class="max-w-xs w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
                 />
               </div>
               <p
@@ -328,7 +330,7 @@ block content %}
                   autocomplete="tel"
                   data-i18n-placeholder="profile_placeholder_phone"
                   placeholder="+91 98765 43210"
-                  class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                  class="max-w-xs w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
                 />
               </div>
             </div>
@@ -376,7 +378,7 @@ block content %}
                   autocomplete="address-level2"
                   data-i18n-placeholder="profile_placeholder_location"
                   placeholder="City, State"
-                  class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                  class="max-w-xs w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
                 />
               </div>
             </div>
@@ -386,7 +388,7 @@ block content %}
           <!-- Profile server error banner (inline, below grid) -->
           <div
             id="profileServerErr"
-            class="hidden mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-xs text-red-700 flex items-center gap-2"
+            class="hidden mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-xs text-red-700 flex items-center gap-2 max-w-2xl mx-auto"
           >
             <svg
               class="w-4 h-4 flex-shrink-0"
@@ -407,7 +409,7 @@ block content %}
           <!-- Profile success banner -->
           <div
             id="profileSuccessBanner"
-            class="hidden mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-xs text-green-700 flex items-center gap-2"
+            class="hidden mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-xs text-green-700 flex items-center gap-2 max-w-2xl mx-auto"
           >
             <svg
               class="w-4 h-4 flex-shrink-0"
@@ -428,12 +430,12 @@ block content %}
           </div>
 
           <!-- Submit row -->
-          <div class="mt-7 flex flex-col sm:flex-row gap-3">
+          <div class="mt-10 flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
             <button
               id="profileBtn"
               type="button"
               onclick="submitProfile()"
-              class="flex items-center justify-center gap-2 rounded-xl py-3 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-md shadow-sm"
+              class="flex items-center justify-center gap-2 rounded-xl py-3 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-primaryLight to-primary hover:from-primary hover:to-primaryDark hover:shadow-md shadow-sm w-fit"
             >
               <svg
                 id="profileBtnIco"
@@ -456,7 +458,7 @@ block content %}
             <button
               type="reset"
               onclick="resetProfileErrors()"
-              class="inline-flex items-center justify-center rounded-xl border border-backgroundDark px-6 py-3 text-sm font-medium text-textMid transition-all hover:bg-gray-50"
+              class="inline-flex items-center justify-center rounded-xl border border-backgroundDark px-6 py-3 text-sm font-medium text-textMid transition-all hover:bg-gray-50 w-fit"
               data-i18n="profile_btn_reset"
             >
               Reset
@@ -536,7 +538,9 @@ block content %}
         <!-- Expandable password form -->
         <div id="pwdSection" class="hidden mt-6">
           <form id="pwdForm" novalidate>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 max-w-2xl mx-auto"
+            >
               <!-- Current password — full width -->
               <div class="sm:col-span-2">
                 <label
@@ -568,7 +572,7 @@ block content %}
                     name="current_password"
                     data-i18n-placeholder="password_placeholder_current"
                     placeholder="Enter your current password"
-                    class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-10 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                    class="max-w-xs w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-10 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
                   />
                   <button
                     type="button"
@@ -637,7 +641,7 @@ block content %}
                     data-i18n-placeholder="password_placeholder_new"
                     placeholder="Minimum 6 characters"
                     oninput="onNewPwdInput()"
-                    class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-10 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
+                    class="max-w-xs w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-10 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
                   />
                   <button
                     type="button"
@@ -775,7 +779,7 @@ block content %}
             <!-- Password server error -->
             <div
               id="pwdServerErr"
-              class="hidden mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-xs text-red-700 flex items-center gap-2"
+              class="hidden mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-xs text-red-700 flex items-center gap-2 max-w-2xl mx-auto"
             >
               <svg
                 class="w-4 h-4 flex-shrink-0"
@@ -796,7 +800,7 @@ block content %}
             <!-- Password success -->
             <div
               id="pwdSuccessBanner"
-              class="hidden mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-xs text-green-700 flex items-center gap-2"
+              class="hidden mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-xs text-green-700 flex items-center gap-2 max-w-2xl mx-auto"
             >
               <svg
                 class="w-4 h-4 flex-shrink-0"
@@ -817,12 +821,14 @@ block content %}
             </div>
 
             <!-- Password form buttons -->
-            <div class="mt-6 flex flex-col sm:flex-row gap-3">
+            <div
+              class="mt-10 flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto"
+            >
               <button
                 id="pwdBtn"
                 type="button"
                 onclick="submitPassword()"
-                class="flex items-center justify-center gap-2 rounded-xl py-3 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 hover:shadow-md shadow-sm"
+                class="flex items-center justify-center gap-2 rounded-xl py-3 px-6 text-sm font-semibold text-white tracking-wide transition-all duration-200 bg-gradient-to-br from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 hover:shadow-md shadow-sm w-fit"
               >
                 <svg
                   id="pwdBtnIco"
@@ -845,7 +851,7 @@ block content %}
               <button
                 type="button"
                 onclick="togglePwdSection()"
-                class="inline-flex items-center justify-center rounded-xl border border-backgroundDark px-6 py-3 text-sm font-medium text-textMid transition-all hover:bg-gray-50"
+                class="inline-flex items-center justify-center rounded-xl border border-backgroundDark px-6 py-3 text-sm font-medium text-textMid transition-all hover:bg-gray-50 w-fit"
                 data-i18n="password_btn_cancel"
               >
                 Cancel
