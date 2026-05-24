@@ -1,5 +1,6 @@
 import uuid
 import datetime
+import math
 import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.geolocation import geocode_location
@@ -7,12 +8,13 @@ from utils.geolocation import geocode_location
 from flask import Flask, jsonify, render_template, session, redirect, request, flash, url_for, send_from_directory
 import requests
 from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
-from dotenv import load_dotenv
-from database import create_tables
+from urllib3.util.retry import Retry
+from database import create_tables, migrate_fertilizer_history
 from routes.auth_routes import auth_bp
+
 from routes.community_routes import community
 from routes.crop_routes import crop as crop_bp, generate_crop_response
+from fertilizer_history_routes import fertilizer_history_bp
 
 from utils.translator import get_translations
 
@@ -22,6 +24,9 @@ import joblib
 import os
 import sys
 import importlib.util
+
+# Fix: Import load_dotenv for environment variable loading
+from dotenv import load_dotenv
 
 # ─────────────────────────────────────────────
 # APP INIT
@@ -140,10 +145,12 @@ def inject_globals():
     "fertilizer-guide": "fertilizer-guide",
     "profit-analyzer": "profit",
     "market-price": "market",
+    "profit-analyzer": "profit",
     "government-schemes": "government-schemes",
     "community": "community",
     "assistant": "assistant",
     "profile": "profile",
+    "profit": "profit",
 }
 
     page = page_map.get(path, "dashboard")
@@ -165,11 +172,16 @@ def inject_globals():
 # ─────────────────────────────────────────────
 # BLUEPRINTS
 # ─────────────────────────────────────────────
+
+# Register blueprints
+
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(community, url_prefix='/community')
-app.register_blueprint(crop_bp)
+app.register_blueprint(fertilizer_history_bp, url_prefix='/api')
+
 
 create_tables()
+migrate_fertilizer_history()
 
 MODEL_PATH = os.path.join(BASE_DIR, "model", "fertilizer_model.pkl")
 _model = None
@@ -225,6 +237,11 @@ def dashboard():
     return render_template('dashboard/dashboard.html')
 
 
+@app.route('/profit')
+def profit_page():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/profit_analyzer.html')
 
 
 # ─────────────────────────────────────────────
@@ -320,6 +337,154 @@ def change_password():
 # ─────────────────────────────────────────────
 # FEATURE PAGES
 # ─────────────────────────────────────────────
+@app.route('/profit-analyzer')
+def profit_analyzer():
+    if "user" not in session:
+        return redirect('/login')
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
+        (session["user"]["id"],),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+
+    history = [
+        {
+            "id": row[0],
+            "crop_name": row[1] or "N/A",
+            "estimated_profit": row[2] if row[2] is not None else 0,
+            "expected_revenue": row[3] if row[3] is not None else 0,
+            "created_at": row[4] or "",
+        }
+        for row in rows
+    ]
+
+    return render_template('dashboard/profit_analyzer.html', history=history)
+
+
+@app.route('/api/profit-analysis', methods=['POST'])
+def api_profit_analysis():
+    if 'user' not in session:
+        return jsonify({'success': False, 'errors': {'general': 'Authentication required'}}), 401
+
+    data = request.get_json(silent=True) or {}
+    crop_name = (data.get('crop_name') or '').strip()
+    soil_type = (data.get('soil_type') or '').strip()
+    try:
+        land_area = float(data.get('land_area') or 0)
+        production_cost = float(data.get('production_cost') or 0)
+        fertilizer_cost = float(data.get('fertilizer_cost') or 0)
+        labor_cost = float(data.get('labor_cost') or 0)
+        irrigation_cost = float(data.get('irrigation_cost') or 0)
+        expected_yield = float(data.get('expected_yield') or 0)
+        market_price = float(data.get('market_price') or 0)
+        transport_cost = float(data.get('transport_cost') or 0)
+        other_expenses = float(data.get('other_expenses') or 0)
+    except (ValueError, TypeError):
+        return jsonify({'success': False, 'errors': {'general': 'Invalid numeric input'}}), 400
+
+    errors = {}
+    if not crop_name:
+        errors['crop_name'] = 'Please select a crop'
+    if not soil_type:
+        errors['soil_type'] = 'Please select soil type'
+    if land_area <= 0:
+        errors['land_area'] = 'Land area must be greater than zero'
+    if expected_yield <= 0:
+        errors['expected_yield'] = 'Expected yield must be greater than zero'
+    if market_price <= 0:
+        errors['market_price'] = 'Market price must be greater than zero'
+
+    if errors:
+        return jsonify({'success': False, 'errors': errors}), 400
+
+    total_investment = production_cost + fertilizer_cost + labor_cost + irrigation_cost + transport_cost + other_expenses
+    expected_revenue = expected_yield * market_price
+    estimated_profit = expected_revenue - total_investment
+    profit_percentage = (estimated_profit / expected_revenue * 100) if expected_revenue > 0 else 0.0
+
+    profit_status_en = 'Profitable' if estimated_profit > 0 else 'Break-even' if estimated_profit == 0 else 'Loss'
+    profit_status_hi = 'लाभकारी' if estimated_profit > 0 else 'बराबरी' if estimated_profit == 0 else 'हानि'
+    analysis_en = (
+        'Your crop is profitable.' if estimated_profit > 0 else
+        'Your crop is breaking even.' if estimated_profit == 0 else
+        'Your crop is running at a loss.'
+    )
+    analysis_hi = (
+        'आपकी फसल लाभकारी है।' if estimated_profit > 0 else
+        'आपकी फसल बराबर पर है।' if estimated_profit == 0 else
+        'आपकी फसल घाटे में है।'
+    )
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO profit_analysis (user_id, crop_name, soil_type, land_area, production_cost, fertilizer_cost, labor_cost, irrigation_cost, transport_cost, other_expenses, expected_yield, market_price, total_investment, expected_revenue, estimated_profit, profit_percentage, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            session['user']['id'],
+            crop_name,
+            soil_type,
+            land_area,
+            production_cost,
+            fertilizer_cost,
+            labor_cost,
+            irrigation_cost,
+            transport_cost,
+            other_expenses,
+            expected_yield,
+            market_price,
+            total_investment,
+            expected_revenue,
+            estimated_profit,
+            profit_percentage,
+            float(data.get('latitude') or 0) if data.get('latitude') else None,
+            float(data.get('longitude') or 0) if data.get('longitude') else None,
+        ),
+    )
+    conn.commit()
+    cursor.execute(
+        "SELECT id, crop_name, estimated_profit, expected_revenue, created_at FROM profit_analysis WHERE user_id=? ORDER BY created_at DESC LIMIT 10",
+        (session['user']['id'],),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+
+    history = [
+        {
+            'id': row[0],
+            'crop_name': row[1] or 'N/A',
+            'estimated_profit': row[2] if row[2] is not None else 0,
+            'expected_revenue': row[3] if row[3] is not None else 0,
+            'created_at': row[4] or '',
+        }
+        for row in rows
+    ]
+
+    payload = {
+        'english': {
+            'total_investment': f'₹{total_investment:.2f}',
+            'expected_revenue': f'₹{expected_revenue:.2f}',
+            'estimated_profit': f'₹{estimated_profit:.2f}',
+            'profit_percentage': f'{profit_percentage:.2f} %',
+            'profit_status': profit_status_en,
+            'analysis': analysis_en,
+        },
+        'hindi': {
+            'total_investment': f'₹{total_investment:.2f}',
+            'expected_revenue': f'₹{expected_revenue:.2f}',
+            'estimated_profit': f'₹{estimated_profit:.2f}',
+            'profit_percentage': f'{profit_percentage:.2f} %',
+            'profit_status': profit_status_hi,
+            'analysis': analysis_hi,
+        },
+    }
+
+    return jsonify({'success': True, 'data': {'profit_analysis': payload, 'history': history}})
+
+
 @app.route('/crop-recommendation', methods=['GET', 'POST'])
 def crop_recommendation():
     if "user" not in session:
@@ -744,11 +909,65 @@ def predict_fertilizer():
         return jsonify({"status": "error", "message": "Missing or invalid input data"}), 400
 
     result = fertilizer_utils.build_response(prediction, validated)
+
+    # Ensure the history table schema is up to date before saving
+    migrate_fertilizer_history()
+
+    # Save fertilizer history for logged-in users
+    if "user" in session and session["user"]:
+        try:
+            user_id = session["user"]["id"]
+            crop_type = payload.get("crop_type", "").strip()
+            soil_type = payload.get("soil_type", "").strip()
+            fertilizer_data = result["data"]["fertilizer_recommendation"]
+            fertilizer_en = fertilizer_data["english"]
+            fertilizer_hi = fertilizer_data["hindi"]
+
+            app.logger.info(f"Saving fertilizer history for user {user_id}: crop={crop_type}, soil={soil_type}")
+
+            conn = sqlite3.connect("database.db")
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT INTO fertilizer_history (
+                user_id,
+                crop_type,
+                soil_type,
+                temperature,
+                humidity,
+                moisture,
+                nitrogen,
+                phosphorus,
+                potassium,
+                fertilizer_name_en,
+                fertilizer_name_hi
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                user_id,
+                crop_type,
+                soil_type,
+                validated.get("temperature"),
+                validated.get("humidity"),
+                validated.get("moisture"),
+                validated.get("nitrogen"),
+                validated.get("phosphorus"),
+                validated.get("potassium"),
+                fertilizer_en.get("fertilizer_name"),
+                fertilizer_hi.get("fertilizer_name"),
+            ))
+            conn.commit()
+            conn.close()
+            app.logger.info("Fertilizer history saved successfully")
+        except Exception as ex:
+            app.logger.error(f"Failed to save fertilizer history: {ex}", exc_info=True)
+
     return jsonify(result)
 
 
 @app.route('/predict-yield', methods=['POST'])
 def predict_yield():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Authentication required"}), 401
+
     payload = request.get_json(silent=True)
     validated = utils_yield.validate_input(payload)
 
@@ -765,8 +984,65 @@ def predict_yield():
     except Exception:
         return jsonify({"status": "error", "message": "Prediction failed"}), 500
 
+    predicted_yield = float(prediction)
+    productivity = "medium"
+    if predicted_yield > 2000:
+        productivity = "high"
+    elif predicted_yield < 1000:
+        productivity = "low"
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO yield_predictions (user_id, crop_type, predicted_yield, area, productivity) VALUES (?, ?, ?, ?, ?)",
+        (session["user"]["id"], validated["crop"], predicted_yield, validated["area"], productivity),
+    )
+    conn.commit()
+    history_id = cursor.lastrowid
+    conn.close()
+
     result = utils_yield.build_response(prediction)
+    result["data"]["history_id"] = history_id
     return jsonify(result)
+
+
+@app.route('/api/yield-history', methods=['GET'])
+def get_yield_history():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Authentication required"}), 401
+
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    rows = cursor.execute(
+        "SELECT id, crop_type, predicted_yield, area, productivity, created_at FROM yield_predictions WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
+        (session["user"]["id"],),
+    ).fetchall()
+    conn.close()
+
+    history = [dict(row) for row in rows]
+    return jsonify({"status": "success", "data": history})
+
+
+@app.route('/api/yield-history/<int:history_id>', methods=['DELETE'])
+def delete_yield_history(history_id):
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Authentication required"}), 401
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "DELETE FROM yield_predictions WHERE id = ? AND user_id = ?",
+        (history_id, session["user"]["id"]),
+    )
+    deleted = cursor.rowcount
+    conn.commit()
+    conn.close()
+
+    if deleted == 0:
+        return jsonify({"status": "error", "message": "History item not found"}), 404
+
+    return jsonify({"status": "success", "message": "History deleted"})
 
 
 # ─────────────────────────────────────────────
@@ -806,13 +1082,17 @@ def get_market_price():
 
     market_data = fetch_crop_market_price(crop_name, location_name, latitude, longitude)
 
-    if not market_data:
+    if market_data is None:
         return jsonify({"status": "error", "message": "Unable to fetch market data. Please try another crop or location."}), 502
+
+    if market_data.get("status") == "no_match":
+        return jsonify({"status": "error", "message": "No market data found for this location."}), 404
 
     current_price = market_data.get('current_price', 'N/A')
     min_price = market_data.get('min_price', 'N/A')
     max_price = market_data.get('max_price', 'N/A')
     market_name = market_data.get('market_name', location_name or 'Local Market')
+    is_nearby = market_data.get('is_nearby', False)
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -836,6 +1116,8 @@ def get_market_price():
                     "crop_name": crop_display["english"],
                     "location": location_name,
                     "market": market_name,
+                    "market_label": "Nearby Market" if is_nearby else None,
+                    "is_nearby": is_nearby,
                     "current_price": f"₹{current_price}/quintal",
                     "min_price": f"₹{min_price}/quintal",
                     "max_price": f"₹{max_price}/quintal",
@@ -845,6 +1127,8 @@ def get_market_price():
                     "crop_name": crop_display["hindi"],
                     "location": location_name,
                     "market": market_name,
+                    "market_label": "Nearby Market" if is_nearby else None,
+                    "is_nearby": is_nearby,
                     "current_price": f"₹{current_price}/क्विंटल",
                     "min_price": f"₹{min_price}/क्विंटल",
                     "max_price": f"₹{max_price}/क्विंटल",
@@ -867,10 +1151,10 @@ def get_market_history():
     cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT id, crop_name, location_name, current_price, market_name, created_at
+    SELECT id, crop_name, location_name, current_price, market_name
     FROM market_price_history
     WHERE user_id = ?
-    ORDER BY created_at DESC
+    ORDER BY id DESC
     LIMIT 20
     """, (user_id,))
 
@@ -884,8 +1168,7 @@ def get_market_history():
             "crop_name": row[1],
             "location_name": row[2],
             "current_price": row[3],
-            "market_name": row[4],
-            "created_at": row[5]
+            "market_name": row[4]
         })
 
     return jsonify({"status": "success", "data": history})
@@ -924,6 +1207,249 @@ def delete_market_history():
 # ─────────────────────────────────────────────
 # MARKET PRICE HELPER FUNCTIONS
 # ─────────────────────────────────────────────
+INDIAN_STATES = {
+    "andhra pradesh",
+    "arunachal pradesh",
+    "assam",
+    "bihar",
+    "chhattisgarh",
+    "goa",
+    "gujarat",
+    "haryana",
+    "himachal pradesh",
+    "jharkhand",
+    "karnataka",
+    "kerala",
+    "madhya pradesh",
+    "maharashtra",
+    "manipur",
+    "meghalaya",
+    "mizoram",
+    "nagaland",
+    "odisha",
+    "punjab",
+    "rajasthan",
+    "sikkim",
+    "tamil nadu",
+    "telangana",
+    "tripura",
+    "uttar pradesh",
+    "uttarakhand",
+    "west bengal",
+    "jammu and kashmir",
+    "andaman and nicobar islands",
+    "chandigarh",
+    "dadra and nagar haveli and daman and diu",
+    "delhi",
+    "lakshadweep",
+    "puducherry",
+    "ladakh",
+}
+
+
+def normalize_market_text(value):
+    if value is None:
+        return ""
+    return str(value).strip().lower()
+
+
+def parse_float(value):
+    if value is None:
+        return None
+
+    try:
+        return float(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def infer_state_filter(location):
+    normalized_location = normalize_market_text(location)
+    if not normalized_location:
+        return None
+    if normalized_location in INDIAN_STATES:
+        return normalized_location
+    return None
+
+
+def get_record_coordinates(record):
+    lat = parse_float(record.get("latitude") or record.get("lat"))
+    lon = parse_float(record.get("longitude") or record.get("lon"))
+    if lat is None or lon is None:
+        return None, None
+    return lat, lon
+
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    radius = 6371
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+    a = (
+        math.sin(delta_phi / 2) ** 2
+        + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
+    )
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return radius * c
+
+
+def reverse_geocode_state(lat, lon):
+    if lat is None or lon is None:
+        return None
+
+    url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}&zoom=10"
+    headers = {"User-Agent": "AgriAI Market Price Client"}
+
+    try:
+        response = requests.get(url, headers=headers, timeout=8)
+        response.raise_for_status()
+        payload = response.json()
+        state = normalize_market_text(payload.get("address", {}).get("state"))
+        if state:
+            return state
+    except requests.exceptions.RequestException as exc:
+        print(f"[MarketPrice] Reverse geocode error: {exc}")
+
+    return None
+
+
+def choose_best_by_coordinates(records, user_lat, user_lon):
+    candidates = []
+
+    for record in records:
+        lat, lon = get_record_coordinates(record)
+        if lat is None or lon is None:
+            continue
+        distance = haversine_km(user_lat, user_lon, lat, lon)
+        candidates.append((distance, record))
+
+    if not candidates:
+        return None
+
+    candidates.sort(key=lambda item: item[0])
+    return candidates[0][1]
+
+
+def score_record_match(record, normalized_location):
+    market = normalize_market_text(record.get("market") or record.get("market_name"))
+    market_name = normalize_market_text(record.get("market_name"))
+    district = normalize_market_text(record.get("district"))
+    state = normalize_market_text(record.get("state"))
+
+    if market == normalized_location or market_name == normalized_location:
+        return 100, "exact_market"
+    if district == normalized_location:
+        return 90, "exact_district"
+    if state == normalized_location:
+        return 80, "exact_state"
+
+    score = 0
+
+    if market and normalized_location and normalized_location in market:
+        score = max(score, 74)
+    if market and normalized_location and market in normalized_location:
+        score = max(score, 70)
+    if market_name and normalized_location and normalized_location in market_name:
+        score = max(score, 72)
+    if market_name and normalized_location and market_name in normalized_location:
+        score = max(score, 68)
+    if district and normalized_location and normalized_location in district:
+        score = max(score, 64)
+    if district and normalized_location and district in normalized_location:
+        score = max(score, 60)
+    if state and normalized_location and normalized_location in state:
+        score = max(score, 56)
+    if state and normalized_location and state in normalized_location:
+        score = max(score, 52)
+
+    if score > 0:
+        return score, "partial_match"
+
+    return 0, "none"
+
+
+def choose_best_market_record(records, location, user_lat=None, user_lon=None, state_hint=None):
+    normalized_location = normalize_market_text(location)
+    state_filter = infer_state_filter(location)
+    exact_market_records = []
+    exact_district_records = []
+    exact_state_records = []
+    partial_records = []
+
+    for record in records:
+        if state_filter:
+            record_state = normalize_market_text(record.get("state"))
+            if record_state != state_filter:
+                continue
+
+        score, match_type = score_record_match(record, normalized_location)
+
+        if match_type == "exact_market":
+            exact_market_records.append(record)
+        elif match_type == "exact_district":
+            exact_district_records.append(record)
+        elif match_type == "exact_state":
+            exact_state_records.append(record)
+        elif match_type == "partial_match":
+            partial_records.append((score, record))
+
+    print(f"[MarketPrice] API response count: {len(records)}")
+    print(
+        f"[MarketPrice] Match counts for '{location}' -> exact_market={len(exact_market_records)}, exact_district={len(exact_district_records)}, exact_state={len(exact_state_records)}, partial={len(partial_records)}"
+    )
+
+    chosen_record = None
+    chosen_level = None
+    is_nearby = False
+
+    if exact_market_records:
+        chosen_record = choose_best_by_coordinates(exact_market_records, user_lat, user_lon) or exact_market_records[0]
+        chosen_level = "exact_market"
+    elif exact_district_records:
+        chosen_record = choose_best_by_coordinates(exact_district_records, user_lat, user_lon) or exact_district_records[0]
+        chosen_level = "exact_district"
+        is_nearby = True
+    elif exact_state_records:
+        chosen_record = choose_best_by_coordinates(exact_state_records, user_lat, user_lon) or exact_state_records[0]
+        chosen_level = "exact_state"
+        is_nearby = True
+    elif partial_records:
+        partial_records.sort(key=lambda item: item[0], reverse=True)
+        chosen_record = choose_best_by_coordinates([record for _, record in partial_records], user_lat, user_lon) or partial_records[0][1]
+        chosen_level = "partial_match"
+        is_nearby = True
+
+    if not chosen_record and state_hint:
+        state_records = [record for record in records if normalize_market_text(record.get("state")) == state_hint]
+        print(f"[MarketPrice] state_hint={state_hint}, state_records={len(state_records)}")
+        if state_records:
+            chosen_record = choose_best_by_coordinates(state_records, user_lat, user_lon) or state_records[0]
+            chosen_level = "state_hint_fallback"
+            is_nearby = True
+
+    if not chosen_record and user_lat is not None and user_lon is not None:
+        chosen_record = choose_best_by_coordinates(records, user_lat, user_lon)
+        if chosen_record:
+            chosen_level = "nearest_fallback"
+            is_nearby = True
+
+    if not chosen_record:
+        print(f"[MarketPrice] No matching mandi found for location: {location}")
+        return {"status": "no_match"}
+
+    selected_state = normalize_market_text(chosen_record.get("state")) or "N/A"
+    selected_market = normalize_market_text(chosen_record.get("market") or chosen_record.get("market_name")) or "N/A"
+    print(f"[MarketPrice] Selected record state={selected_state}, market={selected_market}, match_level={chosen_level}, nearby={is_nearby}")
+
+    return {
+        "status": "success",
+        "record": chosen_record,
+        "match_level": chosen_level,
+        "is_nearby": is_nearby,
+    }
+
+
 def normalize_price_field(record, fields):
     for field in fields:
         value = record.get(field)
@@ -933,24 +1459,6 @@ def normalize_price_field(record, fields):
         if normalized and normalized not in ["NA", "na", "--"]:
             return normalized
     return None
-
-
-def choose_best_market_record(records, location):
-    location_lower = location.lower().strip()
-    best = None
-    best_score = -1
-
-    for record in records:
-        score = 0
-        for field in ["market", "district", "state", "commodity"]:
-            value = str(record.get(field, "")).lower()
-            if location_lower and location_lower in value:
-                score += 2
-        if score > best_score:
-            best_score = score
-            best = record
-
-    return best or records[0]
 
 
 def fetch_crop_market_price(crop_name, location, lat, lon):
@@ -963,10 +1471,14 @@ def fetch_crop_market_price(crop_name, location, lat, lon):
         "api-key": MARKET_API_KEY,
         "format": "json",
         "filters[commodity]": crop_name,
-        "q": location,
-        "limit": 15,
+        "limit": 100,
         "offset": 0,
     }
+
+    state_filter = infer_state_filter(location)
+    if state_filter:
+        params["filters[state]"] = state_filter
+
     headers = {"User-Agent": "AgriAI Market Price Client"}
 
     session = requests.Session()
@@ -1001,11 +1513,18 @@ def fetch_crop_market_price(crop_name, location, lat, lon):
         return None
 
     records = payload.get("records") or []
+    print(f"[MarketPrice] API response count: {len(records)}")
+
     if not records:
         print("[MarketPrice] No records returned for", crop_name, "at", location)
         return None
 
-    record = choose_best_market_record(records, location)
+    state_hint = reverse_geocode_state(lat, lon)
+    match_info = choose_best_market_record(records, location, lat, lon, state_hint)
+    if match_info.get("status") == "no_match":
+        return match_info
+
+    record = match_info.get("record")
     current_price = normalize_price_field(record, ["modal_price", "modal", "price"])
     min_price = normalize_price_field(record, ["min_price", "minimum_price"])
     max_price = normalize_price_field(record, ["max_price", "maximum_price"])
@@ -1016,10 +1535,12 @@ def fetch_crop_market_price(crop_name, location, lat, lon):
         return None
 
     return {
+        "status": "success",
         "current_price": current_price or "N/A",
         "min_price": min_price or current_price or "N/A",
         "max_price": max_price or current_price or "N/A",
         "market_name": market_name,
+        "is_nearby": match_info.get("is_nearby", False),
     }
 
 

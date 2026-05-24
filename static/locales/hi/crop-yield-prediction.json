@@ -7,23 +7,15 @@
 
   "yield_label_crop_type": "फसल का प्रकार",
   "yield_crop_placeholder": "फसल चुनें…",
-  "yield_crop_wheat": "गेहूँ",
   "yield_crop_rice": "धान (चावल)",
   "yield_crop_maize": "मक्का",
+  "yield_crop_chickpea": "चना",
   "yield_crop_cotton": "कपास",
-  "yield_crop_sugarcane": "गन्ना",
 
   "yield_label_area": "भूमि क्षेत्रफल",
   "yield_area_placeholder": "क्षेत्रफल दर्ज करें",
   "yield_unit_acre": "एकड़",
   "yield_unit_hectare": "हेक्टेयर",
-
-  "yield_label_nitrogen": "नाइट्रोजन (N) — mg/kg",
-  "yield_nitrogen_placeholder": "जैसे 40",
-  "yield_label_phosphorus": "फॉस्फोरस (P) — mg/kg",
-  "yield_phosphorus_placeholder": "जैसे 20",
-  "yield_label_potassium": "पोटैशियम (K) — mg/kg",
-  "yield_potassium_placeholder": "जैसे 30",
 
   "yield_label_ph": "मिट्टी का pH स्तर",
   "yield_ph_placeholder": "जैसे 6.5 (0–14)",
@@ -59,6 +51,19 @@
 
   "yield_empty_state": "ऊपर दिया गया फॉर्म भरें और परिणाम देखने के लिए 'उपज का अनुमान लगाएं' पर क्लिक करें।",
   "yield_loading_text": "पूर्वानुमान मॉडल चल रहा है, कृपया प्रतीक्षा करें…",
+
+  "yield_history_title": "उपज पूर्वानुमान इतिहास",
+  "yield_history_empty": "आपके सहेजे गए पूर्वानुमान यहां दिखाई देंगे।",
+  "yield_history_show": "इतिहास दिखाएं",
+  "yield_history_hide": "इतिहास छिपाएं",
+  "yield_history_crop": "फसल",
+  "yield_history_area": "एकड़",
+  "yield_history_productivity": "उत्पादकता",
+  "yield_history_predicted": "अनुमानित उपज",
+  "yield_history_date": "सहेजा गया",
+  "yield_history_delete": "हटाएं",
+  "yield_history_delete_error": "इस पूर्वानुमान को हटाया नहीं जा सका।",
+  "yield_history_load_error": "पूर्वानुमान इतिहास लोड नहीं हो सका।",
 
   "yield_error_title": "पूर्वानुमान विफल रहा",
   "yield_error_no_result": "सर्वर से कोई उपज पूर्वानुमान प्राप्त नहीं हुआ।",

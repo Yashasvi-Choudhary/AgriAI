@@ -186,8 +186,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           </div>
         </div>
 
-        
-        <!-- Temperature (optional) -->
+        <!-- Temperature (required) -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
@@ -217,6 +216,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
               name="temperature"
               min="-20"
               max="60"
+              required
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
               data-i18n-placeholder="fert_temp_placeholder"
               placeholder="Temperature"
@@ -224,7 +224,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           </div>
         </div>
 
-        <!-- Humidity (optional) -->
+        <!-- Humidity (required) -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
@@ -254,6 +254,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
               name="humidity"
               min="0"
               max="100"
+              required
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
               data-i18n-placeholder="fert_humidity_placeholder"
               placeholder="Humidity"
@@ -261,7 +262,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           </div>
         </div>
 
-        <!-- Soil Moisture (optional) -->
+        <!-- Soil Moisture (required) -->
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-textMid"
@@ -291,6 +292,7 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
               name="soil_moisture"
               min="0"
               max="100"
+              required
               class="w-full rounded-lg border border-backgroundDark py-2.5 pl-9 pr-4 text-sm bg-white text-textDark outline-none focus:outline-none focus:ring-2 focus:ring-primaryLight/50 focus:border-primary transition-all"
               data-i18n-placeholder="fert_moisture_placeholder"
             />
@@ -535,43 +537,45 @@ block title %}Fertilizer Guide{% endblock %} {% block content %}
           <!-- Populated by JS -->
         </div>
       </div>
-
-      <!-- ── SCHEDULE CARD ── -->
-      <div
-        class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm"
-      >
-        <div class="flex items-center gap-2 mb-5">
-          <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
-          <h2
-            class="text-xs font-bold uppercase tracking-widest text-textMid"
-            data-i18n="fert_schedule_title"
-          ></h2>
-        </div>
-        <div id="scheduleList" class="space-y-3">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-
-      <!-- ── TIPS CARD ── -->
-      <div
-        class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm"
-      >
-        <div class="flex items-center gap-2 mb-5">
-          <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
-          <h2
-            class="text-xs font-bold uppercase tracking-widest text-textMid"
-            data-i18n="fert_tips_title"
-          ></h2>
-        </div>
-        <ul id="tipsList" class="space-y-3">
-          <!-- Populated by JS -->
-        </ul>
-      </div>
     </div>
     <!-- /result dashboard -->
+
+    <!-- ── HISTORY CARD ── -->
+    <div
+      class="bg-white rounded-2xl border border-backgroundDark p-6 sm:p-8 shadow-sm mt-10"
+    >
+      <div class="flex items-center justify-between gap-3 mb-5">
+        <div>
+          <div class="w-1 h-5 rounded-full bg-primaryLight"></div>
+          <h2
+            class="text-xs font-bold uppercase tracking-widest text-textMid"
+            data-i18n="fert_history_title"
+          ></h2>
+        </div>
+        <button
+          id="fertHistoryToggle"
+          type="button"
+          class="inline-flex items-center gap-2 rounded-full border border-backgroundDark bg-slate-50 px-4 py-2 text-sm font-semibold text-textDark transition hover:bg-slate-100"
+        >
+          <span
+            id="fertHistoryToggleLabel"
+            data-i18n="fert_history_show"
+          ></span>
+        </button>
+      </div>
+      <div id="fertHistoryPanel" class="hidden space-y-4">
+        <div id="fertHistoryList" class="space-y-4"></div>
+        <p
+          id="fertHistoryEmpty"
+          class="text-sm text-textMid hidden"
+          data-i18n="fert_history_no_records"
+        ></p>
+      </div>
+    </div>
+    <!-- /history card -->
   </div>
 </div>
 
 {% block scripts %} {{ super() }}
-<script src="{{ url_for('static', filename='js/fertilizer-guide.js') }}"></script>
+<script src="{{ url_for('static', filename='js/fertilizer-guide.js') }}?v=2"></script>
 {% endblock %} {% endblock %}

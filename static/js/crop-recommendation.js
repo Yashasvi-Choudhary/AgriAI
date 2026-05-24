@@ -68,7 +68,16 @@ function validateInputs() {
   const ph_level = document.getElementById("ph_level").value.trim();
   const rainfall = document.getElementById("rainfall").value.trim();
 
-  console.log("Validating inputs:", {soil_type, nitrogen, phosphorus, potassium, temperature, humidity, ph_level, rainfall});
+  console.log("Validating inputs:", {
+    soil_type,
+    nitrogen,
+    phosphorus,
+    potassium,
+    temperature,
+    humidity,
+    ph_level,
+    rainfall,
+  });
 
   if (!soil_type) {
     errors.soil_type = t["crop_error_soil_type"] || "Soil type is required";
@@ -77,25 +86,45 @@ function validateInputs() {
     errors.nitrogen = t["crop_error_nitrogen"] || "Nitrogen value required";
   }
   if (!phosphorus || isNaN(phosphorus) || Number(phosphorus) < 0) {
-    errors.phosphorus = t["crop_error_phosphorus"] || "Phosphorus value required";
+    errors.phosphorus =
+      t["crop_error_phosphorus"] || "Phosphorus value required";
   }
   if (!potassium || isNaN(potassium) || Number(potassium) < 0) {
     errors.potassium = t["crop_error_potassium"] || "Potassium value required";
   }
-  if (!temperature || isNaN(temperature) || Number(temperature) < -20 || Number(temperature) > 60) {
-    errors.temperature = t["crop_error_temperature"] || "Temperature value required";
+  if (
+    !temperature ||
+    isNaN(temperature) ||
+    Number(temperature) < -20 ||
+    Number(temperature) > 60
+  ) {
+    errors.temperature =
+      t["crop_error_temperature"] || "Temperature value required";
   }
-  if (!humidity || isNaN(humidity) || Number(humidity) < 0 || Number(humidity) > 100) {
+  if (
+    !humidity ||
+    isNaN(humidity) ||
+    Number(humidity) < 0 ||
+    Number(humidity) > 100
+  ) {
     errors.humidity = t["crop_error_humidity"] || "Humidity value required";
   }
-  if (!ph_level || isNaN(ph_level) || Number(ph_level) < 0 || Number(ph_level) > 14) {
+  if (
+    !ph_level ||
+    isNaN(ph_level) ||
+    Number(ph_level) < 0 ||
+    Number(ph_level) > 14
+  ) {
     errors.ph_level = t["crop_error_ph_level"] || "pH value required";
   }
   if (!rainfall || isNaN(rainfall) || Number(rainfall) < 0) {
     errors.rainfall = t["crop_error_rainfall"] || "Rainfall value required";
   }
 
-  console.log("Validation errors:", Object.keys(errors).length > 0 ? errors : "None");
+  console.log(
+    "Validation errors:",
+    Object.keys(errors).length > 0 ? errors : "None",
+  );
   return errors;
 }
 
@@ -118,7 +147,8 @@ function renderAlternatives(alternatives) {
     return "";
   }
 
-  let html = "<div class='mt-3'><p class='text-xs font-semibold text-textMid mb-2'>Other Options:</p><div class='flex flex-wrap gap-2'>";
+  let html =
+    "<div class='mt-3'><p class='text-xs font-semibold text-textMid mb-2'>Other Options:</p><div class='flex flex-wrap gap-2'>";
   alternatives.forEach((crop) => {
     html += `<span class='text-xs bg-primaryLight/20 text-primary px-3 py-1 rounded-full'>${crop}</span>`;
   });
@@ -128,10 +158,14 @@ function renderAlternatives(alternatives) {
 
 function renderBilingualResult(data) {
   console.log("renderBilingualResult called with data:", data);
-  
-  const lang = (window.currentLang || localStorage.getItem("lang") || "en").toLowerCase();
+
+  const lang = (
+    window.currentLang ||
+    localStorage.getItem("lang") ||
+    "en"
+  ).toLowerCase();
   console.log("Current language:", lang);
-  
+
   const englishData = data.english || {};
   const hindiData = data.hindi || {};
   const selectedData = lang === "hi" ? hindiData : englishData;
@@ -142,13 +176,24 @@ function renderBilingualResult(data) {
   const emoji = window.EMOJIS[iconCrop] || window.EMOJIS.default;
   const confPercent = parseFloat(selectedData.confidence || 0);
 
-  console.log("Icon crop:", iconCrop, "Emoji:", emoji, "Confidence:", confPercent);
+  console.log(
+    "Icon crop:",
+    iconCrop,
+    "Emoji:",
+    emoji,
+    "Confidence:",
+    confPercent,
+  );
 
   document.getElementById("resultIcon").textContent = emoji;
-  document.getElementById("resultName").textContent = selectedData.recommended_crop || "N/A";
-  document.getElementById("resultAnalysis").textContent = selectedData.analysis || "";
+  document.getElementById("resultName").textContent =
+    selectedData.recommended_crop || "N/A";
+  document.getElementById("resultAnalysis").textContent =
+    selectedData.analysis || "";
   document.getElementById("resultConfText").textContent = confPercent + "%";
-  document.getElementById("alternatives").innerHTML = renderAlternatives(selectedData.alternatives || englishData.alternatives || []);
+  document.getElementById("alternatives").innerHTML = renderAlternatives(
+    selectedData.alternatives || englishData.alternatives || [],
+  );
   document.getElementById("resultBar").style.width = confPercent + "%";
 
   const englishSection = document.getElementById("resultEnglish");
@@ -157,10 +202,14 @@ function renderBilingualResult(data) {
     englishSection.classList.add("hidden");
     hindiSection.classList.remove("hidden");
     document.getElementById("resultIconHi").textContent = emoji;
-    document.getElementById("resultNameHi").textContent = selectedData.recommended_crop || "N/A";
-    document.getElementById("resultAnalysisHi").textContent = selectedData.analysis || "";
+    document.getElementById("resultNameHi").textContent =
+      selectedData.recommended_crop || "N/A";
+    document.getElementById("resultAnalysisHi").textContent =
+      selectedData.analysis || "";
     document.getElementById("resultConfTextHi").textContent = confPercent + "%";
-    document.getElementById("alternativesHi").innerHTML = renderAlternatives(selectedData.alternatives || englishData.alternatives || []);
+    document.getElementById("alternativesHi").innerHTML = renderAlternatives(
+      selectedData.alternatives || englishData.alternatives || [],
+    );
     document.getElementById("resultBarHi").style.width = confPercent + "%";
   } else {
     englishSection.classList.remove("hidden");
@@ -193,16 +242,31 @@ async function getCropRecommendation() {
   const lon = parseFloat(localStorage.getItem(`lon_${userId}`) || 0);
 
   const nitrogenValue = parseFloat(document.getElementById("nitrogen").value);
-  const phosphorusValue = parseFloat(document.getElementById("phosphorus").value);
+  const phosphorusValue = parseFloat(
+    document.getElementById("phosphorus").value,
+  );
   const potassiumValue = parseFloat(document.getElementById("potassium").value);
-  const temperatureValue = parseFloat(document.getElementById("temperature").value);
+  const temperatureValue = parseFloat(
+    document.getElementById("temperature").value,
+  );
   const humidityValue = parseFloat(document.getElementById("humidity").value);
   const phValue = parseFloat(document.getElementById("ph_level").value);
   const rainfallValue = parseFloat(document.getElementById("rainfall").value);
 
-  if ([nitrogenValue, phosphorusValue, potassiumValue, temperatureValue, humidityValue, phValue, rainfallValue].some(v => isNaN(v))) {
+  if (
+    [
+      nitrogenValue,
+      phosphorusValue,
+      potassiumValue,
+      temperatureValue,
+      humidityValue,
+      phValue,
+      rainfallValue,
+    ].some((v) => isNaN(v))
+  ) {
     console.error("Invalid numeric values detected");
-    document.getElementById("errorMsg").textContent = "Invalid input values. Please check your entries.";
+    document.getElementById("errorMsg").textContent =
+      "Invalid input values. Please check your entries.";
     showState("errorState");
     btn.disabled = false;
     btnText.textContent = t["crop_btn_analyze"] || "Get Crop Recommendation";
@@ -222,36 +286,27 @@ async function getCropRecommendation() {
     longitude: lon,
   };
 
-  console.log("Sending crop recommendation request:", payload);
+  // ...existing code...
 
   try {
-    console.log("Fetching /api/crop-recommendation with payload:", JSON.stringify(payload));
-    
     const res = await fetch("/api/crop-recommendation", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify(payload),
     });
 
-    console.log("Response status:", res.status, res.statusText);
-
     let data;
     try {
       const text = await res.text();
-      console.log("Response text:", text);
       data = text ? JSON.parse(text) : {};
     } catch (parseErr) {
-      console.error("JSON parse error:", parseErr, "response text was:", text);
       throw new Error("Invalid response format from server");
     }
 
-    console.log("Response data:", data);
-
     if (!res.ok) {
-      console.error("Request failed with status:", res.status);
       if (data.errors) {
         displayErrors(data.errors);
       }
@@ -262,7 +317,6 @@ async function getCropRecommendation() {
     }
 
     if (data.status === "error") {
-      console.error("API returned error:", data);
       if (data.errors) {
         displayErrors(data.errors);
       }
@@ -272,11 +326,9 @@ async function getCropRecommendation() {
       return;
     }
 
-    console.log("Rendering result:", data.data?.crop_recommendation);
     renderBilingualResult(data.data?.crop_recommendation || {});
     await loadCropRecommendationHistory();
   } catch (err) {
-    console.error("Fetch error:", err, err.stack);
     document.getElementById("errorMsg").textContent =
       err.message || "Network error. Please try again.";
     showState("errorState");
@@ -300,25 +352,25 @@ async function loadCropRecommendationHistory() {
   try {
     console.log("Fetching crop recommendation history");
     const res = await fetch("/api/crop-recommendation/history");
-    
+
     console.log("History response status:", res.status);
-    
+
     if (!res.ok) {
       console.warn("History fetch failed with status:", res.status);
       return;
     }
-    
+
     const text = await res.text();
     console.log("History response text:", text);
-    
+
     if (!text) {
       console.warn("Empty response from history endpoint");
       return;
     }
-    
+
     const data = JSON.parse(text);
     console.log("History data:", data);
-    
+
     if (data.status !== "success" || !Array.isArray(data.data?.history)) {
       console.warn("Invalid history response structure");
       return;
@@ -354,11 +406,15 @@ async function loadCropRecommendationHistory() {
       })
       .join("");
   } catch (err) {
-    console.error("Failed to load crop recommendation history:", err, err.stack);
+    console.error(
+      "Failed to load crop recommendation history:",
+      err,
+      err.stack,
+    );
   }
 }
 
-window.getCsrf = function() {
+window.getCsrf = function () {
   const meta = document.querySelector('meta[name="csrf-token"]');
   if (meta) return meta.content;
   const c = document.cookie
@@ -369,20 +425,20 @@ window.getCsrf = function() {
 
 if (typeof window._cropRecommendationInitialized === "undefined") {
   window._cropRecommendationInitialized = true;
-  
-  window.addEventListener("DOMContentLoaded", function() {
+
+  window.addEventListener("DOMContentLoaded", function () {
     console.log("Crop recommendation initialized");
-    
+
     const btn = document.getElementById("recommendBtn");
     if (btn) {
-      btn.addEventListener("click", function(e) {
+      btn.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
         console.log("Button clicked, calling getCropRecommendation");
         getCropRecommendation();
       });
     }
-    
+
     loadCropRecommendationHistory();
   });
 }
