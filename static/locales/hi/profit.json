@@ -53,6 +53,8 @@
   "profit_history_revenue": "राजस्व",
   "profit_history_profit": "लाभ",
   "profit_history_delete": "हटाें",
+  "profit_history_show_button": "इतिहास दिखाएँ",
+  "profit_history_hide_button": "इतिहास छिपाएँ",
   "profit_history_date": "तारीख",
   "profit_analysis_no_history": "अभी तक कोई लाभ विश्लेषण इतिहास नहीं मिला।",
   "profit_error_required": "यह फ़ील्ड आवश्यक है।",
