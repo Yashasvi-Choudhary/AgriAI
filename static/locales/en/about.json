@@ -1,0 +1,72 @@
+{
+  "about": {
+    "story": {
+      "badge": "Our Story",
+      "heading": "Why We Created Labhansh.ai",
+      "paragraph1": "Millions of farmers across India face daily challenges that technology could easily solve — yet most have never had access to it. Uncertain weather, unknown diseases, confusing fertilizer choices, and invisible market prices leave them guessing at every step.",
+      "paragraph2": "We believe every farmer deserves a smart companion. That's why we built Labhansh.ai — an AI-powered agriculture platform that turns complex data into simple, actionable guidance. Smarter decisions. Better harvests. A stronger future.",
+      "tagline": "Smart Agriculture Platform",
+      "ai_badge": "AI Powered"
+    },
+    "services": {
+      "badge": "What We Offer",
+      "heading": "Features Built for Farmers",
+      "subheading": "Every tool designed with one purpose — making farming smarter.",
+      "items": {
+        "crop": {
+          "name": "Crop Recommendation",
+          "desc": "AI-based suggestions for the best crop to grow."
+        },
+        "yield": {
+          "name": "Yield Prediction",
+          "desc": "Forecast your harvest output with accuracy."
+        },
+        "disease": {
+          "name": "Disease Detection",
+          "desc": "Identify crop diseases instantly from images."
+        },
+        "fertilizer": {
+          "name": "Fertilizer Guide",
+          "desc": "Smart fertilizer advice based on soil and crop."
+        },
+        "market": {
+          "name": "Market Price Tracking",
+          "desc": "Stay updated with live mandi and market rates."
+        },
+        "profit": {
+          "name": "Profit Analysis",
+          "desc": "Understand your costs, income, and profitability."
+        },
+        "schemes": {
+          "name": "Government Schemes",
+          "desc": "Discover subsidies and programs you qualify for."
+        },
+        "community": {
+          "name": "Farmer Community",
+          "desc": "Connect, share, and learn with fellow farmers."
+        },
+        "assistant": {
+          "name": "AI Assistant",
+          "desc": "Ask anything farming-related and get smart answers."
+        }
+      }
+    },
+    "team": {
+      "badge": "The Builders",
+      "heading": "Developed By",
+      "subheading": "A passionate team of four students building technology for the people who feed us.",
+      "members": {
+        "1": "Yashasvi Choudhary",
+        "2": "Diksha Patil",
+        "3": "Dimple Thakur",
+        "4": "Bhumi Mahajan"
+      }
+    },
+    "cta": {
+      "heading": "Empowering Agriculture Through Technology",
+      "subheading": "Every feature built to help farmers grow better, smarter, and stronger.",
+      "button": "Explore Dashboard",
+      "emoji": "🌱"
+    }
+  }
+}

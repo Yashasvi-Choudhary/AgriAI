@@ -139,6 +139,7 @@ def inject_globals():
     page_map = {
     "": "dashboard",
     "dashboard": "dashboard",
+    "about": "about",
     "crop-recommendation": "crop-recommendation",
     "crop-yield-prediction": "crop-yield-prediction",
     "plant-disease-detection": "plant-disease-detection",
@@ -234,6 +235,13 @@ def dashboard():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/dashboard.html')
+
+
+@app.route('/about')
+def about_page():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/about.html')
 
 
 @app.route('/profit')
