@@ -394,9 +394,13 @@ function updateProfitHistoryToggleLabel() {
 
 function setProfitHistoryVisibility(visible) {
   const content = document.getElementById('profitHistoryContent');
+  const toggleBtn = document.getElementById('profitHistoryToggleBtn');
   if (!content) return;
   profitHistoryVisible = visible;
   content.classList.toggle('hidden', !visible);
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', visible ? 'true' : 'false');
+  }
   updateProfitHistoryToggleLabel();
 }
 
