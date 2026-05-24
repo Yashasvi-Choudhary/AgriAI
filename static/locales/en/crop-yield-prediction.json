@@ -7,23 +7,15 @@
 
   "yield_label_crop_type": "Crop Type",
   "yield_crop_placeholder": "Select a crop…",
-  "yield_crop_wheat": "Wheat",
   "yield_crop_rice": "Rice",
-  "yield_crop_maize": "Maize (Corn)",
+  "yield_crop_maize": "Maize",
+  "yield_crop_chickpea": "Chickpea",
   "yield_crop_cotton": "Cotton",
-  "yield_crop_sugarcane": "Sugarcane",
 
   "yield_label_area": "Land Area",
   "yield_area_placeholder": "Enter area",
   "yield_unit_acre": "Acre",
   "yield_unit_hectare": "Hectare",
-
-  "yield_label_nitrogen": "Nitrogen (N) — mg/kg",
-  "yield_nitrogen_placeholder": "e.g. 40",
-  "yield_label_phosphorus": "Phosphorus (P) — mg/kg",
-  "yield_phosphorus_placeholder": "e.g. 20",
-  "yield_label_potassium": "Potassium (K) — mg/kg",
-  "yield_potassium_placeholder": "e.g. 30",
 
   "yield_label_ph": "Soil pH Level",
   "yield_ph_placeholder": "e.g. 6.5 (0–14)",
@@ -59,6 +51,19 @@
 
   "yield_empty_state": "Fill in the form above and click Predict Yield to see your results.",
   "yield_loading_text": "Running prediction model, please wait…",
+
+  "yield_history_title": "Yield Prediction History",
+  "yield_history_empty": "Your saved predictions will appear here.",
+  "yield_history_show": "Show History",
+  "yield_history_hide": "Hide History",
+  "yield_history_crop": "Crop",
+  "yield_history_area": "Acre",
+  "yield_history_productivity": "Productivity",
+  "yield_history_predicted": "Predicted yield",
+  "yield_history_date": "Saved on",
+  "yield_history_delete": "Delete",
+  "yield_history_delete_error": "Unable to delete this prediction.",
+  "yield_history_load_error": "Unable to load prediction history.",
 
   "yield_error_title": "Prediction Failed",
   "yield_error_no_result": "No yield prediction received from the server.",
