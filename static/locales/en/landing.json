@@ -13,7 +13,7 @@
     "badge": "AI-Powered Agriculture Platform",
     "title1": "Grow Smarter with",
     "title2": "Artificial Intelligence ",
-    "subtitle": "Labhansh.ai empowers every farmer with data-driven crop recommendations, disease detection, and market insights — making precision agriculture accessible to all.",
+    "subtitle": "Labhansh.ai empowers every farmer with data-driven crop recommendations and market insights — making precision agriculture accessible to all.",
     "btn_start": "Register Now",
     "btn_explore": "Explore Features"
   },
@@ -40,10 +40,7 @@
         "title": "Crop Yield Prediction",
         "desc": "Forecast harvest output with high accuracy using real-time data."
       },
-      {
-        "title": "Plant Disease Detection",
-        "desc": "Upload a crop photo — AI instantly identifies diseases with treatment advice."
-      },
+
       {
         "title": "Fertilizer Guide",
         "desc": "Personalized fertilizer recommendations to optimize soil health."

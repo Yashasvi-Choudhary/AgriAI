@@ -3,7 +3,6 @@
   "nav_dashboard": "डैशबोर्ड",
   "nav_crop": "फसल सुझाव",
   "nav_yield": "उपज अनुमान",
-  "nav_disease": "रोग पहचान",
   "nav_tools": "उपकरण",
   "nav_fert": "उर्वरक गाइड",
   "nav_profit": "लाभ विश्लेषण",
@@ -12,5 +11,19 @@
   "nav_community_link": "किसान समुदाय",
   "nav_schemes": "सरकारी योजनाएं",
   "nav_ai": "AI सहायक",
-  "nav_about": "हमारे बारे में"
+  "nav_about": "हमारे बारे में",
+  "footer_brand_desc": "AI-आधारित अंतर्दृष्टियों के साथ भारतीय किसानों को सशक्त बनाना — smarter निर्णय, बेहतर फसलें।",
+  "footer_features": "सुविधाएँ",
+  "footer_quick_links": "त्वरित लिंक",
+  "footer_crop": "🌱 फसल अनुशंसा",
+  "footer_market": "📈 बाजार भाव",
+  "footer_profit": "💹 लाभ विश्लेषक",
+  "footer_schemes": "🏛️ सरकारी योजनाएँ",
+  "footer_dashboard": "डैशबोर्ड",
+  "footer_about": "हमारे बारे में",
+  "footer_note": "फसल योजना, बाजार ट्रैकिंग और कृषि मार्गदर्शन के लिए व्यावहारिक उपकरण।",
+  "footer_copyright": "© 2025 Labhansh.ai. सर्वाधिकार सुरक्षित। भारतीय किसानों के लिए ❤️ के साथ बनाया गया।",
+  "footer_available": "उपलब्ध भाषा",
+  "footer_english": "🇮🇳 English",
+  "footer_hindi": "हिंदी"
 }

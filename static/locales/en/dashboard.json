@@ -8,9 +8,10 @@
 
   "tagline": "Smart Agriculture",
 
-
-
   "greeting": "Good morning,",
+  "hero_greet": "Hello 🙏",
+  "hero_title": "Good to see you,",
+  "hero_desc": "Your fields are ready to be monitored. Let's grow smarter today. 🌱",
   "dd_profile": "View Profile",
   "dd_settings": "Settings",
   "dd_logout": "Logout",
@@ -27,19 +28,20 @@
   "w_rain_chance": "Rain Chance",
 
   "sec_actions": "⚡ Quick Actions",
-  "qa_scan": "Scan Crop",
-  "qa_scan_sub": "Detect diseases",
   "qa_market": "Market Price",
   "qa_market_sub": "Live mandi rates",
   "qa_ai": "Ask AI",
   "qa_ai_sub": "Get instant help",
+  "qa_fert": "Fertilizer Guide",
+  "qa_fert_sub": "Soil-smart fertilizer tips",
   "qa_schemes": "Schemes",
   "qa_schemes_sub": "Govt. benefits",
 
-  "sec_rain": "🌧 7-Day Rain Forecast",
-  "rain_title": "Rainfall Prediction",
-  "rain_unit": "probability %",
-  "rain_note": "Best days to irrigate: Tuesday & Wednesday",
+  "sec_forecast": "🌡 7-Day Temperature Outlook",
+  "forecast_title": "7-Day Temperature Outlook",
+  "forecast_desc": "Review today’s temperature and the next 7-day trend to plan your farm work smarter.",
+  "forecast_unit": "°C",
+  "forecast_note": "Compare today’s temperature with the next 7 days to plan irrigation, harvesting, and field work.",
 
   "f_about": "About",
   "f_contact": "Contact",

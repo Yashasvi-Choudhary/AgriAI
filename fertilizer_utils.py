@@ -16,6 +16,9 @@ FERTILIZER_TRANSLATIONS = {
     "DAP": {"en": "DAP", "hi": "डीएपी"},
     "Potash": {"en": "Potash", "hi": "पोटाश"},
     "NPK": {"en": "NPK", "hi": "एनपीके"},
+    "Organic Compost": {"en": "Organic Compost", "hi": "जैविक खाद"},
+    "No Fertilizer Needed": {"en": "No Fertilizer Needed", "hi": "कोई उर्वरक आवश्यक नहीं"},
+    "Minimal Fertilizer": {"en": "Minimal Fertilizer", "hi": "न्यूनतम उर्वरक"},
     "14-35-14": {"en": "14-35-14", "hi": "14-35-14"},
     "17-17-17": {"en": "17-17-17", "hi": "17-17-17"},
     "20-20": {"en": "20-20", "hi": "20-20"},
@@ -28,6 +31,9 @@ FERTILIZER_QUANTITY = {
     "DAP": {"en": "Apply 30–40 kg per acre", "hi": "प्रति एकड़ 30–40 किलोग्राम लगाएं"},
     "Potash": {"en": "Apply 25–35 kg per acre", "hi": "प्रति एकड़ 25–35 किलोग्राम लगाएं"},
     "NPK": {"en": "Apply 50 kg per acre", "hi": "प्रति एकड़ 50 किलोग्राम लगाएं"},
+    "Organic Compost": {"en": "Apply 1–2 tons per acre", "hi": "प्रति एकड़ 1–2 टन जैविक खाद डालें"},
+    "No Fertilizer Needed": {"en": "No fertilizer required at this time", "hi": "इस समय कोई उर्वरक आवश्यक नहीं"},
+    "Minimal Fertilizer": {"en": "Apply only a minimal dose if needed", "hi": "आवश्यक हो तो केवल न्यूनतम मात्रा में उर्वरक डालें"},
 }
 
 REASON_TEXT = {
@@ -44,8 +50,20 @@ REASON_TEXT = {
         "hi": "पोटैशियम कम है, और पोटाश तनों और फलों को मजबूत करता है।",
     },
     "NPK": {
-        "en": "Balanced nutrients are needed, so a complete NPK fertilizer is best.",
-        "hi": "पोषक तत्व संतुलित करने के लिए पूर्ण NPK उर्वरक सबसे अच्छा है।",
+        "en": "All nutrients are low, so a balanced NPK fertilizer is best.",
+        "hi": "सभी पोषक तत्व कम हैं, इसलिए संतुलित NPK उर्वरक सबसे अच्छा है।",
+    },
+    "Organic Compost": {
+        "en": "All nutrients are high; organic compost will maintain soil health.",
+        "hi": "सभी पोषक तत्व उच्च हैं; जैविक खाद मिट्टी की सेहत बनाए रखेगी।",
+    },
+    "No Fertilizer Needed": {
+        "en": "Nutrient levels are optimal; no fertilizer is needed.",
+        "hi": "पोषक तत्व स्तर उत्तम हैं; कोई उर्वरक आवश्यक नहीं है।",
+    },
+    "Minimal Fertilizer": {
+        "en": "Nutrient levels are high; only minimal fertilizer may be used if needed.",
+        "hi": "पोषक तत्व उच्च हैं; केवल न्यूनतम मात्रा में उर्वरक डालें यदि आवश्यक हो।",
     },
 }
 
@@ -66,6 +84,18 @@ ADVICE_TEXT = {
         "en": "Split the dose and combine with organic compost if possible.",
         "hi": "खुराक विभाजित करें और संभव हो तो जैविक खाद के साथ मिलाएं।",
     },
+    "Organic Compost": {
+        "en": "Apply compost at the start of the season to enrich soil.",
+        "hi": "मौसम की शुरुआत में जैविक खाद डालें ताकि मिट्टी समृद्ध हो।",
+    },
+    "No Fertilizer Needed": {
+        "en": "Continue good practices and monitor soil health.",
+        "hi": "अच्छी कृषि प्रथाएं जारी रखें और मिट्टी की सेहत पर नजर रखें।",
+    },
+    "Minimal Fertilizer": {
+        "en": "Apply only if crop shows deficiency symptoms.",
+        "hi": "केवल तब लगाएं जब फसल में कमी के लक्षण दिखें।",
+    },
 }
 
 DEFAULT_QUANTITY = {"en": "Use one 50 kg bag per acre.", "hi": "प्रति एकड़ एक 50 किलोग्राम बैग उपयोग करें।"}
@@ -78,8 +108,8 @@ DEFAULT_ADVICE = {
     "hi": "ध्यान से लगाएं और सरल मिट्टी परीक्षण की सलाह का पालन करें।",
 }
 
-LOW_THRESHOLD = 15.0
-HIGH_THRESHOLD = 35.0
+LOW_THRESHOLD = 20.0
+HIGH_THRESHOLD = 75.0
 
 
 def validate_input(payload):
@@ -145,18 +175,38 @@ def _get_rule_based_prediction(payload):
     low_n = n < LOW_THRESHOLD
     low_p = p < LOW_THRESHOLD
     low_k = k < LOW_THRESHOLD
+    high_n = n > HIGH_THRESHOLD
+    high_p = p > HIGH_THRESHOLD
+    high_k = k > HIGH_THRESHOLD
 
+    # All high: recommend organic or no fertilizer
+    if high_n and high_p and high_k:
+        # Optionally, randomize or select based on crop/soil
+        return "Organic Compost"
+    # All low: recommend NPK
+    if low_n and low_p and low_k:
+        return "NPK"
+    # Only one low
     if low_n and not low_p and not low_k:
         return "Urea"
     if low_p and not low_n and not low_k:
         return "DAP"
     if low_k and not low_n and not low_p:
         return "Potash"
-    if low_n and low_p and low_k:
+    # Two low
+    if low_n and low_p and not low_k:
         return "NPK"
+    if low_n and low_k and not low_p:
+        return "NPK"
+    if low_p and low_k and not low_n:
+        return "NPK"
+    # All optimal or high, but not all high
     if not low_n and not low_p and not low_k:
-        return "NPK"
-
+        # If at least one is high, suggest minimal fertilizer
+        if high_n or high_p or high_k:
+            return "Minimal Fertilizer"
+        else:
+            return "No Fertilizer Needed"
     return None
 
 
