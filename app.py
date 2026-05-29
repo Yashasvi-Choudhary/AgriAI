@@ -142,7 +142,6 @@ def inject_globals():
     "about": "about",
     "crop-recommendation": "crop-recommendation",
     "crop-yield-prediction": "crop-yield-prediction",
-    "plant-disease-detection": "plant-disease-detection",
     "fertilizer-guide": "fertilizer-guide",
     "profit-analyzer": "profit",
     "market-price": "market",
@@ -411,13 +410,6 @@ def yield_prediction():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/crop-yield-prediction.html')
-
-
-@app.route('/plant-disease-detection')
-def plant_disease_detection():
-    if "user" not in session:
-        return redirect('/login')
-    return render_template('dashboard/plant-disease-detection.html')
 
 
 @app.route('/fertilizer-guide')
@@ -1471,16 +1463,59 @@ def get_weather():
     lat = data.get("lat")
     lon = data.get("lon")
 
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=relativehumidity_2m,precipitation_probability"
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
 
     res = requests.get(url).json()
+
+    daily = res.get("daily", {}) or {}
+    dates = daily.get("time", []) or []
+    forecast = []
+    for i, (day_date, day_max, day_min, code) in enumerate(zip(dates, daily.get("temperature_2m_max", []), daily.get("temperature_2m_min", []), daily.get("weathercode", []))):
+        label = "Today" if i == 0 else datetime.datetime.strptime(day_date, "%Y-%m-%d").strftime("%b %d")
+        forecast.append({
+            "date": day_date,
+            "label": label,
+            "day": "Today" if i == 0 else day_date,
+            "max": round(day_max, 1),
+            "min": round(day_min, 1),
+            "condition": describe_weather_code(code),
+        })
 
     return jsonify({
         "temperature": res["current_weather"]["temperature"],
         "windspeed": res["current_weather"]["windspeed"],
         "humidity": res["hourly"]["relativehumidity_2m"][0],
-        "rainfall": res["hourly"]["precipitation_probability"][0]
+        "rainfall": res["hourly"]["precipitation_probability"][0],
+        "description": res["current_weather"].get("weathercode") and describe_weather_code(res["current_weather"]["weathercode"]) or "Clear",
+        "forecast": forecast,
     })
+
+
+def describe_weather_code(code):
+    mapping = {
+        0: "Clear sky",
+        1: "Mainly clear",
+        2: "Partly cloudy",
+        3: "Overcast",
+        45: "Fog",
+        48: "Depositing rime fog",
+        51: "Light drizzle",
+        53: "Moderate drizzle",
+        55: "Dense drizzle",
+        61: "Slight rain",
+        63: "Moderate rain",
+        65: "Heavy rain",
+        71: "Slight snow",
+        73: "Moderate snow",
+        75: "Heavy snow",
+        80: "Rain showers",
+        81: "Rain showers",
+        82: "Violent rain showers",
+        95: "Thunderstorm",
+        96: "Thunderstorm with hail",
+        99: "Thunderstorm with hail",
+    }
+    return mapping.get(int(code), "Clear")
 
 # ─────────────────────────────────────────────
 # SERVE UPLOADED FILES
