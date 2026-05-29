@@ -21,10 +21,7 @@
           "name": "Yield Prediction",
           "desc": "Forecast your harvest output with accuracy."
         },
-        "disease": {
-          "name": "Disease Detection",
-          "desc": "Identify crop diseases instantly from images."
-        },
+
         "fertilizer": {
           "name": "Fertilizer Guide",
           "desc": "Smart fertilizer advice based on soil and crop."
