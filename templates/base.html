@@ -83,25 +83,25 @@
       {{ current_user | default({}) | tojson }}
     </script>
     <script>
-      (function () {
-        var userData = {};
+      if (typeof userData === "undefined") {
+        let userData = {};
         try {
-          var raw = document.getElementById("userData");
-          if (raw && raw.textContent.trim()) {
-            userData = JSON.parse(raw.textContent);
-          }
+          userData = JSON.parse(
+            document.getElementById("userData").textContent,
+          );
         } catch (e) {
-          console.warn("User data parse failed:", e);
+          console.warn("User data parse failed");
         }
         window.userData = userData;
-        window._currentUserId = userData && userData.id ? userData.id : null;
-      })();
+      }
+      window._currentUserId = window.userData?.id || null;
     </script>
 
     <!-- 2. i18n translations dictionary — used by community.js and global.js -->
     <script>
       window.__i18n = {{ (t or {}) | tojson | safe }};
       window.__lang  = "{{ lang }}";
+      window.__lang = "{{ lang }}";
     </script>
 
     <!-- 3. Global utilities (sidebar toggle, language switcher, weather header, etc.) -->

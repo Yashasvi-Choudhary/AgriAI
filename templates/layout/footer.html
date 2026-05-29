@@ -15,161 +15,99 @@
   ></div>
 
   <div class="relative z-10 px-6 md:px-10 pt-12 pb-5">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-9 mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-9 mb-10">
       <!-- Brand -->
-      <div>
-        <div class="mb-4">
+      <div class="space-y-3">
+        <div class="mb-2">
           <img
             src="/static/images/logo.png"
             alt="Labhansh.ai"
             class="h-11 w-auto"
           />
         </div>
-        <p class="text-textLight/90 text-[0.82rem] leading-relaxed mb-5">
+        <p
+          class="text-textLight/90 text-[0.82rem] leading-relaxed"
+          data-i18n="footer_brand_desc"
+        >
           Empowering Indian farmers with AI-driven insights — smarter decisions,
           better harvests.
         </p>
-        <div class="flex gap-2">
-          <a
-            href="#"
-            class="w-9 h-9 rounded-xl flex items-center justify-center text-sm hover:-translate-y-0.5 transition-all bg-white/10 hover:bg-accent/20 hover:text-accentLight"
-            >🐦</a
-          >
-          <a
-            href="#"
-            class="w-9 h-9 rounded-xl flex items-center justify-center text-sm hover:-translate-y-0.5 transition-all bg-white/10 hover:bg-accent/20 hover:text-accentLight"
-            >📘</a
-          >
-          <a
-            href="#"
-            class="w-9 h-9 rounded-xl flex items-center justify-center text-sm hover:-translate-y-0.5 transition-all bg-white/10 hover:bg-accent/20 hover:text-accentLight"
-            >▶️</a
-          >
-          <a
-            href="#"
-            class="w-9 h-9 rounded-xl flex items-center justify-center text-sm hover:-translate-y-0.5 transition-all bg-white/10 hover:bg-accent/20 hover:text-accentLight"
-            >💬</a
-          >
-        </div>
+        <p
+          class="text-textLight/80 text-[0.75rem] rounded-xl bg-white/8 px-3 py-2 border border-white/10"
+          data-i18n="footer_note"
+        >
+          Practical tools for crop planning, market tracking, and farming
+          guidance.
+        </p>
       </div>
 
       <!-- Features -->
       <div>
         <h4
           class="text-textLight/90 font-semibold text-[0.78rem] mb-4 uppercase tracking-[2px]"
+          data-i18n="footer_features"
         >
           Features
         </h4>
         <ul class="space-y-2.5">
           <li>
             <a
-              href="#"
+              href="/crop-recommendation"
               class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors flex items-center gap-2"
+              data-i18n="footer_crop"
               >🌱 Crop Recommendation</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/market-price"
               class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors flex items-center gap-2"
-              >🍃 Disease Detection</a
-            >
-          </li>
-          <li>
-            <a
-              href="#"
-              class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors flex items-center gap-2"
+              data-i18n="footer_market"
               >📈 Market Prices</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/profit"
               class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors flex items-center gap-2"
-              >🤖 AI Assistant</a
+              data-i18n="footer_profit"
+              >💹 Profit Analyzer</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/government-schemes"
               class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors flex items-center gap-2"
+              data-i18n="footer_schemes"
               >🏛️ Govt. Schemes</a
             >
           </li>
         </ul>
       </div>
 
-      <!-- Company -->
+      <!-- Quick links -->
       <div>
         <h4
           class="text-textLight/90 font-semibold text-[0.78rem] mb-4 uppercase tracking-[2px]"
+          data-i18n="footer_quick_links"
         >
-          Company
+          Quick Links
         </h4>
         <ul class="space-y-2.5">
           <li>
             <a
-              href="#"
+              href="/dashboard"
               class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors"
-              data-i18n="f_about"
-              >About Us</a
+              data-i18n="footer_dashboard"
+              >Dashboard</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/about"
               class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors"
-              >Careers</a
-            >
-          </li>
-
-          <li>
-            <a
-              href="#"
-              class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors"
-              data-i18n="f_contact"
-              >Contact Us</a
-            >
-          </li>
-          <li>
-            <a
-              href="#"
-              class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors"
-              data-i18n="f_terms"
-              >Terms &amp; Privacy</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <!-- Support -->
-      <div>
-        <h4
-          class="text-textLight/90 font-semibold text-[0.78rem] mb-4 uppercase tracking-[2px]"
-        >
-          Support
-        </h4>
-        <ul class="space-y-2.5 mb-4">
-          <li>
-            <a
-              href="#"
-              class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors"
-              data-i18n="f_help"
-              >Help Center</a
-            >
-          </li>
-          <li>
-            <a
-              href="#"
-              class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors"
-              >Farmer Helpline</a
-            >
-          </li>
-          <li>
-            <a
-              href="#"
-              class="text-textLight/90 hover:text-accentLight text-[0.82rem] transition-colors"
-              >Report a Bug</a
+              data-i18n="footer_about"
+              >About</a
             >
           </li>
         </ul>
@@ -180,20 +118,25 @@
     <div
       class="border-t border-backgroundDark/40 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3"
     >
-      <p class="text-textLight/70 text-[0.74rem]">
+      <p class="text-textLight/70 text-[0.74rem]" data-i18n="footer_copyright">
         © 2025 Labhansh.ai. All rights reserved. Made with ❤️ for Indian
         Farmers.
       </p>
       <div class="flex items-center gap-2">
-        <span class="text-textLight/90/60 text-[0.7rem]">Available in</span>
+        <span
+          class="text-textLight/90/60 text-[0.7rem]"
+          data-i18n="footer_available"
+          >Available in</span
+        >
         <span
           class="text-textLight/90 text-[0.7rem] px-2.5 py-0.5 rounded-full bg-white/10"
+          data-i18n="footer_english"
           >🇮🇳 English</span
         >
         <span
           class="text-textLight/90 text-[0.7rem] px-2.5 py-0.5 rounded-full bg-white/10"
-        >
-          हिंदी</span
+          data-i18n="footer_hindi"
+          >हिंदी</span
         >
       </div>
     </div>
