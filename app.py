@@ -47,8 +47,8 @@ app.config['MAIL_DEFAULT_SENDER'] = MAIL_USERNAME
 
 mail = Mail(app)
 
-# ye already hai → same rehne do
-app.secret_key = "super_secret_key_123"
+# Use environment variable for deployment safety
+app.secret_key = SECRET_KEY
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
