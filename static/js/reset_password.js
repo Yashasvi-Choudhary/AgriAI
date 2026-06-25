@@ -32,11 +32,7 @@ async function applyLang() {
       btn.classList.add("bg-accent/20", "text-accentLight", "font-semibold");
       btn.classList.remove("text-textLight");
     } else {
-      btn.classList.remove(
-        "bg-accent/20",
-        "text-accentLight",
-        "font-semibold",
-      );
+      btn.classList.remove("bg-accent/20", "text-accentLight", "font-semibold");
       btn.classList.add("text-textLight");
     }
   });
@@ -135,6 +131,11 @@ function togglePwd(id, btn) {
 /* ───────────────── FORM SUBMIT ───────────────── */
 const token = new URLSearchParams(window.location.search).get("token") || "";
 
+if (!token) {
+  document.getElementById("invalid-token").classList.remove("hidden");
+  document.getElementById("reset-form").classList.add("hidden");
+}
+
 document.getElementById("reset-form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -176,9 +177,14 @@ document.getElementById("reset-form").addEventListener("submit", async (e) => {
       setTimeout(() => {
         window.location.href = "/login";
       }, 2500);
+    } else {
+      document.getElementById("form-error").textContent =
+        data.message || "Unable to reset password.";
+      document.getElementById("form-error").classList.remove("hidden");
     }
   } catch {
-    alert("Network error");
+    document.getElementById("form-error").textContent = "Network error";
+    document.getElementById("form-error").classList.remove("hidden");
   }
 
   btn.disabled = false;

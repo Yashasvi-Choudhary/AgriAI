@@ -347,33 +347,40 @@ def test_email():
 # ─────────────────────────────────────────────
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
-
     if request.method == 'GET':
         return render_template('auth/forgot_password.html')
 
-    email = request.form.get('email')
+    if request.is_json:
+        payload = request.get_json(silent=True) or {}
+        email = (payload.get('email') or '').strip().lower()
+    else:
+        email = (request.form.get('email') or '').strip().lower()
+
+    if not email:
+        return jsonify({"success": False, "message": "Email is required"}), 400
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT * FROM users WHERE LOWER(email) = ?", (email,))
     user = cursor.fetchone()
 
     if not user:
-        return jsonify({"success": False, "message": "Email not found"})
+        conn.close()
+        return jsonify({"success": False, "message": "Email not found"}), 404
 
     token = str(uuid.uuid4())
     expiry = datetime.datetime.now() + datetime.timedelta(hours=1)
 
     cursor.execute(
-        "UPDATE users SET reset_token=?, token_expiry=? WHERE email=?",
+        "UPDATE users SET reset_token=?, token_expiry=? WHERE LOWER(email)=?",
         (token, expiry, email)
     )
 
     conn.commit()
     conn.close()
 
-    reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
+    reset_link = f"{request.host_url.rstrip('/')}/reset-password?token={token}"
 
     print("Reset link:", reset_link)
 
@@ -381,52 +388,88 @@ def forgot_password():
         subject="Password Reset",
         recipients=[email]
     )
-    msg.body = f"Click this link:\n{reset_link}"
+    msg.body = f"Hello,\n\nUse this link to reset your password:\n{reset_link}\n\nIf you didn't request this, you can ignore this email."
 
+    email_sent = False
     try:
-        mail.send(msg)
-        print("✅ Email sent")
+        if MAIL_USERNAME and MAIL_PASSWORD:
+            mail.send(msg)
+            email_sent = True
+            print("✅ Email sent")
+        else:
+            print("⚠️ Mail credentials not configured. Reset link generated:", reset_link)
     except Exception as e:
         print("❌ Email error:", e)
 
-    return jsonify({"success": True})
+    return jsonify({
+        "success": True,
+        "message": "If an account exists for this email, a reset link has been sent." if email_sent else "A reset link was generated for this account. Open the link shown in the console or use the link below.",
+        "reset_link": reset_link,
+        "email_sent": email_sent
+    })
 
 # ─────────────────────────────────────────────
 # reset password 
 # ─────────────────────────────────────────────
-
-import datetime
-
+@app.route('/reset-password', methods=['GET', 'POST'])
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
+def reset_password(token=None):
+    token_value = request.args.get('token') or token or ''
+
+    if request.method == 'GET':
+        if not token_value:
+            return render_template('auth/reset_password.html', token='', invalid=True)
+
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT * FROM users WHERE reset_token=? AND token_expiry > ?",
+            (token_value, datetime.datetime.now())
+        )
+        user = cursor.fetchone()
+        conn.close()
+
+        if not user:
+            return render_template('auth/reset_password.html', token=token_value, invalid=True)
+
+        return render_template('auth/reset_password.html', token=token_value, invalid=False)
+
+    if request.is_json:
+        payload = request.get_json(silent=True) or {}
+        token_value = (payload.get('token') or token_value).strip()
+        password = (payload.get('password') or '').strip()
+    else:
+        token_value = (request.form.get('token') or token_value).strip()
+        password = (request.form.get('password') or '').strip()
+
+    if not token_value or not password:
+        return jsonify({"success": False, "message": "Invalid request"}), 400
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
     cursor.execute(
         "SELECT * FROM users WHERE reset_token=? AND token_expiry > ?",
-        (token, datetime.datetime.now())
+        (token_value, datetime.datetime.now())
     )
     user = cursor.fetchone()
 
     if not user:
-        return "Token expired or invalid"
-
-    if request.method == 'POST':
-        password = request.form.get('password')
-        hashed = generate_password_hash(password)
-
-        cursor.execute(
-            "UPDATE users SET password=?, reset_token=NULL, token_expiry=NULL WHERE reset_token=?",
-            (hashed, token)
-        )
-
-        conn.commit()
         conn.close()
+        return jsonify({"success": False, "message": "Token expired or invalid"}), 400
 
-        return jsonify({"success": True})
+    hashed = generate_password_hash(password)
 
-    return render_template('auth/reset_password.html', token=token)
+    cursor.execute(
+        "UPDATE users SET password=?, reset_token=NULL, token_expiry=NULL WHERE reset_token=?",
+        (hashed, token_value)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": "Password reset successful"})
 # ─────────────────────────────────────────────
 # RUN SERVER
 # ─────────────────────────────────────────────
