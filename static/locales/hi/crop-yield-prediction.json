@@ -7,26 +7,36 @@
 
   "yield_label_crop_type": "फसल का प्रकार",
   "yield_crop_placeholder": "फसल चुनें…",
-  "yield_crop_wheat": "गेहूँ",
   "yield_crop_rice": "धान (चावल)",
   "yield_crop_maize": "मक्का",
+  "yield_crop_chickpea": "चना",
   "yield_crop_cotton": "कपास",
-  "yield_crop_sugarcane": "गन्ना",
 
   "yield_label_area": "भूमि क्षेत्रफल",
   "yield_area_placeholder": "क्षेत्रफल दर्ज करें",
   "yield_unit_acre": "एकड़",
   "yield_unit_hectare": "हेक्टेयर",
 
-  "yield_label_nitrogen": "नाइट्रोजन (N) — mg/kg",
-  "yield_nitrogen_placeholder": "जैसे 40",
-  "yield_label_phosphorus": "फॉस्फोरस (P) — mg/kg",
-  "yield_phosphorus_placeholder": "जैसे 20",
-  "yield_label_potassium": "पोटैशियम (K) — mg/kg",
-  "yield_potassium_placeholder": "जैसे 30",
-
   "yield_label_ph": "मिट्टी का pH स्तर",
   "yield_ph_placeholder": "जैसे 6.5 (0–14)",
+
+  "yield_label_humidity": "नमी",
+  "yield_humidity_placeholder": "जैसे 70 (%)",
+
+  "yield_label_nitrogen": "नाइट्रोजन (N)",
+  "yield_nitrogen_placeholder": "जैसे 40 किग्रा/हेक्टेयर",
+
+  "yield_label_phosphorus": "फॉस्फोरस (P)",
+  "yield_phosphorus_placeholder": "जैसे 20 किग्रा/हेक्टेयर",
+
+  "yield_label_potassium": "पोटैशियम (K)",
+  "yield_potassium_placeholder": "जैसे 30 किग्रा/हेक्टेयर",
+
+  "yield_label_temperature": "तापमान",
+  "yield_temperature_placeholder": "जैसे 25°C",
+
+  "yield_label_rainfall": "वर्षा",
+  "yield_rainfall_placeholder": "जैसे 500 मिमी",
 
   "yield_label_location": "स्थान (स्वतः पता चला)",
   "yield_location_detecting": "स्थान का पता लगाया जा रहा है…",
@@ -42,12 +52,33 @@
   "yield_empty_state": "ऊपर दिया गया फॉर्म भरें और परिणाम देखने के लिए 'उपज का अनुमान लगाएं' पर क्लिक करें।",
   "yield_loading_text": "पूर्वानुमान मॉडल चल रहा है, कृपया प्रतीक्षा करें…",
 
+  "yield_history_title": "उपज पूर्वानुमान इतिहास",
+  "yield_history_empty": "आपके सहेजे गए पूर्वानुमान यहां दिखाई देंगे।",
+  "yield_history_show": "इतिहास दिखाएं",
+  "yield_history_hide": "इतिहास छिपाएं",
+  "yield_history_crop": "फसल",
+  "yield_history_area": "एकड़",
+  "yield_history_productivity": "उत्पादकता",
+  "yield_history_predicted": "अनुमानित उपज",
+  "yield_history_date": "सहेजा गया",
+  "yield_history_delete": "हटाएं",
+  "yield_history_delete_error": "इस पूर्वानुमान को हटाया नहीं जा सका।",
+  "yield_history_load_error": "पूर्वानुमान इतिहास लोड नहीं हो सका।",
+
   "yield_error_title": "पूर्वानुमान विफल रहा",
   "yield_error_no_result": "सर्वर से कोई उपज पूर्वानुमान प्राप्त नहीं हुआ।",
   "yield_alert_crop": "आगे बढ़ने से पहले कृपया फसल का प्रकार चुनें।",
   "yield_alert_area": "कृपया भूमि क्षेत्रफल दर्ज करें।",
 
-  "yield_result_section_title": "पूर्वानुमान परिणाम",
+  "yield_alert_temperature": "कृपया तापमान दर्ज करें।",
+  "yield_alert_rainfall": "कृपया वर्षा दर्ज करें।",
+  "yield_alert_humidity": "कृपया नमी दर्ज करें (0-100)।",
+  "yield_alert_ph": "कृपया pH दर्ज करें (0-14)।",
+  "yield_alert_nitrogen": "कृपया नाइट्रोजन दर्ज करें।",
+  "yield_alert_phosphorus": "कृपया फॉस्फोरस दर्ज करें।",
+  "yield_alert_potassium": "कृपया पोटैशियम दर्ज करें।",
+
+  "yield_insights_title": "अंतर्दृष्टि",
   "yield_result_label": "अनुमानित उपज",
   "yield_result_unit": "क्विंटल / एकड़",
   "yield_result_for": "के लिए अनुमान",
@@ -56,28 +87,15 @@
   "yield_productivity_medium": "मध्यम उत्पादकता",
   "yield_productivity_low": "कम उत्पादकता",
 
-  "yield_weather_impact_title": "मौसम का प्रभाव",
-  "yield_insight_temp": "तापमान",
-  "yield_insight_humidity": "आर्द्रता",
-  "yield_insight_rainfall": "वर्षा",
-  "yield_weather_impact_note": "इस फसल के लिए मौसम की स्थिति उचित लग रही है।",
-
-  "yield_soil_health_title": "मिट्टी का स्वास्थ्य",
-  "yield_insight_n": "नाइट्रोजन (N)",
-  "yield_insight_p": "फॉस्फोरस (P)",
-  "yield_insight_k": "पोटैशियम (K)",
-  "yield_insight_ph": "pH स्तर",
-
-  "yield_comparison_title": "आपकी उपज बनाम औसत उपज",
-  "yield_your_yield": "आपकी अनुमानित उपज",
-  "yield_avg_yield": "क्षेत्रीय औसत उपज",
-  "yield_comp_note": "आपकी अनुमानित उपज क्षेत्रीय औसत से {diff} क्विंटल/एकड़ है।",
-
-  "yield_suggestions_title": "सुधार के सुझाव",
-  "yield_suggest_n": "नाइट्रोजन (N) का स्तर बढ़ाएं — कम नाइट्रोजन उपज को 10–15% तक कम कर सकती है।",
-  "yield_suggest_p": "जड़ के विकास और दाने भरने के लिए फॉस्फोरस उर्वरक का प्रयोग करें।",
-  "yield_suggest_k": "पोटैशियम का स्तर आदर्श सीमा से कम है — म्यूरिएट ऑफ पोटाश का प्रयोग करने पर विचार करें।",
-  "yield_suggest_ph": "मिट्टी का pH आदर्श सीमा (5.5–7.5) से बाहर है। लाइमिंग या सल्फर उपचार पर विचार करें।",
-  "yield_suggest_below_avg": "आपकी उपज औसत से कम है — सिंचाई की समय-सारिणी और उर्वरक का समय पुनः जाँचें।",
-  "yield_suggest_good": "मिट्टी और मौसम की स्थिति अच्छी है। वर्तमान कृषि पद्धतियाँ जारी रखें।"
+  "yield_insight_temp_high": "तापमान उच्च है",
+  "yield_insight_temp_low": "तापमान कम है",
+  "yield_insight_temp_optimal": "तापमान आदर्श है",
+  "yield_insight_rainfall_low": "वर्षा कम है",
+  "yield_insight_rainfall_high": "वर्षा अधिक है",
+  "yield_insight_rainfall_optimal": "वर्षा आदर्श है",
+  "yield_insight_humidity_low": "नमी कम है",
+  "yield_insight_humidity_high": "नमी अधिक है",
+  "yield_insight_humidity_optimal": "नमी आदर्श है",
+  "yield_insight_ph_bad": "pH आदर्श सीमा से बाहर है",
+  "yield_insight_ph_good": "pH आदर्श है"
 }

@@ -7,26 +7,36 @@
 
   "yield_label_crop_type": "Crop Type",
   "yield_crop_placeholder": "Select a crop…",
-  "yield_crop_wheat": "Wheat",
   "yield_crop_rice": "Rice",
-  "yield_crop_maize": "Maize (Corn)",
+  "yield_crop_maize": "Maize",
+  "yield_crop_chickpea": "Chickpea",
   "yield_crop_cotton": "Cotton",
-  "yield_crop_sugarcane": "Sugarcane",
 
   "yield_label_area": "Land Area",
   "yield_area_placeholder": "Enter area",
   "yield_unit_acre": "Acre",
   "yield_unit_hectare": "Hectare",
 
-  "yield_label_nitrogen": "Nitrogen (N) — mg/kg",
-  "yield_nitrogen_placeholder": "e.g. 40",
-  "yield_label_phosphorus": "Phosphorus (P) — mg/kg",
-  "yield_phosphorus_placeholder": "e.g. 20",
-  "yield_label_potassium": "Potassium (K) — mg/kg",
-  "yield_potassium_placeholder": "e.g. 30",
-
   "yield_label_ph": "Soil pH Level",
   "yield_ph_placeholder": "e.g. 6.5 (0–14)",
+
+  "yield_label_humidity": "Humidity",
+  "yield_humidity_placeholder": "e.g. 70 (%)",
+
+  "yield_label_nitrogen": "Nitrogen (N)",
+  "yield_nitrogen_placeholder": "e.g. 40 kg/ha",
+
+  "yield_label_phosphorus": "Phosphorus (P)",
+  "yield_phosphorus_placeholder": "e.g. 20 kg/ha",
+
+  "yield_label_potassium": "Potassium (K)",
+  "yield_potassium_placeholder": "e.g. 30 kg/ha",
+
+  "yield_label_temperature": "Temperature",
+  "yield_temperature_placeholder": "e.g. 25°C",
+
+  "yield_label_rainfall": "Rainfall",
+  "yield_rainfall_placeholder": "e.g. 500 mm",
 
   "yield_label_location": "Location (Auto-detected)",
   "yield_location_detecting": "Detecting location…",
@@ -42,12 +52,33 @@
   "yield_empty_state": "Fill in the form above and click Predict Yield to see your results.",
   "yield_loading_text": "Running prediction model, please wait…",
 
+  "yield_history_title": "Yield Prediction History",
+  "yield_history_empty": "Your saved predictions will appear here.",
+  "yield_history_show": "Show History",
+  "yield_history_hide": "Hide History",
+  "yield_history_crop": "Crop",
+  "yield_history_area": "Acre",
+  "yield_history_productivity": "Productivity",
+  "yield_history_predicted": "Predicted yield",
+  "yield_history_date": "Saved on",
+  "yield_history_delete": "Delete",
+  "yield_history_delete_error": "Unable to delete this prediction.",
+  "yield_history_load_error": "Unable to load prediction history.",
+
   "yield_error_title": "Prediction Failed",
   "yield_error_no_result": "No yield prediction received from the server.",
   "yield_alert_crop": "Please select a crop type before proceeding.",
   "yield_alert_area": "Please enter the land area.",
 
-  "yield_result_section_title": "Prediction Result",
+  "yield_alert_temperature": "Please enter temperature.",
+  "yield_alert_rainfall": "Please enter rainfall.",
+  "yield_alert_humidity": "Please enter humidity (0-100).",
+  "yield_alert_ph": "Please enter pH (0-14).",
+  "yield_alert_nitrogen": "Please enter nitrogen.",
+  "yield_alert_phosphorus": "Please enter phosphorus.",
+  "yield_alert_potassium": "Please enter potassium.",
+
+  "yield_insights_title": "Insights",
   "yield_result_label": "Predicted Yield",
   "yield_result_unit": "Quintal / Acre",
   "yield_result_for": "Predicted for",
@@ -56,28 +87,15 @@
   "yield_productivity_medium": "Medium Productivity",
   "yield_productivity_low": "Low Productivity",
 
-  "yield_weather_impact_title": "Weather Impact",
-  "yield_insight_temp": "Temperature",
-  "yield_insight_humidity": "Humidity",
-  "yield_insight_rainfall": "Rainfall",
-  "yield_weather_impact_note": "Weather conditions look suitable for this crop.",
-
-  "yield_soil_health_title": "Soil Health",
-  "yield_insight_n": "Nitrogen (N)",
-  "yield_insight_p": "Phosphorus (P)",
-  "yield_insight_k": "Potassium (K)",
-  "yield_insight_ph": "pH Level",
-
-  "yield_comparison_title": "Your Yield vs Average Yield",
-  "yield_your_yield": "Your Predicted Yield",
-  "yield_avg_yield": "Regional Average Yield",
-  "yield_comp_note": "Your predicted yield is {diff} Quintal/Acre compared to the regional average.",
-
-  "yield_suggestions_title": "Improvement Suggestions",
-  "yield_suggest_n": "Increase Nitrogen (N) levels — low nitrogen can reduce yield by 10–15%.",
-  "yield_suggest_p": "Apply phosphorus fertiliser to boost root development and grain filling.",
-  "yield_suggest_k": "Potassium is below optimal range — consider muriate of potash application.",
-  "yield_suggest_ph": "Soil pH is outside ideal range (5.5–7.5). Consider liming or sulphur treatment.",
-  "yield_suggest_below_avg": "Your yield is below average — review irrigation schedule and fertiliser timing.",
-  "yield_suggest_good": "Soil and weather conditions look good. Maintain current farming practices."
+  "yield_insight_temp_high": "Temperature is high",
+  "yield_insight_temp_low": "Temperature is low",
+  "yield_insight_temp_optimal": "Temperature is optimal",
+  "yield_insight_rainfall_low": "Rainfall is low",
+  "yield_insight_rainfall_high": "Rainfall is high",
+  "yield_insight_rainfall_optimal": "Rainfall is optimal",
+  "yield_insight_humidity_low": "Humidity is low",
+  "yield_insight_humidity_high": "Humidity is high",
+  "yield_insight_humidity_optimal": "Humidity is optimal",
+  "yield_insight_ph_bad": "pH is outside optimal range",
+  "yield_insight_ph_good": "pH is optimal"
 }

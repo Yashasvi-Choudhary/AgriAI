@@ -28,15 +28,13 @@
   "fert_soil_sandy": "रेतीली मिट्टी",
   "fert_soil_clay": "चिकनी मिट्टी",
 
-
-
-  "fert_label_temperature": "तापमान (°C) — वैकल्पिक",
+  "fert_label_temperature": "तापमान (°C)",
   "fert_temp_placeholder": "जैसे 28",
 
-  "fert_label_humidity": "ह्यूमिडिटी (%) — वैकल्पिक",
+  "fert_label_humidity": "ह्यूमिडिटी (%)",
   "fert_humidity_placeholder": "जैसे 40",
 
-  "fert_label_moisture": "मिट्टी की नमी (%) — वैकल्पिक",
+  "fert_label_moisture": "मिट्टी की नमी (%)",
   "fert_moisture_placeholder": "जैसे 45",
 
   "fert_label_nitrogen": "नाइट्रोजन (N) — mg/kg",
@@ -84,5 +82,16 @@
   "fert_tip_1": "उर्वरक लगाने से पहले हमेशा मिट्टी परीक्षण करें।",
   "fert_tip_2": "वाष्पीकरण की हानि को कम करने के लिए सुबह या शाम को उर्वरक लगाएं।",
   "fert_tip_3": "पोषक तत्वों के बहाव को रोकने के लिए भारी बारिश से पहले उर्वरक न डालें।",
-  "fert_tip_4": "सर्वोत्तम परिणामों के लिए रासायनिक उर्वरकों के साथ जैविक खाद का भी उपयोग करें।"
+  "fert_tip_4": "सर्वोत्तम परिणामों के लिए रासायनिक उर्वरकों के साथ जैविक खाद का उपयोग करें।",
+
+  "fert_history_title": "सुझाव इतिहास",
+  "fert_history_show": "इतिहास दिखाएँ",
+  "fert_history_hide": "इतिहास छिपाएँ",
+  "fert_history_no_records": "कोई संग्रहीत उर्वरक सुझाव नहीं मिला।",
+  "fert_history_crop_label": "फसल",
+  "fert_history_fertilizer_label": "उर्वरक",
+
+  "fert_history_date_label": "दिनांक",
+  "fert_history_delete": "हटाएँ",
+  "fert_history_delete_confirm": "क्या आप इस सुझाव को हटाना चाहते हैं?"
 }

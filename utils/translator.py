@@ -1,8 +1,6 @@
 import json
 import os
 
-# Cache loaded files in memory so disk is only read once per language
-_cache = {}
 
 def get_translations(lang, page):
     """Load and merge common + page translations for a given lang."""
@@ -10,10 +8,6 @@ def get_translations(lang, page):
     supported = ["en", "hi"]
     if lang not in supported:
         lang = "en"
-
-    cache_key = f"{lang}_{page}"
-    if cache_key in _cache:
-        return _cache[cache_key]
 
     base = os.path.join("static", "locales", lang)
 
@@ -25,8 +19,8 @@ def get_translations(lang, page):
             return {}
 
     common = load_json(os.path.join(base, "common.json"))
+    dashboard_t = load_json(os.path.join(base, "dashboard.json"))
     page_t = load_json(os.path.join(base, f"{page}.json"))
 
-    merged = {**common, **page_t}
-    _cache[cache_key] = merged
+    merged = {**common, **dashboard_t, **page_t}
     return merged
