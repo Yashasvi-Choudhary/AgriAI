@@ -1,6 +1,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
   await loadUser(); // wait until user + location ready
-  loadHeaderWeather();
+  if (typeof initializeHeaderWeather === "function") {
+    await initializeHeaderWeather();
+  } else {
+    loadHeaderWeather();
+  }
   loadDashboardWeather(); // then load weather
 });
 

@@ -152,24 +152,29 @@ function setActive(el) {
 // ─────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────
+async function initializeHeaderWeather() {
+  const hasHeader = document.getElementById("headerTemp") || document.getElementById("mobileWeather");
+  if (!hasHeader) return;
+
+  if (!window._currentUserId) {
+    try {
+      const res = await fetch("/auth/api/user", { credentials: "same-origin" });
+      const data = await res.json();
+      if (data?.success && data?.id) {
+        window._currentUserId = data.id;
+      }
+    } catch (err) {
+      console.warn("Header weather init skipped:", err);
+    }
+  }
+
+  if (window._currentUserId) {
+    await loadHeaderWeather();
+  }
+}
+
 function waitForUserAndLoadWeather() {
-  let tries = 0;
-
-  const interval = setInterval(() => {
-    const userId = window._currentUserId;
-
-    if (userId) {
-      // ...existing code...
-      clearInterval(interval);
-      loadHeaderWeather();
-    }
-
-    tries++;
-    if (tries > 10) {
-      clearInterval(interval);
-      console.warn("User not found, weather not loaded");
-    }
-  }, 200);
+  initializeHeaderWeather();
 }
 
 window.globalWeatherData = null;
