@@ -153,7 +153,9 @@ function setActive(el) {
 // INIT
 // ─────────────────────────────────────────────────────────────
 async function initializeHeaderWeather() {
-  const hasHeader = document.getElementById("headerTemp") || document.getElementById("mobileWeather");
+  const hasHeader =
+    document.getElementById("headerTemp") ||
+    document.getElementById("mobileWeather");
   if (!hasHeader) return;
 
   if (!window._currentUserId) {
