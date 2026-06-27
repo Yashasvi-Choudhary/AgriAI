@@ -3,7 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a5c44" />
     <title>Labhansh.ai – Smart Agriculture</title>
+<<<<<<< HEAD
+=======
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+      sizes="192x192"
+    />
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+    />
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
     <link
       href="{{ url_for('static', filename='css/output.css') }}"
       rel="stylesheet"
@@ -83,6 +102,7 @@
       {{ current_user | default({}) | tojson }}
     </script>
     <script>
+<<<<<<< HEAD
       (function () {
         var userData = {};
         try {
@@ -102,6 +122,36 @@
     <script>
       window.__i18n = {{ (t or {}) | tojson | safe }};
       window.__lang  = "{{ lang }}";
+=======
+      if (typeof userData === "undefined") {
+        let userData = {};
+        try {
+          userData = JSON.parse(
+            document.getElementById("userData").textContent,
+          );
+        } catch (e) {
+          console.warn("User data parse failed");
+        }
+        window.userData = userData;
+      }
+      window._currentUserId = window.userData?.id || null;
+    </script>
+
+    <!-- 2. i18n translations dictionary — used by community.js and global.js -->
+    <script id="i18n-data" type="application/json">
+      {{ (t or {}) | tojson | safe }}
+    </script>
+    <script>
+      window.__i18n = {};
+      try {
+        window.__i18n = JSON.parse(
+          document.getElementById("i18n-data").textContent,
+        );
+      } catch (e) {
+        console.warn("i18n data parse failed");
+      }
+      window.__lang = "{{ lang }}";
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
     </script>
 
     <!-- 3. Global utilities (sidebar toggle, language switcher, weather header, etc.) -->

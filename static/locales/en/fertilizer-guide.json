@@ -29,6 +29,7 @@
   "fert_soil_sandy": "Sandy Soil",
   "fert_soil_clay": "Clay Soil",
 
+<<<<<<< HEAD
 
   "fert_label_temperature": "Temperature (°C) — Optional",
   "fert_temp_placeholder": "e.g. 28",
@@ -37,6 +38,15 @@
   "fert_humidity_placeholder": "e.g. 40",
 
   "fert_label_moisture": "Soil Moisture (%) — Optional",
+=======
+  "fert_label_temperature": "Temperature (°C)",
+  "fert_temp_placeholder": "e.g. 28",
+
+  "fert_label_humidity": "Humidity (%)",
+  "fert_humidity_placeholder": "e.g. 40",
+
+  "fert_label_moisture": "Soil Moisture (%)",
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   "fert_moisture_placeholder": "e.g. 45",
 
   "fert_label_nitrogen": "Nitrogen (N) — mg/kg",
@@ -84,5 +94,16 @@
   "fert_tip_1": "Always conduct a soil test before applying fertilizers.",
   "fert_tip_2": "Apply fertilizers in the early morning or evening to reduce evaporation loss.",
   "fert_tip_3": "Avoid applying fertilizers before heavy rain to prevent nutrient runoff.",
-  "fert_tip_4": "Use organic compost alongside chemical fertilizers for best results."
+  "fert_tip_4": "Use organic compost alongside chemical fertilizers for best results.",
+
+  "fert_history_title": "Recommendation History",
+  "fert_history_show": "Show History",
+  "fert_history_hide": "Hide History",
+  "fert_history_no_records": "No saved fertilizer recommendations yet.",
+  "fert_history_crop_label": "Crop",
+  "fert_history_fertilizer_label": "Fertilizer",
+
+  "fert_history_date_label": "Date",
+  "fert_history_delete": "Delete",
+  "fert_history_delete_confirm": "Delete this recommendation?"
 }

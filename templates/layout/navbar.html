@@ -51,7 +51,7 @@
       >
         <span>⛅</span>
         <span class="text-white" id="headerTemp">--</span>
-        <span class="text-white/50 text-[0.7rem]"  id="headerCondition" >--</span>
+        <span class="text-white/50 text-[0.7rem]" id="headerCondition">--</span>
       </div>
       <!-- Humidity chip -->
       <div
@@ -69,23 +69,24 @@
       <div
         class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem] bg-white/10"
       >
-        <span>🌧️</span><span class="text-white/80"  id="headerRain">--</span>
+        <span>🌧️</span><span class="text-white/80" id="headerRain">--</span>
       </div>
       <!-- Location chip -->
       <div
         class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[0.78rem] bg-accent/20 border border-accent/30"
       >
         <span>📍</span
-        ><span class="text-accentLight font-semibold" id="headerLoc"
-          >--</span
-        >
+        ><span class="text-accentLight font-semibold" id="headerLoc">--</span>
       </div>
     </div>
     <!-- Mobile: single compact chip -->
     <div
       class="md:hidden flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm bg-white/10"
     >
-      <span>⛅</span><span class="text-white font-semibold"  id="mobileWeather">28°C · Raipur</span>
+      <span>⛅</span
+      ><span class="text-white font-semibold" id="mobileWeather"
+        >28°C · Raipur</span
+      >
     </div>
   </div>
 
@@ -149,7 +150,7 @@
         👤 <span data-i18n="dd_profile">View Profile</span>
       </a>
       <a
-        href="#"
+        href="{{ url_for('profile') }}"
         class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-textMid text-[0.82rem] hover:bg-primary/10 hover:text-primary transition-all"
       >
         ⚙️ <span data-i18n="dd_settings">Settings</span>

@@ -12,6 +12,17 @@
   class="sidebar w-[240px] flex flex-col fixed top-0 left-0 h-screen z-[100] -translate-x-full md:translate-x-0 transition-transform duration-300 ease-out shadow-[6px_0_40px_rgba(0,0,0,0.2)] overflow-hidden bg-gradient-to-br from-primaryDark via-primary to-primaryDark"
   id="sidebar"
 >
+  <div class="flex items-center justify-between px-5 pt-4 pb-2 md:hidden">
+    <span class="text-white font-semibold text-[0.95rem]">Menu</span>
+    <button
+      type="button"
+      class="text-white/70 hover:text-white text-xl"
+      onclick="closeSidebar()"
+      aria-label="Close menu"
+    >
+      ✕
+    </button>
+  </div>
   <div
     class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-accent/50 to-transparent"
   ></div>
@@ -53,15 +64,7 @@
         ><span data-i18n="nav_yield">Yield Prediction</span>
       </div>
     </a>
-    <a href="{{ url_for('plant_disease_detection') }}">
-      <div
-        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-        onclick="setActive(this)"
-      >
-        <span class="text-[1.1rem] w-6 text-center shrink-0">🍃</span
-        ><span data-i18n="nav_disease">Disease Detection</span>
-      </div>
-    </a>
+
     <div class="px-5 mt-5 mb-2">
       <span
         class="text-[0.6rem] tracking-[2.5px] uppercase text-white/40 font-semibold"
@@ -78,7 +81,7 @@
         ><span data-i18n="nav_fert">Fertilizer Guide</span>
       </div>
     </a>
-    <a href="">
+    <a href="{{ url_for('profit_analyzer') }}">
       <div
         class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
         onclick="setActive(this)"
@@ -131,18 +134,23 @@
         ><span data-i18n="nav_ai">AI Assistant</span>
       </div>
     </a>
-    <div
-      class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
-      onclick="setActive(this)"
-    >
-      <span class="text-[1.1rem] w-6 text-center shrink-0">ℹ️</span
-      ><span data-i18n="nav_about">About</span>
-    </div>
+    <a href="{{ url_for('about_page') }}">
+      <div
+        class="nav-item flex items-center gap-3 px-5 py-[0.68rem] cursor-pointer transition-all duration-200 text-white/60 hover:text-white hover:bg-accent/20 hover:translate-x-1 text-[0.85rem] border-l-[3px] border-transparent"
+        onclick="setActive(this)"
+      >
+        <span class="text-[1.1rem] w-6 text-center shrink-0">ℹ️</span
+        ><span data-i18n="nav_about">About</span>
+      </div>
+    </a>
   </nav>
 
   <!-- Sidebar user card -->
   <div class="border-t border-white/10 p-4">
-    <div class="flex items-center gap-3 rounded-2xl px-3 py-2.5 bg-white/10">
+    <a
+      href="{{ url_for('profile') }}"
+      class="flex items-center gap-3 rounded-2xl px-3 py-2.5 bg-white/10 hover:bg-white/15 transition-colors"
+    >
       <div
         class="user-initials w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accentLight flex items-center justify-center text-white text-xs font-bold shrink-0"
       >
@@ -159,10 +167,9 @@
           }}
         </p>
       </div>
-      <span
-        class="text-white/40 text-sm hover:text-white/60 cursor-pointer transition-colors"
+      <span class="text-white/40 text-sm hover:text-white/60 transition-colors"
         >⚙️</span
       >
-    </div>
+    </a>
   </div>
 </aside>

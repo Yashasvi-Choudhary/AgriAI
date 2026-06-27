@@ -3,7 +3,6 @@
   "nav_dashboard": "Dashboard",
   "nav_crop": "Crop Recommendation",
   "nav_yield": "Yield Prediction",
-  "nav_disease": "Disease Detection",
   "nav_tools": "Tools",
   "nav_fert": "Fertilizer Guide",
   "nav_profit": "Profit Analyzer",
@@ -12,5 +11,19 @@
   "nav_community_link": "Farmer Community",
   "nav_schemes": "Govt. Schemes",
   "nav_ai": "AI Assistant",
-  "nav_about": "About"
+  "nav_about": "About",
+  "footer_brand_desc": "Empowering Indian farmers with AI-driven insights — smarter decisions, better harvests.",
+  "footer_features": "Features",
+  "footer_quick_links": "Quick Links",
+  "footer_crop": "🌱 Crop Recommendation",
+  "footer_market": "📈 Market Prices",
+  "footer_profit": "💹 Profit Analyzer",
+  "footer_schemes": "🏛️ Govt. Schemes",
+  "footer_dashboard": "Dashboard",
+  "footer_about": "About",
+  "footer_note": "Practical tools for crop planning, market tracking, and farming guidance.",
+  "footer_copyright": "© 2025 Labhansh.ai. All rights reserved. Made with ❤️ for Indian Farmers.",
+  "footer_available": "Available in",
+  "footer_english": "🇮🇳 English",
+  "footer_hindi": "हिंदी"
 }

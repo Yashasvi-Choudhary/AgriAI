@@ -28,11 +28,7 @@ async function applyLang() {
       btn.classList.add("bg-accent/20", "text-accentLight", "font-semibold");
       btn.classList.remove("text-textLight");
     } else {
-      btn.classList.remove(
-        "bg-accent/20",
-        "text-accentLight",
-        "font-semibold",
-      );
+      btn.classList.remove("bg-accent/20", "text-accentLight", "font-semibold");
       btn.classList.add("text-textLight");
     }
   });
@@ -112,10 +108,13 @@ async function handleSubmit(e) {
   if (validateField()) return;
 
   const formErr = document.getElementById("form-error");
+  const formSuccess = document.getElementById("form-success");
   const btn = document.getElementById("btn-submit");
   const label = btn.querySelector(".btn-label");
   const spinner = document.getElementById("spinner");
 
+  formErr.classList.add("hidden");
+  formSuccess.classList.add("hidden");
   btn.disabled = true;
   label.classList.add("hidden");
   spinner.classList.remove("hidden");
@@ -129,11 +128,31 @@ async function handleSubmit(e) {
       }),
     });
 
-    await res.json();
+    const data = await res.json();
 
-    const overlay = document.getElementById("success-overlay");
-    overlay.classList.remove("hidden");
-    overlay.classList.add("flex");
+    if (data.success) {
+      formSuccess.textContent =
+        data.message || "If an account exists, a reset link has been sent.";
+      formSuccess.classList.remove("hidden");
+
+      const resetLinkButton = document.getElementById("open-reset-link");
+      if (data.reset_link) {
+        resetLinkButton.href = data.reset_link;
+        resetLinkButton.classList.remove("hidden");
+        setTimeout(() => {
+          window.location.href = data.reset_link;
+        }, 900);
+      } else {
+        resetLinkButton.classList.add("hidden");
+      }
+
+      const overlay = document.getElementById("success-overlay");
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+    } else {
+      formErr.textContent = data.message || "Unable to process request.";
+      formErr.classList.remove("hidden");
+    }
   } catch {
     formErr.textContent = "Network error. Please check your connection.";
     formErr.classList.remove("hidden");

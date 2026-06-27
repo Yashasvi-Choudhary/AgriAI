@@ -30,8 +30,16 @@
   "market_result_min_price": "Min Price",
   "market_result_max_price": "Max Price",
   "market_result_analysis": "Analysis",
+<<<<<<< HEAD
 
   "market_history_section_title": "Price History",
+=======
+  "market_result_nearby_market": "Nearby Market",
+
+  "market_history_section_title": "Price History",
+  "market_history_show": "Show History",
+  "market_history_hide": "Hide History",
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   "market_history_empty": "No market history yet. Check a price to get started!",
   "market_history_date": "Date",
   "market_history_crop": "Crop",
@@ -44,6 +52,10 @@
   "market_error_no_crop": "Please select a crop",
   "market_error_no_location": "Location not found. Please set your location first",
   "market_error_no_data": "No market data available for this crop in your location",
+<<<<<<< HEAD
+=======
+  "market_error_no_match": "No market data found for this location.",
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   "market_error_api_error": "Error fetching market data. Please try again",
   "market_error_server_error": "Server error. Please try again later",
   "market_error_invalid_location": "Invalid location. Please enter a valid location.",
