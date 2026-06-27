@@ -12,13 +12,17 @@ def get_db():
     return sqlite3.connect(DB_NAME)
 
 
+def normalize_email(email):
+    return (email or '').strip().lower()
+
+
 # 🔹 REGISTER API
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
 
     fullname = data.get('fullname')
-    email = data.get('email')
+    email = normalize_email(data.get('email'))
     phone = data.get('phone')
     password = data.get('password')
 
@@ -50,13 +54,13 @@ def register():
 def login():
     data = request.get_json()
 
-    email = data.get('email')
+    email = normalize_email(data.get('email'))
     password = data.get('password')
 
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT * FROM users WHERE LOWER(email) = ?", (email,))
     user = cursor.fetchone()
 
     conn.close()
@@ -89,12 +93,12 @@ def login():
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     data = request.get_json()
-    email = data.get('email')
+    email = normalize_email(data.get('email'))
 
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT * FROM users WHERE LOWER(email) = ?", (email,))
     user = cursor.fetchone()
 
     if not user:
@@ -104,16 +108,17 @@ def forgot_password():
     token = str(uuid.uuid4())
 
     cursor.execute(
-        "UPDATE users SET reset_token = ? WHERE email = ?",
+        "UPDATE users SET reset_token = ? WHERE LOWER(email) = ?",
         (token, email)
     )
 
     conn.commit()
     conn.close()
 
-    print(f"Reset link: http://127.0.0.1:5000/reset-password?token={token}")
+    reset_link = f"{request.host_url.rstrip('/')}/reset-password?token={token}"
+    print(f"Reset link: {reset_link}")
 
-    return jsonify({"success": True, "message": "Reset link sent"})
+    return jsonify({"success": True, "message": "Reset link sent", "reset_link": reset_link})
 
 
 # 🔹 RESET PASSWORD

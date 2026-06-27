@@ -1,0 +1,15 @@
+-- Add reset token fields to the existing users table
+ALTER TABLE users
+  ADD COLUMN reset_token VARCHAR(128) NULL,
+  ADD COLUMN reset_token_expiry DATETIME NULL;
+
+-- Example users table for MySQL
+CREATE TABLE IF NOT EXISTS users (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  reset_token VARCHAR(128) NULL,
+  reset_token_expiry DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

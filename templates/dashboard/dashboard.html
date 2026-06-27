@@ -42,7 +42,6 @@ content %}
       >
         Enter manually
       </button>
-      
     </div>
     <div class="mt-4 hidden" id="manualLoc">
       <input
@@ -76,19 +75,20 @@ content %}
         <div>
           <p
             class="text-textLight text-[0.75rem] font-semibold uppercase tracking-widest mb-0.5"
+            data-i18n="hero_greet"
           >
             नमस्ते 🙏
           </p>
           <h1
             class="font-display text-[1.5rem] md:text-[1.75rem] text-primary leading-tight"
           >
-            Good to see you,
+            <span data-i18n="hero_title">Good to see you,</span>
             <em class="text-accent not-italic">
               {{ current_user.name.split(' ')[0] if current_user and
               current_user.name else 'Farmer' }}
             </em>
           </h1>
-          <p class="text-textMid text-[0.82rem] mt-0.5">
+          <p class="text-textMid text-[0.82rem] mt-0.5" data-i18n="hero_desc">
             Your fields are ready to be monitored. Let's grow smarter today. 🌱
           </p>
         </div>
@@ -133,8 +133,12 @@ content %}
               28°C
             </div>
             <div class="pb-1">
-              <div class="text-white/80 font-medium text-sm" data-i18n="w_desc">
-               --
+              <div
+                id="wDesc"
+                class="text-white/80 font-medium text-sm"
+                data-i18n="w_desc"
+              >
+                --
               </div>
               <div class="text-white/45 text-xs">Feels like 31°C</div>
             </div>
@@ -180,31 +184,10 @@ content %}
       ⚡ Quick Actions
     </p>
     <div
-      class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 animate-fade-in-up d3"
+      class="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6 animate-fade-in-up d3"
     >
-      <div
-        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
-      >
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-        ></div>
-        <div
-          class="relative w-11 h-11 bg-gradient-to-br from-accent/20 to-accentLight rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
-        >
-          🍃
-        </div>
-        <span
-          class="relative text-[0.8rem] font-bold text-textDark block"
-          data-i18n="qa_scan"
-          >Scan Crop</span
-        >
-        <small
-          class="relative text-[0.67rem] text-textLight block mt-0.5"
-          data-i18n="qa_scan_sub"
-          >Detect diseases</small
-        >
-      </div>
-      <div
+      <a
+        href="/market-price"
         class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
@@ -225,8 +208,9 @@ content %}
           data-i18n="qa_market_sub"
           >Live mandi rates</small
         >
-      </div>
-      <div
+      </a>
+      <a
+        href="/assistant"
         class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
@@ -247,8 +231,32 @@ content %}
           data-i18n="qa_ai_sub"
           >Get instant help</small
         >
-      </div>
-      <div
+      </a>
+      <a
+        href="/fertilizer-guide"
+        class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+        ></div>
+        <div
+          class="relative w-11 h-11 bg-gradient-to-br from-accent/20 to-accentLight rounded-xl flex items-center justify-center mx-auto mb-2.5 text-xl shadow-[0_3px_8px_rgba(201,150,58,0.2)] group-hover:scale-105 transition-transform"
+        >
+          🧪
+        </div>
+        <span
+          class="relative text-[0.8rem] font-bold text-textDark block"
+          data-i18n="qa_fert"
+          >Fertilizer Guide</span
+        >
+        <small
+          class="relative text-[0.67rem] text-textLight block mt-0.5"
+          data-i18n="qa_fert_sub"
+          >Soil-smart fertilizer tips</small
+        >
+      </a>
+      <a
+        href="/government-schemes"
         class="group bg-white border-[1.5px] border-backgroundDark rounded-2xl px-4 py-4 text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(201,150,58,0.16)]"
       >
         <div
@@ -269,175 +277,65 @@ content %}
           data-i18n="qa_schemes_sub"
           >Govt. benefits</small
         >
-      </div>
+      </a>
     </div>
 
-    <!-- ── RAIN FORECAST — SVG LINE CHART ── -->
+    <!-- ── 7-DAY TEMPERATURE OUTLOOK ── -->
     <p
       class="text-[0.68rem] tracking-[2.5px] uppercase text-textLight font-semibold mb-3 animate-fade-in-up d4"
-      data-i18n="sec_rain"
+      data-i18n="sec_forecast"
     >
-      🌧 7-Day Rain Forecast
+      🌡 7-Day Temperature Outlook
     </p>
     <div
       class="w-full bg-white border-[1.5px] border-backgroundDark rounded-3xl p-5 md:p-6 mb-8 shadow-sm animate-fade-in-up d4"
     >
-      <div class="flex justify-between items-center mb-4">
-        <h3
-          class="font-bold text-textDark text-[0.95rem]"
-          data-i18n="rain_title"
-        >
-          Rainfall Prediction
-        </h3>
-        <span
-          class="text-[0.72rem] text-textLight bg-primary/10 px-3 py-1 rounded-full"
-          data-i18n="rain_unit"
-          >probability %</span
-        >
-      </div>
-
-      <!-- SVG chart rendered by JS -->
-      <div class="w-full overflow-x-auto">
-        <svg
-          id="rainChart"
-          viewBox="0 0 700 180"
-          preserveAspectRatio="xMidYMid meet"
-          class="w-full h-auto"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <!-- Defs for gradient and glow -->
-          <defs>
-            <linearGradient id="rainGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#2d7a4f" stop-opacity="0.25" />
-              <stop offset="100%" stop-color="#2d7a4f" stop-opacity="0.02" />
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
-          <!-- Grid lines -->
-          <line
-            x1="50"
-            y1="20"
-            x2="680"
-            y2="20"
-            stroke="#dce9df"
-            stroke-width="1"
-            stroke-dasharray="4,4"
-          />
-          <line
-            x1="50"
-            y1="55"
-            x2="680"
-            y2="55"
-            stroke="#dce9df"
-            stroke-width="1"
-            stroke-dasharray="4,4"
-          />
-          <line
-            x1="50"
-            y1="90"
-            x2="680"
-            y2="90"
-            stroke="#dce9df"
-            stroke-width="1"
-            stroke-dasharray="4,4"
-          />
-          <line
-            x1="50"
-            y1="125"
-            x2="680"
-            y2="125"
-            stroke="#dce9df"
-            stroke-width="1"
-            stroke-dasharray="4,4"
-          />
-
-          <!-- Y-axis labels -->
-          <text
-            x="40"
-            y="24"
-            text-anchor="end"
-            fill="#8a9e8f"
-            font-size="10"
-            font-family="DM Sans,sans-serif"
+      <div
+        class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between mb-4"
+      >
+        <div>
+          <h3
+            class="font-bold text-textDark text-[0.95rem]"
+            data-i18n="forecast_title"
           >
-            100%
-          </text>
-          <text
-            x="40"
-            y="59"
-            text-anchor="end"
-            fill="#8a9e8f"
-            font-size="10"
-            font-family="DM Sans,sans-serif"
-          >
-            75%
-          </text>
-          <text
-            x="40"
-            y="94"
-            text-anchor="end"
-            fill="#8a9e8f"
-            font-size="10"
-            font-family="DM Sans,sans-serif"
-          >
-            50%
-          </text>
-          <text
-            x="40"
-            y="129"
-            text-anchor="end"
-            fill="#8a9e8f"
-            font-size="10"
-            font-family="DM Sans,sans-serif"
-          >
-            25%
-          </text>
-          <text
-            x="40"
-            y="164"
-            text-anchor="end"
-            fill="#8a9e8f"
-            font-size="10"
-            font-family="DM Sans,sans-serif"
-          >
-            0%
-          </text>
-
-          <!-- Area fill (path built by JS) -->
-          <path id="rainArea" fill="url(#rainGrad)" />
-          <!-- Line (path built by JS) -->
-          <path
-            id="rainLine"
-            fill="none"
-            stroke="#2d7a4f"
-            stroke-width="2.5"
-            stroke-linejoin="round"
-            stroke-linecap="round"
-            filter="url(#glow)"
-          />
-          <!-- Dots (rendered by JS) -->
-          <g id="rainDots"></g>
-          <!-- Day labels (rendered by JS) -->
-          <g id="rainLabels"></g>
-          <!-- Percent labels (rendered by JS) -->
-          <g id="rainPcts"></g>
-        </svg>
+            7-Day Temperature Outlook
+          </h3>
+          <p class="text-[0.78rem] text-textMid" data-i18n="forecast_desc">
+            Review today’s temperature and the next 7-day trend to plan your
+            farm work smarter.
+          </p>
+        </div>
       </div>
 
       <div
-        class="flex items-center gap-2 text-[0.78rem] text-textMid bg-primary/10 rounded-xl px-4 py-2.5 mt-2"
+        class="rounded-2xl border border-backgroundDark bg-background/70 p-3 md:p-4"
+      >
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-[0.7rem] uppercase tracking-[2px] text-textLight">
+              Temperature trend
+            </p>
+            <p class="text-[0.78rem] text-textMid">
+              Live forecast from your weather location
+            </p>
+          </div>
+          <span
+            class="rounded-full bg-accent/10 px-3 py-1 text-[0.72rem] text-accentDark font-semibold"
+            >Updated live</span
+          >
+        </div>
+        <svg id="forecastChart" viewBox="0 0 900 280" class="h-64 w-full"></svg>
+      </div>
+
+      <div id="forecastSummary" class="mt-3 text-[0.78rem] text-textMid"></div>
+
+      <div
+        class="flex items-center gap-2 text-[0.78rem] text-textMid bg-primary/10 rounded-xl px-4 py-2.5 mt-4"
       >
         <span>💡</span>
-        <span data-i18n="rain_note"
-          >Best days to irrigate: Tuesday &amp; Wednesday (low rainfall
-          expected)</span
+        <span data-i18n="forecast_note"
+          >Compare today’s temperature with the next 7 days to plan irrigation,
+          harvesting, and field work.</span
         >
       </div>
     </div>

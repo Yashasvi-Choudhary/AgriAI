@@ -47,8 +47,28 @@ app.config['MAIL_DEFAULT_SENDER'] = MAIL_USERNAME
 
 mail = Mail(app)
 
-# ye already hai → same rehne do
-app.secret_key = "super_secret_key_123"
+# Use environment variable for deployment safety
+app.secret_key = SECRET_KEY
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Upload configuration
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+MARKET_API_KEY = os.getenv("MARKET_API_KEY")
+sys.path.insert(0, BASE_DIR)
+
+utils_path = os.path.join(BASE_DIR, "fertilizer_utils.py")
+spec = importlib.util.spec_from_file_location("fertilizer_utils", utils_path)
+fertilizer_utils = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(fertilizer_utils)
+
+utils_yield_path = os.path.join(BASE_DIR, "utils_yield.py")
+spec_yield = importlib.util.spec_from_file_location("utils_yield", utils_yield_path)
+utils_yield = importlib.util.module_from_spec(spec_yield)
+spec_yield.loader.exec_module(utils_yield)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -139,9 +159,9 @@ def inject_globals():
     page_map = {
     "": "dashboard",
     "dashboard": "dashboard",
+    "about": "about",
     "crop-recommendation": "crop-recommendation",
     "crop-yield-prediction": "crop-yield-prediction",
-    "plant-disease-detection": "plant-disease-detection",
     "fertilizer-guide": "fertilizer-guide",
     "profit-analyzer": "profit",
     "market-price": "market",
@@ -237,6 +257,16 @@ def dashboard():
     return render_template('dashboard/dashboard.html')
 
 
+<<<<<<< HEAD
+=======
+@app.route('/about')
+def about_page():
+    if "user" not in session:
+        return redirect('/login')
+    return render_template('dashboard/about.html')
+
+
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 @app.route('/profit')
 def profit_page():
     if "user" not in session:
@@ -403,13 +433,6 @@ def yield_prediction():
     if "user" not in session:
         return redirect('/login')
     return render_template('dashboard/crop-yield-prediction.html')
-
-
-@app.route('/plant-disease-detection')
-def plant_disease_detection():
-    if "user" not in session:
-        return redirect('/login')
-    return render_template('dashboard/plant-disease-detection.html')
 
 
 @app.route('/fertilizer-guide')
@@ -1463,16 +1486,66 @@ def get_weather():
     lat = data.get("lat")
     lon = data.get("lon")
 
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=relativehumidity_2m,precipitation_probability"
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
 
     res = requests.get(url).json()
+
+    daily = res.get("daily", {}) or {}
+    dates = daily.get("time", []) or []
+    forecast = []
+    for i, (day_date, day_max, day_min, code) in enumerate(zip(dates, daily.get("temperature_2m_max", []), daily.get("temperature_2m_min", []), daily.get("weathercode", []))):
+        label = "Today" if i == 0 else datetime.datetime.strptime(day_date, "%Y-%m-%d").strftime("%b %d")
+        forecast.append({
+            "date": day_date,
+            "label": label,
+            "day": "Today" if i == 0 else day_date,
+            "max": round(day_max, 1),
+            "min": round(day_min, 1),
+            "condition": describe_weather_code(code),
+        })
 
     return jsonify({
         "temperature": res["current_weather"]["temperature"],
         "windspeed": res["current_weather"]["windspeed"],
         "humidity": res["hourly"]["relativehumidity_2m"][0],
-        "rainfall": res["hourly"]["precipitation_probability"][0]
+        "rainfall": res["hourly"]["precipitation_probability"][0],
+        "description": res["current_weather"].get("weathercode") and describe_weather_code(res["current_weather"]["weathercode"]) or "Clear",
+        "forecast": forecast,
     })
+
+
+def describe_weather_code(code):
+    mapping = {
+        0: "Clear sky",
+        1: "Mainly clear",
+        2: "Partly cloudy",
+        3: "Overcast",
+        45: "Fog",
+        48: "Depositing rime fog",
+        51: "Light drizzle",
+        53: "Moderate drizzle",
+        55: "Dense drizzle",
+        61: "Slight rain",
+        63: "Moderate rain",
+        65: "Heavy rain",
+        71: "Slight snow",
+        73: "Moderate snow",
+        75: "Heavy snow",
+        80: "Rain showers",
+        81: "Rain showers",
+        82: "Violent rain showers",
+        95: "Thunderstorm",
+        96: "Thunderstorm with hail",
+        99: "Thunderstorm with hail",
+    }
+    return mapping.get(int(code), "Clear")
+
+# ─────────────────────────────────────────────
+# SERVE UPLOADED FILES
+# ─────────────────────────────────────────────
+@app.route('/uploads/<path:filename>')
+def serve_uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # ─────────────────────────────────────────────
 # SERVE UPLOADED FILES
@@ -1517,41 +1590,59 @@ def forgot_password():
     if request.method == 'GET':
         return render_template('auth/forgot_password.html')
 
+<<<<<<< HEAD
     # ✅ email handle (form + json dono)
     email = request.form.get('email') or (request.json.get('email') if request.is_json else None)
     print("📧 Email received:", email)
 
     if not email:
         return jsonify({"success": False, "message": "Email missing"})
+=======
+    if request.is_json:
+        payload = request.get_json(silent=True) or {}
+        email = (payload.get('email') or '').strip().lower()
+    else:
+        email = (request.form.get('email') or '').strip().lower()
+
+    if not email:
+        return jsonify({"success": False, "message": "Email is required"}), 400
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT * FROM users WHERE LOWER(email) = ?", (email,))
     user = cursor.fetchone()
 
     if not user:
-        return jsonify({"success": False, "message": "Email not found"})
+        conn.close()
+        return jsonify({"success": False, "message": "Email not found"}), 404
 
     # ✅ token generate
     token = str(uuid.uuid4())
     expiry = datetime.datetime.now() + datetime.timedelta(hours=1)
 
     cursor.execute(
-        "UPDATE users SET reset_token=?, token_expiry=? WHERE email=?",
+        "UPDATE users SET reset_token=?, token_expiry=? WHERE LOWER(email)=?",
         (token, expiry, email)
     )
 
     conn.commit()
     conn.close()
 
+<<<<<<< HEAD
     # ✅ reset link
     reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
     print("🔗 Reset link:", reset_link)
+=======
+    reset_link = f"{request.host_url.rstrip('/')}/reset-password?token={token}"
+    print("Reset link:", reset_link)
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 
     # ✅ EMAIL SEND (IMPORTANT FIX)
     msg = Message(
         subject="Password Reset",
+<<<<<<< HEAD
         sender=MAIL_USERNAME,   # ⭐ MUST
         recipients=[email]
     )
@@ -1563,15 +1654,71 @@ def forgot_password():
     except Exception as e:
         print("❌ Email error:", e)
         return jsonify({"success": False, "message": "Email sending failed"})
+=======
+        recipients=[email]
+    )
+    msg.body = f"Hello,\n\nUse this link to reset your password:\n{reset_link}\n\nIf you didn't request this, you can ignore this email."
 
-    return jsonify({"success": True})
+    email_sent = False
+    try:
+        if MAIL_USERNAME and MAIL_PASSWORD:
+            mail.send(msg)
+            email_sent = True
+            print("✅ Email sent")
+        else:
+            print("⚠️ Mail credentials not configured. Reset link generated:", reset_link)
+    except Exception as e:
+        print("❌ Email error:", e)
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+
+    return jsonify({
+        "success": True,
+        "message": "If an account exists for this email, a reset link has been sent." if email_sent else "A reset link was generated for this account. Open the link shown in the console or use the link below.",
+        "reset_link": reset_link,
+        "email_sent": email_sent
+    })
 
 # ─────────────────────────────────────────────
 # reset password
 # ─────────────────────────────────────────────
+<<<<<<< HEAD
 
+=======
+@app.route('/reset-password', methods=['GET', 'POST'])
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
+def reset_password(token=None):
+    token_value = request.args.get('token') or token or ''
+
+    if request.method == 'GET':
+        if not token_value:
+            return render_template('auth/reset_password.html', token='', invalid=True)
+
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT * FROM users WHERE reset_token=? AND token_expiry > ?",
+            (token_value, datetime.datetime.now())
+        )
+        user = cursor.fetchone()
+        conn.close()
+
+        if not user:
+            return render_template('auth/reset_password.html', token=token_value, invalid=True)
+
+        return render_template('auth/reset_password.html', token=token_value, invalid=False)
+
+    if request.is_json:
+        payload = request.get_json(silent=True) or {}
+        token_value = (payload.get('token') or token_value).strip()
+        password = (payload.get('password') or '').strip()
+    else:
+        token_value = (request.form.get('token') or token_value).strip()
+        password = (request.form.get('password') or '').strip()
+
+    if not token_value or not password:
+        return jsonify({"success": False, "message": "Invalid request"}), 400
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -1579,11 +1726,12 @@ def reset_password(token):
     # ✅ token verify
     cursor.execute(
         "SELECT * FROM users WHERE reset_token=? AND token_expiry > ?",
-        (token, datetime.datetime.now())
+        (token_value, datetime.datetime.now())
     )
     user = cursor.fetchone()
 
     if not user:
+<<<<<<< HEAD
         return "❌ Token expired or invalid"
 
     # ✅ POST → password update
@@ -1602,8 +1750,12 @@ def reset_password(token):
         )
 
         conn.commit()
+=======
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
         conn.close()
+        return jsonify({"success": False, "message": "Token expired or invalid"}), 400
 
+<<<<<<< HEAD
         print("✅ Password updated")
 
         return jsonify({"success": True})
@@ -1684,6 +1836,92 @@ def get_schemes():
         }), 500
 
 
+=======
+    hashed = generate_password_hash(password)
+
+    cursor.execute(
+        "UPDATE users SET password=?, reset_token=NULL, token_expiry=NULL WHERE reset_token=?",
+        (hashed, token_value)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": "Password reset successful"})
+
+
+# ─────────────────────────────────────────────
+# GOVERNMENT SCHEMES API
+# ─────────────────────────────────────────────
+@app.route('/api/schemes', methods=['GET'])
+def get_schemes():
+    """
+    Get government schemes with optional filtering
+    Query Parameters:
+    - state: Filter by state (or 'All' for national schemes)
+    - crop_type: Filter by crop type (or 'All' for all crops)
+    
+    Filtering Logic:
+    - If state = 'MP' → returns schemes with state='MP' OR state='All'
+    - If crop_type = 'Wheat' → returns schemes with crop_type='Wheat' OR crop_type='All'
+    """
+    try:
+        state = request.args.get('state', '').strip()
+        crop_type = request.args.get('crop_type', '').strip()
+        
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        
+        # Build query with filtering logic
+        query = "SELECT id, title, description, benefit, state, crop_type, eligibility, website_link, created_at FROM government_schemes WHERE 1=1"
+        params = []
+        
+        # Filter by state (include 'All' schemes)
+        if state and state != 'All':
+            query += " AND (state = ? OR state = 'All')"
+            params.append(state)
+        
+        # Filter by crop type (include 'All' schemes) - need to handle JSON field
+        if crop_type and crop_type != 'All':
+            # For JSON fields, we need to check both languages
+            query += " AND (json_extract(crop_type, '$.en') = ? OR json_extract(crop_type, '$.hi') = ? OR state = 'All')"
+            params.extend([crop_type, crop_type])
+        
+        # Order by state-specific schemes first, then national schemes
+        query += " ORDER BY CASE WHEN state = 'All' THEN 1 ELSE 0 END, title"
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+        
+        schemes = []
+        for row in rows:
+            schemes.append({
+                "id": row[0],
+                "title": json.loads(row[1]) if row[1] else {"en": "", "hi": ""},
+                "description": json.loads(row[2]) if row[2] else {"en": "", "hi": ""},
+                "benefit": json.loads(row[3]) if row[3] else {"en": "", "hi": ""},
+                "state": row[4],
+                "crop_type": json.loads(row[5]) if row[5] else {"en": "", "hi": ""},
+                "eligibility": json.loads(row[6]) if row[6] else {"en": "", "hi": ""},
+                "website_link": row[7],
+                "created_at": row[8]
+            })
+        
+        return jsonify({
+            "status": "success",
+            "count": len(schemes),
+            "schemes": schemes
+        })
+        
+    except Exception as e:
+        print(f"❌ Error fetching schemes: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Error fetching schemes"
+        }), 500
+
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 # ─────────────────────────────────────────────
 # RUN SERVER
 # ─────────────────────────────────────────────

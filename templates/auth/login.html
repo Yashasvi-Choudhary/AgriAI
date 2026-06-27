@@ -3,7 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a5c44" />
     <title>Labhansh.ai — Smart Farming Login</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+      sizes="192x192"
+    />
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+    />
     <link
       href="{{ url_for('static', filename='css/output.css') }}"
       rel="stylesheet"
@@ -203,8 +219,11 @@
           </div>
 
           <!-- Server / credential error -->
-          
-          <p id="form-error" class="text-red-400 text-sm mt-2 opacity-0 text-center"></p>
+
+          <p
+            id="form-error"
+            class="text-red-400 text-sm mt-2 opacity-0 text-center"
+          ></p>
 
           <!-- Submit Button -->
           <button
