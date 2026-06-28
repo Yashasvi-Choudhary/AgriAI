@@ -42,8 +42,6 @@
           "name": "Farmer Community",
           "desc": "Connect, share, and learn with fellow farmers."
         },
-        "assistant": {
-          "name": "AI Assistant",
           "desc": "Ask anything farming-related and get smart answers."
         }
       }

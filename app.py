@@ -257,8 +257,6 @@ def dashboard():
     return render_template('dashboard/dashboard.html')
 
 
-<<<<<<< HEAD
-=======
 @app.route('/about')
 def about_page():
     if "user" not in session:
@@ -266,7 +264,6 @@ def about_page():
     return render_template('dashboard/about.html')
 
 
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 @app.route('/profit')
 def profit_page():
     if "user" not in session:
@@ -1548,13 +1545,6 @@ def serve_uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # ─────────────────────────────────────────────
-# SERVE UPLOADED FILES
-# ─────────────────────────────────────────────
-@app.route('/uploads/<path:filename>')
-def serve_uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-# ─────────────────────────────────────────────
 # LOGOUT
 # ─────────────────────────────────────────────
 @app.route('/logout')
@@ -1584,29 +1574,21 @@ def test_email():
 # ─────────────────────────────────────────────
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
-
     print("🔥 Forgot password API hit")
 
     if request.method == 'GET':
         return render_template('auth/forgot_password.html')
 
-<<<<<<< HEAD
-    # ✅ email handle (form + json dono)
-    email = request.form.get('email') or (request.json.get('email') if request.is_json else None)
-    print("📧 Email received:", email)
-
-    if not email:
-        return jsonify({"success": False, "message": "Email missing"})
-=======
     if request.is_json:
         payload = request.get_json(silent=True) or {}
         email = (payload.get('email') or '').strip().lower()
     else:
         email = (request.form.get('email') or '').strip().lower()
 
+    print("📧 Email received:", email)
+
     if not email:
         return jsonify({"success": False, "message": "Email is required"}), 400
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -1618,7 +1600,6 @@ def forgot_password():
         conn.close()
         return jsonify({"success": False, "message": "Email not found"}), 404
 
-    # ✅ token generate
     token = str(uuid.uuid4())
     expiry = datetime.datetime.now() + datetime.timedelta(hours=1)
 
@@ -1630,31 +1611,11 @@ def forgot_password():
     conn.commit()
     conn.close()
 
-<<<<<<< HEAD
-    # ✅ reset link
-    reset_link = f"http://127.0.0.1:5000/reset-password/{token}"
-    print("🔗 Reset link:", reset_link)
-=======
     reset_link = f"{request.host_url.rstrip('/')}/reset-password?token={token}"
-    print("Reset link:", reset_link)
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+    print("🔗 Reset link:", reset_link)
 
-    # ✅ EMAIL SEND (IMPORTANT FIX)
     msg = Message(
         subject="Password Reset",
-<<<<<<< HEAD
-        sender=MAIL_USERNAME,   # ⭐ MUST
-        recipients=[email]
-    )
-    msg.body = f"Click this link to reset your password:\n{reset_link}"
-
-    try:
-        mail.send(msg)
-        print("✅ Email sent successfully")
-    except Exception as e:
-        print("❌ Email error:", e)
-        return jsonify({"success": False, "message": "Email sending failed"})
-=======
         recipients=[email]
     )
     msg.body = f"Hello,\n\nUse this link to reset your password:\n{reset_link}\n\nIf you didn't request this, you can ignore this email."
@@ -1664,12 +1625,11 @@ def forgot_password():
         if MAIL_USERNAME and MAIL_PASSWORD:
             mail.send(msg)
             email_sent = True
-            print("✅ Email sent")
+            print("✅ Email sent successfully")
         else:
             print("⚠️ Mail credentials not configured. Reset link generated:", reset_link)
     except Exception as e:
         print("❌ Email error:", e)
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 
     return jsonify({
         "success": True,
@@ -1681,11 +1641,7 @@ def forgot_password():
 # ─────────────────────────────────────────────
 # reset password
 # ─────────────────────────────────────────────
-<<<<<<< HEAD
-
-=======
-@app.route('/reset-password', methods=['GET', 'POST'])
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+@app.route('/reset-password', defaults={'token': None}, methods=['GET', 'POST'])
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token=None):
     token_value = request.args.get('token') or token or ''
@@ -1723,7 +1679,6 @@ def reset_password(token=None):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    # ✅ token verify
     cursor.execute(
         "SELECT * FROM users WHERE reset_token=? AND token_expiry > ?",
         (token_value, datetime.datetime.now())
@@ -1731,112 +1686,9 @@ def reset_password(token=None):
     user = cursor.fetchone()
 
     if not user:
-<<<<<<< HEAD
-        return "❌ Token expired or invalid"
-
-    # ✅ POST → password update
-    if request.method == 'POST':
-
-        password = request.form.get('password') or (request.json.get('password') if request.is_json else None)
-
-        if not password:
-            return jsonify({"success": False, "message": "Password missing"})
-
-        hashed = generate_password_hash(password)
-
-        cursor.execute(
-            "UPDATE users SET password=?, reset_token=NULL, token_expiry=NULL WHERE reset_token=?",
-            (hashed, token)
-        )
-
-        conn.commit()
-=======
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
         conn.close()
         return jsonify({"success": False, "message": "Token expired or invalid"}), 400
 
-<<<<<<< HEAD
-        print("✅ Password updated")
-
-        return jsonify({"success": True})
-
-    # ✅ GET → page open
-    return render_template('auth/reset_password.html', token=token)
-
-
-# ─────────────────────────────────────────────
-# GOVERNMENT SCHEMES API
-# ─────────────────────────────────────────────
-@app.route('/api/schemes', methods=['GET'])
-def get_schemes():
-    """
-    Get government schemes with optional filtering
-    Query Parameters:
-    - state: Filter by state (or 'All' for national schemes)
-    - crop_type: Filter by crop type (or 'All' for all crops)
-    
-    Filtering Logic:
-    - If state = 'MP' → returns schemes with state='MP' OR state='All'
-    - If crop_type = 'Wheat' → returns schemes with crop_type='Wheat' OR crop_type='All'
-    """
-    try:
-        state = request.args.get('state', '').strip()
-        crop_type = request.args.get('crop_type', '').strip()
-        
-        conn = sqlite3.connect("database.db")
-        cursor = conn.cursor()
-        
-        # Build query with filtering logic
-        query = "SELECT id, title, description, benefit, state, crop_type, eligibility, website_link, created_at FROM government_schemes WHERE 1=1"
-        params = []
-        
-        # Filter by state (include 'All' schemes)
-        if state and state != 'All':
-            query += " AND (state = ? OR state = 'All')"
-            params.append(state)
-        
-        # Filter by crop type (include 'All' schemes) - need to handle JSON field
-        if crop_type and crop_type != 'All':
-            # For JSON fields, we need to check both languages
-            query += " AND (json_extract(crop_type, '$.en') = ? OR json_extract(crop_type, '$.hi') = ? OR state = 'All')"
-            params.extend([crop_type, crop_type])
-        
-        # Order by state-specific schemes first, then national schemes
-        query += " ORDER BY CASE WHEN state = 'All' THEN 1 ELSE 0 END, title"
-        
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        conn.close()
-        
-        schemes = []
-        for row in rows:
-            schemes.append({
-                "id": row[0],
-                "title": json.loads(row[1]) if row[1] else {"en": "", "hi": ""},
-                "description": json.loads(row[2]) if row[2] else {"en": "", "hi": ""},
-                "benefit": json.loads(row[3]) if row[3] else {"en": "", "hi": ""},
-                "state": row[4],
-                "crop_type": json.loads(row[5]) if row[5] else {"en": "", "hi": ""},
-                "eligibility": json.loads(row[6]) if row[6] else {"en": "", "hi": ""},
-                "website_link": row[7],
-                "created_at": row[8]
-            })
-        
-        return jsonify({
-            "status": "success",
-            "count": len(schemes),
-            "schemes": schemes
-        })
-        
-    except Exception as e:
-        print(f"❌ Error fetching schemes: {str(e)}")
-        return jsonify({
-            "status": "error",
-            "message": "Error fetching schemes"
-        }), 500
-
-
-=======
     hashed = generate_password_hash(password)
 
     cursor.execute(
@@ -1921,7 +1773,7 @@ def get_schemes():
             "message": "Error fetching schemes"
         }), 500
 
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+
 # ─────────────────────────────────────────────
 # RUN SERVER
 # ─────────────────────────────────────────────

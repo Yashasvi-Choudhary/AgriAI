@@ -3,11 +3,7 @@
    The flash is eliminated by matching html background color.
    ============================================================ */
 if (typeof DEV_MODE === "undefined") {
-<<<<<<< HEAD
-  const DEV_MODE = true;
-=======
   const DEV_MODE = false;
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   window.DEV_MODE = DEV_MODE;
 }
 
@@ -156,22 +152,130 @@ function setActive(el) {
 // ─────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────
-function waitForUserAndLoadWeather() {
-  let tries = 0;
+function getStorageKey(key) {
+  const userId = window._currentUserId || "guest";
+  return `${key}_${userId}`;
+}
 
+function getStorageValue(key) {
+  const userValue =
+    localStorage.getItem(getStorageKey(key)) ||
+    sessionStorage.getItem(getStorageKey(key));
+  const genericValue =
+    localStorage.getItem(key) || sessionStorage.getItem(key);
+  return userValue || genericValue;
+}
+
+function getStoredLocationData() {
+  return {
+    lat: getStorageValue("lat"),
+    lon: getStorageValue("lon"),
+    locationName: getStorageValue("location_name"),
+  };
+}
+
+function saveStoredLocationData({ lat, lon, locationName }) {
+  if (locationName !== undefined && locationName !== null) {
+    localStorage.setItem("location_name", locationName);
+    sessionStorage.setItem("location_name", locationName);
+    if (window._currentUserId) {
+      localStorage.setItem(getStorageKey("location_name"), locationName);
+      sessionStorage.setItem(getStorageKey("location_name"), locationName);
+    }
+  }
+  if (lat !== undefined && lat !== null) {
+    localStorage.setItem("lat", lat);
+    sessionStorage.setItem("lat", lat);
+    if (window._currentUserId) {
+      localStorage.setItem(getStorageKey("lat"), lat);
+      sessionStorage.setItem(getStorageKey("lat"), lat);
+    }
+  }
+  if (lon !== undefined && lon !== null) {
+    localStorage.setItem("lon", lon);
+    sessionStorage.setItem("lon", lon);
+    if (window._currentUserId) {
+      localStorage.setItem(getStorageKey("lon"), lon);
+      sessionStorage.setItem(getStorageKey("lon"), lon);
+    }
+  }
+}
+
+async function getBrowserLocation() {
+  if (!navigator.geolocation) return null;
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        let locationName = "Your Location";
+
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+          );
+          const data = await response.json();
+          locationName =
+            data.address?.city || data.address?.town || data.address?.village || "Your Location";
+        } catch (error) {
+          console.warn("Reverse geocode failed:", error);
+        }
+
+        resolve({ lat, lon, locationName });
+      },
+      (err) => {
+        console.warn("Browser geolocation failed:", err);
+        resolve(null);
+      },
+      { timeout: 10000, maximumAge: 60000 },
+    );
+  });
+}
+
+function updateHeaderLocationText(locationName) {
+  const locEl = document.getElementById("headerLoc");
+  const mobileEl = document.getElementById("mobileWeather");
+  const city = locationName || "Your Location";
+
+  if (locEl) locEl.textContent = city;
+  if (mobileEl) {
+    const current = mobileEl.textContent || "";
+    const parts = current.split("·");
+    const tempPart = parts[0]?.trim() || "--";
+    mobileEl.textContent = `${tempPart} · ${city}`;
+  }
+}
+
+function syncHeaderLocationFromStorage() {
+  const { locationName } = getStoredLocationData();
+  if (locationName) {
+    updateHeaderLocationText(locationName);
+  }
+}
+
+function shouldLoadWeatherWithoutUser() {
+  const { lat, lon } = getStoredLocationData();
+  return Boolean(lat && lon);
+}
+
+function waitForUserAndLoadWeather() {
+  syncHeaderLocationFromStorage();
+
+  let tries = 0;
   const interval = setInterval(() => {
     const userId = window._currentUserId;
 
-    if (userId) {
-      // ...existing code...
+    if (userId || shouldLoadWeatherWithoutUser()) {
       clearInterval(interval);
       loadHeaderWeather();
+      return;
     }
 
     tries++;
     if (tries > 10) {
       clearInterval(interval);
-      console.warn("User not found, weather not loaded");
+      loadHeaderWeather();
     }
   }, 200);
 }
@@ -182,9 +286,6 @@ async function fetchWeatherData() {
   // remove this when API is ready, for testing without hitting rate limits
 
   if (DEV_MODE) {
-<<<<<<< HEAD
-    // Dev mode: skipping API call
-=======
     const today = new Date();
     const forecast = Array.from({ length: 7 }, (_, index) => {
       const date = new Date(today);
@@ -203,8 +304,6 @@ async function fetchWeatherData() {
         condition: index % 2 === 0 ? "Sunny" : "Partly Cloudy",
       };
     });
-
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
     return {
       temperature: 28,
       windspeed: 10,
@@ -216,25 +315,28 @@ async function fetchWeatherData() {
   }
   if (window.globalWeatherData) return window.globalWeatherData; // cache
 
-  const userId = window._currentUserId;
-  const lat = localStorage.getItem(`lat_${userId}`);
-  const lon = localStorage.getItem(`lon_${userId}`);
+  let { lat, lon, locationName } = getStoredLocationData();
 
   if (!lat || !lon) {
-    console.warn(
-      "No stored location coordinates found, using fallback weather values",
-    );
-    return {
-      temperature: "--",
-      windspeed: "--",
-      humidity: "--",
-      rainfall: "--",
-      description: "N/A",
-<<<<<<< HEAD
-=======
-      forecast: [],
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
-    };
+    const browserLocation = await getBrowserLocation();
+    if (browserLocation && browserLocation.lat && browserLocation.lon) {
+      lat = browserLocation.lat;
+      lon = browserLocation.lon;
+      locationName = locationName || browserLocation.locationName;
+      saveStoredLocationData({ lat, lon, locationName });
+    } else {
+      console.warn(
+        "No stored location coordinates found and browser geolocation unavailable.",
+      );
+      return {
+        temperature: "--",
+        windspeed: "--",
+        humidity: "--",
+        rainfall: "--",
+        description: "N/A",
+        forecast: [],
+      };
+    }
   }
 
   try {
@@ -264,8 +366,7 @@ async function loadHeaderWeather() {
     return;
   }
 
-  const userId = window._currentUserId;
-  const city = localStorage.getItem(`location_name_${userId}`);
+  const { locationName: city } = getStoredLocationData();
 
   const tempEl = document.getElementById("headerTemp");
   const windEl = document.getElementById("headerWind");
@@ -275,16 +376,16 @@ async function loadHeaderWeather() {
   const condEl = document.getElementById("headerCondition");
   const mobileEl = document.getElementById("mobileWeather");
 
-  // ...existing code...
-
   if (tempEl) tempEl.textContent = data.temperature + "°C";
   if (windEl) windEl.textContent = data.windspeed + " km/h";
-  if (locEl) locEl.textContent = city || "Your Location";
   if (humidityEl) humidityEl.textContent = data.humidity + "%";
   if (rainEl) rainEl.textContent = data.rainfall + "%";
   if (condEl) condEl.textContent = data.description || "Clear";
+
+  updateHeaderLocationText(city);
+
   if (mobileEl) {
-    mobileEl.textContent = `${data.temperature}°C · ${city}`;
+    mobileEl.textContent = `${data.temperature}°C · ${city || "Your Location"}`;
   }
   // ...existing code...
 }
@@ -300,10 +401,7 @@ if (document.readyState === "loading") {
 // ─────────────────────────────────────────────────────────────
 
 function updateLocationDisplay() {
-  const userId = window._currentUserId;
-  if (!userId) return;
-
-  const locationName = localStorage.getItem(`location_name_${userId}`);
+  const locationName = localStorage.getItem(getStorageKey("location_name"));
   const displayEl = document.getElementById("locationDisplay");
   if (displayEl) {
     displayEl.value = locationName || "Not set";
@@ -327,15 +425,12 @@ async function updateLocation() {
       const lat = data[0].lat;
       const lon = data[0].lon;
 
-      localStorage.setItem(`lat_${userId}`, lat);
-      localStorage.setItem(`lon_${userId}`, lon);
-      localStorage.setItem(`location_name_${userId}`, locationName);
+      localStorage.setItem(getStorageKey("lat"), lat);
+      localStorage.setItem(getStorageKey("lon"), lon);
+      localStorage.setItem(getStorageKey("location_name"), locationName);
 
-      // Update displays across app
       updateLocationDisplay();
-      // Update header if exists
-      const headerLocation = document.getElementById("headerLocation");
-      if (headerLocation) headerLocation.textContent = locationName;
+      updateHeaderLocationText(locationName);
     } else {
       showMarketError(
         window.__i18n?.["market_error_invalid_location"] ||
@@ -364,7 +459,9 @@ async function getMarketPrice() {
   // Check if location input differs from stored, update if needed
   const locationInput = document.getElementById("locationDisplay");
   const currentLocationValue = locationInput.value.trim();
-  const storedLocation = localStorage.getItem(`location_name_${userId}`);
+  const storedLocation =
+    localStorage.getItem(`location_name_${userId}`) ||
+    localStorage.getItem("location_name");
   if (
     currentLocationValue &&
     currentLocationValue !== storedLocation &&
@@ -373,9 +470,13 @@ async function getMarketPrice() {
     await updateLocation();
   }
 
-  const latitude = localStorage.getItem(`lat_${userId}`);
-  const longitude = localStorage.getItem(`lon_${userId}`);
-  const locationName = localStorage.getItem(`location_name_${userId}`);
+  const latitude =
+    localStorage.getItem(`lat_${userId}`) || localStorage.getItem("lat");
+  const longitude =
+    localStorage.getItem(`lon_${userId}`) || localStorage.getItem("lon");
+  const locationName =
+    localStorage.getItem(`location_name_${userId}`) ||
+    localStorage.getItem("location_name");
 
   if (!latitude || !longitude || !locationName) {
     showMarketError(
@@ -812,15 +913,9 @@ async function changePassword() {
 }
 
 function clearProfitErrors() {
-<<<<<<< HEAD
-  document.querySelectorAll('#profitForm [id^="error-"]').forEach(el => {
-    el.classList.add('hidden');
-    el.textContent = '';
-=======
   document.querySelectorAll('#profitForm [id^="error-"]').forEach((el) => {
     el.classList.add("hidden");
     el.textContent = "";
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   });
 }
 
@@ -828,31 +923,12 @@ function showProfitError(field, message) {
   const errorEl = document.getElementById(`error-${field}`);
   if (!errorEl) return;
   errorEl.textContent = t(message, message);
-<<<<<<< HEAD
-  errorEl.classList.remove('hidden');
-=======
   errorEl.classList.remove("hidden");
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 }
 
 let profitHistoryVisible = true;
 
 function updateProfitHistoryToggleLabel() {
-<<<<<<< HEAD
-  const textEl = document.getElementById('profitHistoryToggleText');
-  if (!textEl) return;
-  textEl.textContent = profitHistoryVisible ? t('profit_history_hide_button') : t('profit_history_show_button');
-}
-
-function setProfitHistoryVisibility(visible) {
-  const content = document.getElementById('profitHistoryContent');
-  const toggleBtn = document.getElementById('profitHistoryToggleBtn');
-  if (!content) return;
-  profitHistoryVisible = visible;
-  content.classList.toggle('hidden', !visible);
-  if (toggleBtn) {
-    toggleBtn.setAttribute('aria-expanded', visible ? 'true' : 'false');
-=======
   const textEl = document.getElementById("profitHistoryToggleText");
   if (!textEl) return;
   textEl.textContent = profitHistoryVisible
@@ -868,7 +944,6 @@ function setProfitHistoryVisibility(visible) {
   content.classList.toggle("hidden", !visible);
   if (toggleBtn) {
     toggleBtn.setAttribute("aria-expanded", visible ? "true" : "false");
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   }
   updateProfitHistoryToggleLabel();
 }
@@ -883,29 +958,6 @@ async function toggleProfitHistory() {
 async function deleteProfitHistoryRecord(id, cardElement) {
   if (!id) return;
   try {
-<<<<<<< HEAD
-    const response = await fetch('/api/delete-profit-history', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
-    const data = await response.json();
-    if (response.ok && data.status === 'success') {
-      if (cardElement) cardElement.remove();
-      const wrapper = document.getElementById('profitHistoryWrapper');
-      if (wrapper && wrapper.children.length === 0) {
-        const empty = document.createElement('p');
-        empty.className = 'text-sm text-textMid';
-        empty.textContent = t('profit_analysis_no_history');
-        wrapper.appendChild(empty);
-      }
-    } else {
-      alert(data.message || t('profit_error_failed', 'Unable to delete history item.'));
-    }
-  } catch (err) {
-    console.error('Failed to delete profit history:', err);
-    alert(t('profit_error_failed', 'Unable to delete history item.'));
-=======
     const response = await fetch("/api/delete-profit-history", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -930,55 +982,29 @@ async function deleteProfitHistoryRecord(id, cardElement) {
   } catch (err) {
     console.error("Failed to delete profit history:", err);
     alert(t("profit_error_failed", "Unable to delete history item."));
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   }
 }
 
 function bindProfitHistoryActions() {
-<<<<<<< HEAD
-  const wrapper = document.getElementById('profitHistoryWrapper');
-  if (wrapper) {
-    wrapper.addEventListener('click', event => {
-      const button = event.target.closest('.profit-history-delete');
-      if (!button) return;
-      const card = button.closest('[data-profit-id]');
-=======
   const wrapper = document.getElementById("profitHistoryWrapper");
   if (wrapper) {
     wrapper.addEventListener("click", (event) => {
       const button = event.target.closest(".profit-history-delete");
       if (!button) return;
       const card = button.closest("[data-profit-id]");
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
       const historyId = card?.dataset.profitId;
       if (!historyId) return;
       deleteProfitHistoryRecord(historyId, card);
     });
   }
 
-<<<<<<< HEAD
-  const toggleBtn = document.getElementById('profitHistoryToggleBtn');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', toggleProfitHistory);
-=======
   const toggleBtn = document.getElementById("profitHistoryToggleBtn");
   if (toggleBtn) {
     toggleBtn.addEventListener("click", toggleProfitHistory);
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   }
 }
 
 function renderProfitHistory(history) {
-<<<<<<< HEAD
-  const wrapper = document.getElementById('profitHistoryWrapper');
-  if (!wrapper) return;
-  wrapper.innerHTML = '';
-
-  if (!Array.isArray(history) || history.length === 0) {
-    const empty = document.createElement('p');
-    empty.className = 'text-sm text-textMid';
-    empty.textContent = t('profit_analysis_no_history');
-=======
   const wrapper = document.getElementById("profitHistoryWrapper");
   if (!wrapper) return;
   wrapper.innerHTML = "";
@@ -987,36 +1013,22 @@ function renderProfitHistory(history) {
     const empty = document.createElement("p");
     empty.className = "text-sm text-textMid";
     empty.textContent = t("profit_analysis_no_history");
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
     wrapper.appendChild(empty);
     return;
   }
 
-<<<<<<< HEAD
-  history.forEach(record => {
-    const card = document.createElement('div');
-    card.className = 'profit-history-card rounded-lg border border-backgroundDark p-4 bg-surface';
-=======
   history.forEach((record) => {
     const card = document.createElement("div");
     card.className =
       "profit-history-card rounded-lg border border-backgroundDark p-4 bg-surface";
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
     card.dataset.profitId = record.id;
     card.innerHTML = `
       <div class="flex items-start justify-between gap-3 mb-3">
         <div>
-<<<<<<< HEAD
-          <p class="text-xs font-semibold uppercase tracking-wider text-textMid">${t('profit_history_crop')}</p>
-          <p class="mt-1 font-semibold text-textDark text-sm">${record.crop_name || 'N/A'}</p>
-        </div>
-        <button type="button" class="profit-history-delete inline-flex items-center justify-center rounded-full p-2 text-textLight hover:text-red-600 transition-colors" aria-label="${t('profit_history_delete', 'Delete')}" title="${t('profit_history_delete', 'Delete')}">
-=======
           <p class="text-xs font-semibold uppercase tracking-wider text-textMid">${t("profit_history_crop")}</p>
           <p class="mt-1 font-semibold text-textDark text-sm">${record.crop_name || "N/A"}</p>
         </div>
         <button type="button" class="profit-history-delete inline-flex items-center justify-center rounded-full p-2 text-textLight hover:text-red-600 transition-colors" aria-label="${t("profit_history_delete", "Delete")}" title="${t("profit_history_delete", "Delete")}">
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M6.293 6.293a1 1 0 011.414 0L10 8.586l2.293-2.293a1 1 0 111.414 1.414L11.414 10l2.293 2.293a1 1 0 01-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L8.586 10 6.293 7.707a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
@@ -1024,28 +1036,16 @@ function renderProfitHistory(history) {
       </div>
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
         <div>
-<<<<<<< HEAD
-          <p class="text-xs text-textMid">${t('profit_history_revenue')}</p>
-          <p class="mt-1 font-semibold text-textDark">₹${Number(record.expected_revenue || 0).toFixed(2)}</p>
-        </div>
-        <div>
-          <p class="text-xs text-textMid">${t('profit_history_profit')}</p>
-=======
           <p class="text-xs text-textMid">${t("profit_history_revenue")}</p>
           <p class="mt-1 font-semibold text-textDark">₹${Number(record.expected_revenue || 0).toFixed(2)}</p>
         </div>
         <div>
           <p class="text-xs text-textMid">${t("profit_history_profit")}</p>
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
           <p class="mt-1 font-semibold text-textDark">₹${Number(record.estimated_profit || 0).toFixed(2)}</p>
         </div>
       </div>
       <div class="mt-4 text-xs text-textMid text-right">
-<<<<<<< HEAD
-        ${record.created_at ? `<span>${t('profit_history_date')}: ${record.created_at}</span>` : ''}
-=======
         ${record.created_at ? `<span>${t("profit_history_date")}: ${record.created_at}</span>` : ""}
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
       </div>
     `;
     wrapper.appendChild(card);
@@ -1053,22 +1053,6 @@ function renderProfitHistory(history) {
 }
 
 async function loadProfitHistory() {
-<<<<<<< HEAD
-  const wrapper = document.getElementById('profitHistoryWrapper');
-  if (!wrapper) return;
-
-  try {
-    const response = await fetch('/api/profit-history');
-    const data = await response.json();
-    if (response.ok && data.status === 'success') {
-      renderProfitHistory(data.data.history || []);
-    } else {
-      wrapper.innerHTML = `<p class="text-sm text-textMid">${data.message || t('profit_analysis_no_history')}</p>`;
-    }
-  } catch (err) {
-    console.error('Failed to load profit history:', err);
-    wrapper.innerHTML = `<p class="text-sm text-textMid">${t('profit_analysis_no_history')}</p>`;
-=======
   const wrapper = document.getElementById("profitHistoryWrapper");
   if (!wrapper) return;
 
@@ -1083,25 +1067,11 @@ async function loadProfitHistory() {
   } catch (err) {
     console.error("Failed to load profit history:", err);
     wrapper.innerHTML = `<p class="text-sm text-textMid">${t("profit_analysis_no_history")}</p>`;
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   }
 }
 
 function renderProfitOutput(payload) {
   if (!payload) return;
-<<<<<<< HEAD
-  const current = window.currentLang === 'hi' ? payload.hindi : payload.english;
-  const resultCard = document.getElementById('profitResultCard');
-  if (!resultCard) return;
-
-  document.getElementById('result_total_investment').textContent = current.total_investment;
-  document.getElementById('result_expected_revenue').textContent = current.expected_revenue;
-  document.getElementById('result_estimated_profit').textContent = current.estimated_profit;
-  document.getElementById('result_profit_percentage').textContent = current.profit_percentage;
-  document.getElementById('result_profit_status').textContent = current.profit_status;
-  document.getElementById('result_analysis').textContent = current.analysis;
-  resultCard.classList.remove('hidden');
-=======
   const current = window.currentLang === "hi" ? payload.hindi : payload.english;
   const resultCard = document.getElementById("profitResultCard");
   if (!resultCard) return;
@@ -1118,7 +1088,6 @@ function renderProfitOutput(payload) {
     current.profit_status;
   document.getElementById("result_analysis").textContent = current.analysis;
   resultCard.classList.remove("hidden");
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 }
 
 async function getProfitAnalysis(event) {
@@ -1126,40 +1095,6 @@ async function getProfitAnalysis(event) {
 
   clearProfitErrors();
 
-<<<<<<< HEAD
-  const submitButton = document.getElementById('profitSubmitBtn');
-  const spinner = document.getElementById('btnSpinner');
-  if (submitButton) {
-    submitButton.disabled = true;
-    submitButton.classList.add('opacity-70', 'cursor-not-allowed');
-  }
-  if (spinner) {
-    spinner.classList.remove('hidden');
-  }
-
-  const payload = {
-    crop_name: document.getElementById('crop_name')?.value.trim(),
-    land_area: document.getElementById('land_area')?.value,
-    production_cost: document.getElementById('production_cost')?.value,
-    fertilizer_cost: document.getElementById('fertilizer_cost')?.value,
-    labor_cost: document.getElementById('labor_cost')?.value,
-    irrigation_cost: document.getElementById('irrigation_cost')?.value,
-    expected_yield: document.getElementById('expected_yield')?.value,
-    market_price: document.getElementById('market_price')?.value,
-    transport_cost: document.getElementById('transport_cost')?.value,
-    other_expenses: document.getElementById('other_expenses')?.value,
-    soil_type: document.getElementById('soil_type')?.value,
-  };
-
-  const userId = window._currentUserId || 'guest';
-  payload.latitude = localStorage.getItem(`lat_${userId}`) || '';
-  payload.longitude = localStorage.getItem(`lon_${userId}`) || '';
-
-  try {
-    const response = await fetch('/api/profit-analysis', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-=======
   const submitButton = document.getElementById("profitSubmitBtn");
   const spinner = document.getElementById("btnSpinner");
   if (submitButton) {
@@ -1192,7 +1127,6 @@ async function getProfitAnalysis(event) {
     const response = await fetch("/api/profit-analysis", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
       body: JSON.stringify(payload),
     });
 
@@ -1200,12 +1134,6 @@ async function getProfitAnalysis(event) {
 
     if (!response.ok) {
       if (data && data.errors) {
-<<<<<<< HEAD
-        Object.entries(data.errors).forEach(([field, message]) => showProfitError(field, message));
-        return;
-      }
-      alert(t('profit_error_failed', 'Unable to calculate profit. Please try again.'));
-=======
         Object.entries(data.errors).forEach(([field, message]) =>
           showProfitError(field, message),
         );
@@ -1217,24 +1145,12 @@ async function getProfitAnalysis(event) {
           "Unable to calculate profit. Please try again.",
         ),
       );
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
       return;
     }
 
     renderProfitOutput(data.data.profit_analysis);
     renderProfitHistory(data.data.history || []);
   } catch (err) {
-<<<<<<< HEAD
-    console.error('Profit analysis error:', err);
-    alert(t('profit_error_failed', 'Unable to calculate profit. Please try again.'));
-  } finally {
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.classList.remove('opacity-70', 'cursor-not-allowed');
-    }
-    if (spinner) {
-      spinner.classList.add('hidden');
-=======
     console.error("Profit analysis error:", err);
     alert(
       t("profit_error_failed", "Unable to calculate profit. Please try again."),
@@ -1246,27 +1162,17 @@ async function getProfitAnalysis(event) {
     }
     if (spinner) {
       spinner.classList.add("hidden");
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
     }
   }
 }
 
 async function initProfitAnalyzer() {
-<<<<<<< HEAD
-  const profitForm = document.getElementById('profitForm');
-  const profitHistorySection = document.getElementById('profitHistorySection');
-
-  if (!profitForm && !profitHistorySection) return;
-  if (profitForm) {
-    profitForm.addEventListener('submit', getProfitAnalysis);
-=======
   const profitForm = document.getElementById("profitForm");
   const profitHistorySection = document.getElementById("profitHistorySection");
 
   if (!profitForm && !profitHistorySection) return;
   if (profitForm) {
     profitForm.addEventListener("submit", getProfitAnalysis);
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   }
   bindProfitHistoryActions();
   await loadProfitHistory();
