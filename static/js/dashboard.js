@@ -77,7 +77,7 @@ function initLocationPopup() {
 // LOAD SAVED LOCATION EVERYWHERE
 // ─────────────────────────────
 function loadSavedLocation() {
-  const city = localStorage.getItem(userKey("location_name"));
+  const city = localStorage.getItem(userKey("location_name")) || localStorage.getItem("location_name");
   if (!city) return;
 
   const wLoc = document.getElementById("wLocation");
@@ -159,12 +159,21 @@ async function saveAndClose(city, lat, lon) {
   console.log("Saving location:", city, lat, lon);
 
   localStorage.setItem(userKey("location_set"), "true");
-  localStorage.setItem(userKey("location_name"), city);
+
+  if (typeof saveStoredLocationData === "function") {
+    saveStoredLocationData({ lat, lon, locationName: city });
+  } else {
+    localStorage.setItem(userKey("location_name"), city);
+    localStorage.setItem("location_name", city);
+    if (lat !== null && lon !== null) {
+      localStorage.setItem(userKey("lat"), lat);
+      localStorage.setItem(userKey("lon"), lon);
+      localStorage.setItem("lat", lat);
+      localStorage.setItem("lon", lon);
+    }
+  }
 
   if (lat !== null && lon !== null) {
-    localStorage.setItem(userKey("lat"), lat);
-    localStorage.setItem(userKey("lon"), lon);
-
     try {
       const res = await fetch("/api/save-location", {
         method: "POST",
@@ -223,7 +232,7 @@ function getSavedLon() {
   return localStorage.getItem(userKey("lon"));
 }
 function getSavedCity() {
-  return localStorage.getItem(userKey("location_name"));
+  return localStorage.getItem(userKey("location_name")) || localStorage.getItem("location_name");
 }
 
 //weather on dashboard

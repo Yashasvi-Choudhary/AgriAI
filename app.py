@@ -241,7 +241,15 @@ def dashboard():
 def about_page():
     if "user" not in session:
         return redirect('/login')
-    return render_template('dashboard/about.html')
+
+    lang = session.get("lang", "en")
+
+    translations = get_translations(lang, "about")
+
+    return render_template(
+        'dashboard/about.html',
+        t=translations
+    )
 
 
 @app.route('/profit')
@@ -1554,6 +1562,8 @@ def test_email():
 # ─────────────────────────────────────────────
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
+    print("🔥 Forgot password API hit")
+
     if request.method == 'GET':
         return render_template('auth/forgot_password.html')
 
@@ -1562,6 +1572,8 @@ def forgot_password():
         email = (payload.get('email') or '').strip().lower()
     else:
         email = (request.form.get('email') or '').strip().lower()
+
+    print("📧 Email received:", email)
 
     if not email:
         return jsonify({"success": False, "message": "Email is required"}), 400
@@ -1588,7 +1600,7 @@ def forgot_password():
     conn.close()
 
     reset_link = f"{request.host_url.rstrip('/')}/reset-password?token={token}"
-    print("Reset link:", reset_link)
+    print("🔗 Reset link:", reset_link)
 
     msg = Message(
         subject="Password Reset",
@@ -1601,7 +1613,7 @@ def forgot_password():
         if MAIL_USERNAME and MAIL_PASSWORD:
             mail.send(msg)
             email_sent = True
-            print("✅ Email sent")
+            print("✅ Email sent successfully")
         else:
             print("⚠️ Mail credentials not configured. Reset link generated:", reset_link)
     except Exception as e:
@@ -1617,7 +1629,7 @@ def forgot_password():
 # ─────────────────────────────────────────────
 # reset password
 # ─────────────────────────────────────────────
-@app.route('/reset-password', methods=['GET', 'POST'])
+@app.route('/reset-password', defaults={'token': None}, methods=['GET', 'POST'])
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token=None):
     token_value = request.args.get('token') or token or ''

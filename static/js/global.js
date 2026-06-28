@@ -152,31 +152,132 @@ function setActive(el) {
 // ─────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────
-async function initializeHeaderWeather() {
-  const hasHeader =
-    document.getElementById("headerTemp") ||
-    document.getElementById("mobileWeather");
-  if (!hasHeader) return;
+function getStorageKey(key) {
+  const userId = window._currentUserId || "guest";
+  return `${key}_${userId}`;
+}
 
-  if (!window._currentUserId) {
-    try {
-      const res = await fetch("/auth/api/user", { credentials: "same-origin" });
-      const data = await res.json();
-      if (data?.success && data?.id) {
-        window._currentUserId = data.id;
-      }
-    } catch (err) {
-      console.warn("Header weather init skipped:", err);
+function getStorageValue(key) {
+  const userValue =
+    localStorage.getItem(getStorageKey(key)) ||
+    sessionStorage.getItem(getStorageKey(key));
+  const genericValue =
+    localStorage.getItem(key) || sessionStorage.getItem(key);
+  return userValue || genericValue;
+}
+
+function getStoredLocationData() {
+  return {
+    lat: getStorageValue("lat"),
+    lon: getStorageValue("lon"),
+    locationName: getStorageValue("location_name"),
+  };
+}
+
+function saveStoredLocationData({ lat, lon, locationName }) {
+  if (locationName !== undefined && locationName !== null) {
+    localStorage.setItem("location_name", locationName);
+    sessionStorage.setItem("location_name", locationName);
+    if (window._currentUserId) {
+      localStorage.setItem(getStorageKey("location_name"), locationName);
+      sessionStorage.setItem(getStorageKey("location_name"), locationName);
     }
   }
-
-  if (window._currentUserId) {
-    await loadHeaderWeather();
+  if (lat !== undefined && lat !== null) {
+    localStorage.setItem("lat", lat);
+    sessionStorage.setItem("lat", lat);
+    if (window._currentUserId) {
+      localStorage.setItem(getStorageKey("lat"), lat);
+      sessionStorage.setItem(getStorageKey("lat"), lat);
+    }
+  }
+  if (lon !== undefined && lon !== null) {
+    localStorage.setItem("lon", lon);
+    sessionStorage.setItem("lon", lon);
+    if (window._currentUserId) {
+      localStorage.setItem(getStorageKey("lon"), lon);
+      sessionStorage.setItem(getStorageKey("lon"), lon);
+    }
   }
 }
 
+async function getBrowserLocation() {
+  if (!navigator.geolocation) return null;
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        let locationName = "Your Location";
+
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+          );
+          const data = await response.json();
+          locationName =
+            data.address?.city || data.address?.town || data.address?.village || "Your Location";
+        } catch (error) {
+          console.warn("Reverse geocode failed:", error);
+        }
+
+        resolve({ lat, lon, locationName });
+      },
+      (err) => {
+        console.warn("Browser geolocation failed:", err);
+        resolve(null);
+      },
+      { timeout: 10000, maximumAge: 60000 },
+    );
+  });
+}
+
+function updateHeaderLocationText(locationName) {
+  const locEl = document.getElementById("headerLoc");
+  const mobileEl = document.getElementById("mobileWeather");
+  const city = locationName || "Your Location";
+
+  if (locEl) locEl.textContent = city;
+  if (mobileEl) {
+    const current = mobileEl.textContent || "";
+    const parts = current.split("·");
+    const tempPart = parts[0]?.trim() || "--";
+    mobileEl.textContent = `${tempPart} · ${city}`;
+  }
+}
+
+function syncHeaderLocationFromStorage() {
+  const { locationName } = getStoredLocationData();
+  if (locationName) {
+    updateHeaderLocationText(locationName);
+  }
+}
+
+function shouldLoadWeatherWithoutUser() {
+  const { lat, lon } = getStoredLocationData();
+  return Boolean(lat && lon);
+}
+
 function waitForUserAndLoadWeather() {
-  initializeHeaderWeather();
+  syncHeaderLocationFromStorage();
+
+  let tries = 0;
+  const interval = setInterval(() => {
+    const userId = window._currentUserId;
+
+    if (userId || shouldLoadWeatherWithoutUser()) {
+      clearInterval(interval);
+      loadHeaderWeather();
+      return;
+    }
+
+    tries++;
+    if (tries > 10) {
+      clearInterval(interval);
+      loadHeaderWeather();
+    }
+  }, 200);
 }
 
 window.globalWeatherData = null;
@@ -203,7 +304,6 @@ async function fetchWeatherData() {
         condition: index % 2 === 0 ? "Sunny" : "Partly Cloudy",
       };
     });
-
     return {
       temperature: 28,
       windspeed: 10,
@@ -215,22 +315,28 @@ async function fetchWeatherData() {
   }
   if (window.globalWeatherData) return window.globalWeatherData; // cache
 
-  const userId = window._currentUserId;
-  const lat = localStorage.getItem(`lat_${userId}`);
-  const lon = localStorage.getItem(`lon_${userId}`);
+  let { lat, lon, locationName } = getStoredLocationData();
 
   if (!lat || !lon) {
-    console.warn(
-      "No stored location coordinates found, using fallback weather values",
-    );
-    return {
-      temperature: "--",
-      windspeed: "--",
-      humidity: "--",
-      rainfall: "--",
-      description: "N/A",
-      forecast: [],
-    };
+    const browserLocation = await getBrowserLocation();
+    if (browserLocation && browserLocation.lat && browserLocation.lon) {
+      lat = browserLocation.lat;
+      lon = browserLocation.lon;
+      locationName = locationName || browserLocation.locationName;
+      saveStoredLocationData({ lat, lon, locationName });
+    } else {
+      console.warn(
+        "No stored location coordinates found and browser geolocation unavailable.",
+      );
+      return {
+        temperature: "--",
+        windspeed: "--",
+        humidity: "--",
+        rainfall: "--",
+        description: "N/A",
+        forecast: [],
+      };
+    }
   }
 
   try {
@@ -260,8 +366,7 @@ async function loadHeaderWeather() {
     return;
   }
 
-  const userId = window._currentUserId;
-  const city = localStorage.getItem(`location_name_${userId}`);
+  const { locationName: city } = getStoredLocationData();
 
   const tempEl = document.getElementById("headerTemp");
   const windEl = document.getElementById("headerWind");
@@ -271,16 +376,16 @@ async function loadHeaderWeather() {
   const condEl = document.getElementById("headerCondition");
   const mobileEl = document.getElementById("mobileWeather");
 
-  // ...existing code...
-
   if (tempEl) tempEl.textContent = data.temperature + "°C";
   if (windEl) windEl.textContent = data.windspeed + " km/h";
-  if (locEl) locEl.textContent = city || "Your Location";
   if (humidityEl) humidityEl.textContent = data.humidity + "%";
   if (rainEl) rainEl.textContent = data.rainfall + "%";
   if (condEl) condEl.textContent = data.description || "Clear";
+
+  updateHeaderLocationText(city);
+
   if (mobileEl) {
-    mobileEl.textContent = `${data.temperature}°C · ${city}`;
+    mobileEl.textContent = `${data.temperature}°C · ${city || "Your Location"}`;
   }
   // ...existing code...
 }
@@ -296,10 +401,7 @@ if (document.readyState === "loading") {
 // ─────────────────────────────────────────────────────────────
 
 function updateLocationDisplay() {
-  const userId = window._currentUserId;
-  if (!userId) return;
-
-  const locationName = localStorage.getItem(`location_name_${userId}`);
+  const locationName = localStorage.getItem(getStorageKey("location_name"));
   const displayEl = document.getElementById("locationDisplay");
   if (displayEl) {
     displayEl.value = locationName || "Not set";
@@ -323,15 +425,12 @@ async function updateLocation() {
       const lat = data[0].lat;
       const lon = data[0].lon;
 
-      localStorage.setItem(`lat_${userId}`, lat);
-      localStorage.setItem(`lon_${userId}`, lon);
-      localStorage.setItem(`location_name_${userId}`, locationName);
+      localStorage.setItem(getStorageKey("lat"), lat);
+      localStorage.setItem(getStorageKey("lon"), lon);
+      localStorage.setItem(getStorageKey("location_name"), locationName);
 
-      // Update displays across app
       updateLocationDisplay();
-      // Update header if exists
-      const headerLocation = document.getElementById("headerLocation");
-      if (headerLocation) headerLocation.textContent = locationName;
+      updateHeaderLocationText(locationName);
     } else {
       showMarketError(
         window.__i18n?.["market_error_invalid_location"] ||
@@ -360,7 +459,9 @@ async function getMarketPrice() {
   // Check if location input differs from stored, update if needed
   const locationInput = document.getElementById("locationDisplay");
   const currentLocationValue = locationInput.value.trim();
-  const storedLocation = localStorage.getItem(`location_name_${userId}`);
+  const storedLocation =
+    localStorage.getItem(`location_name_${userId}`) ||
+    localStorage.getItem("location_name");
   if (
     currentLocationValue &&
     currentLocationValue !== storedLocation &&
@@ -369,9 +470,13 @@ async function getMarketPrice() {
     await updateLocation();
   }
 
-  const latitude = localStorage.getItem(`lat_${userId}`);
-  const longitude = localStorage.getItem(`lon_${userId}`);
-  const locationName = localStorage.getItem(`location_name_${userId}`);
+  const latitude =
+    localStorage.getItem(`lat_${userId}`) || localStorage.getItem("lat");
+  const longitude =
+    localStorage.getItem(`lon_${userId}`) || localStorage.getItem("lon");
+  const locationName =
+    localStorage.getItem(`location_name_${userId}`) ||
+    localStorage.getItem("location_name");
 
   if (!latitude || !longitude || !locationName) {
     showMarketError(

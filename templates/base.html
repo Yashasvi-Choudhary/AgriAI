@@ -99,17 +99,14 @@
       {{ current_user | default({}) | tojson }}
     </script>
     <script>
-      if (typeof userData === "undefined") {
-        let userData = {};
-        try {
-          userData = JSON.parse(
-            document.getElementById("userData").textContent,
-          );
-        } catch (e) {
-          console.warn("User data parse failed");
-        }
-        window.userData = userData;
+      let userData = window.userData || {};
+      try {
+        const raw = document.getElementById("userData").textContent;
+        userData = JSON.parse(raw || "{}") || {};
+      } catch (e) {
+        console.warn("User data parse failed");
       }
+      window.userData = userData;
       window._currentUserId = window.userData?.id || null;
     </script>
 
