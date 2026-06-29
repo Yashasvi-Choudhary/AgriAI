@@ -33,7 +33,7 @@ app = Flask(__name__)
 from flask_mail import Mail, Message
 from config import *
 
-# ✅ YAHI ADD KARNA HAI
+
 app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
