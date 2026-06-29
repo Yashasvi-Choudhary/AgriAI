@@ -2,25 +2,9 @@
    global.js — clean version, no opacity tricks needed
    The flash is eliminated by matching html background color.
    ============================================================ */
-<<<<<<< HEAD
 window.DEV_MODE = window.DEV_MODE ?? true;
 
 window.currentLang = window.__lang || localStorage.getItem("lang") || "en";
-=======
-if (typeof DEV_MODE === "undefined") {
-  const DEV_MODE = false;
-  window.DEV_MODE = DEV_MODE;
-}
-
-if (typeof currentLang === "undefined") {
-  const currentLang = window.__lang || localStorage.getItem("lang") || "en";
-  window.currentLang = currentLang;
-}
-
-// Use window globals for compatibility
-DEV_MODE = window.DEV_MODE;
-currentLang = window.currentLang;
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 
 // ─────────────────────────────────────────────────────────────
 // APPLY TRANSLATIONS
@@ -53,34 +37,23 @@ function applyLang() {
     translateTemplateContent(template.content, i18n);
   });
 
-<<<<<<< HEAD
   // Active language button - highlight current language
-=======
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   var buttons = document.querySelectorAll(".lang-btn");
   buttons.forEach(function (btn) {
     btn.classList.remove("bg-accent", "text-white", "font-semibold");
     btn.classList.add("text-white/50");
   });
 
-<<<<<<< HEAD
   // Find and highlight the active language button by checking onclick attribute
   buttons.forEach(function (btn) {
     var onclick = btn.getAttribute('onclick') || '';
-=======
-  buttons.forEach(function (btn) {
-    var onclick = btn.getAttribute("onclick") || "";
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
     if (onclick.includes("setLang('" + window.currentLang + "')")) {
       btn.classList.add("bg-accent", "text-white", "font-semibold");
       btn.classList.remove("text-white/50");
     }
   });
-<<<<<<< HEAD
   
   console.log('Language applied successfully:', window.currentLang);
-=======
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
 }
 
 // Translation helper
@@ -123,11 +96,7 @@ function setLang(lang) {
     console.warn("Invalid language:", lang);
     return;
   }
-<<<<<<< HEAD
   console.log("Setting language to:", lang);
-=======
-  // ...existing code...
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   document.cookie = "lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax";
   localStorage.setItem("lang", lang);
   window.currentLang = lang;
