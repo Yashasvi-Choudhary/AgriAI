@@ -13,7 +13,7 @@ function showState(id) {
 
 /* ── Get current language from DOM ── */
 function getCurrentLanguage() {
-<<<<<<< HEAD
+
   const htmlLang = document.documentElement.lang || "en";
   return htmlLang === "hi" ? "hi" : "en";
 }
@@ -32,7 +32,8 @@ function renderResult(response) {
   const analysis = yieldData.analysis || "";
   const suggestion = yieldData.suggestion || "";
 
-=======
+
+
   const htmlLang = document.documentElement.lang || window.currentLang || "en";
   return htmlLang === "hi" ? "hi" : "en";
 }
@@ -256,7 +257,7 @@ function renderResult(response) {
   const yieldValue = parseFloat(yieldData.predicted_yield || 0).toFixed(2);
   const unit = yieldData.unit || "kg/hectare";
 
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+
   // Display main yield result
   document.getElementById("resultYieldValue").textContent = yieldValue;
   document.getElementById("resultYieldUnit").textContent = unit;
@@ -357,14 +358,12 @@ async function getCropYieldPrediction() {
   };
 
   // Validation
-<<<<<<< HEAD
-  if (!formData.crop) {
-=======
+
   if (
     !formData.crop ||
     !["rice", "maize", "chickpea", "cotton"].includes(formData.crop)
   ) {
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+
     alert(
       t["yield_alert_crop"] || "Please select a crop type before proceeding.",
     );
@@ -440,8 +439,7 @@ async function getCropYieldPrediction() {
     if (!data.data || !data.data.yield_prediction) {
       throw new Error(t["yield_error_no_result"] || "Invalid response format.");
     }
-<<<<<<< HEAD
-=======
+
 
     const historyId = data.data.history_id;
     if (historyId) {
@@ -451,7 +449,7 @@ async function getCropYieldPrediction() {
       areas[String(historyId)] = formData.area;
       localStorage.setItem("yieldHistoryAreas", JSON.stringify(areas));
     }
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+
 
     renderResult(data);
     await loadYieldHistory();
@@ -472,9 +470,9 @@ async function getCropYieldPrediction() {
 
 /* ── Initialize on page load ── */
 document.addEventListener("DOMContentLoaded", function () {
-<<<<<<< HEAD
+
   showState("emptyState");
-=======
+
   const toggleText = document.getElementById("yieldHistoryToggleText");
   const content = document.getElementById("yieldHistoryContent");
 
@@ -491,5 +489,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   loadYieldHistory();
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+
 });

@@ -276,7 +276,6 @@ async function getCropRecommendation() {
     renderBilingualResult(data.data?.crop_recommendation || {});
     await loadCropRecommendationHistory();
   } catch (err) {
-    console.error("Fetch error:", err, err.stack);
     document.getElementById("errorMsg").textContent =
       err.message || "Network error. Please try again.";
     showState("errorState");

@@ -403,37 +403,6 @@ CREATE TABLE IF NOT EXISTS users (
     )
     """)
 
-    # ---------------- MARKET PRICE HISTORY ----------------
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS market_price_history (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        crop_name TEXT,
-        location_name TEXT,
-        latitude REAL,
-        longitude REAL,
-        current_price TEXT,
-        min_price TEXT,
-        max_price TEXT,
-        market_name TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES users(id)
-    )
-    """)
-
-    # ---------------- AI CHAT HISTORY ----------------
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS ai_chat_history (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        user_query TEXT NOT NULL,
-        ai_response TEXT NOT NULL,
-        language VARCHAR(10),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES users(id)
-    )
-    """)
-
     conn.commit()
     conn.close()
 

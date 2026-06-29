@@ -5,7 +5,6 @@
   "fert_form_section_title": "Enter Farm Details",
   "fert_nutrient_section_title": "Soil Nutrient Levels (mg/kg)",
 
-
   "fert_label_crop": "Crop Type",
   "fert_crop_placeholder": "Select a crop…",
   "fert_crop_barley": "Barley",
@@ -29,16 +28,6 @@
   "fert_soil_sandy": "Sandy Soil",
   "fert_soil_clay": "Clay Soil",
 
-<<<<<<< HEAD
-
-  "fert_label_temperature": "Temperature (°C) — Optional",
-  "fert_temp_placeholder": "e.g. 28",
-
-  "fert_label_humidity": "Humidity (%) — Optional",
-  "fert_humidity_placeholder": "e.g. 40",
-
-  "fert_label_moisture": "Soil Moisture (%) — Optional",
-=======
   "fert_label_temperature": "Temperature (°C)",
   "fert_temp_placeholder": "e.g. 28",
 
@@ -46,7 +35,6 @@
   "fert_humidity_placeholder": "e.g. 40",
 
   "fert_label_moisture": "Soil Moisture (%)",
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   "fert_moisture_placeholder": "e.g. 45",
 
   "fert_label_nitrogen": "Nitrogen (N) — mg/kg",
@@ -102,7 +90,6 @@
   "fert_history_no_records": "No saved fertilizer recommendations yet.",
   "fert_history_crop_label": "Crop",
   "fert_history_fertilizer_label": "Fertilizer",
-
   "fert_history_date_label": "Date",
   "fert_history_delete": "Delete",
   "fert_history_delete_confirm": "Delete this recommendation?"

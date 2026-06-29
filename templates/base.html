@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Labhansh.ai – Smart Agriculture</title>
-
     <link
       href="{{ url_for('static', filename='css/output.css') }}"
       rel="stylesheet"
@@ -99,13 +98,23 @@
       window._currentUserId = userData?.id || null;
     </script>
 
-    <script>
-      window.__i18n = {{ t | default({}, true) | tojson }};
-      window.__lang = "{{ lang | default('en') }}";
+    <script id="translations" type="application/json">
+{{ t | default({}, true) | tojson }}
+</script>
 
-      console.log("Translations loaded for language {{ lang }}:", Object.keys(window.__i18n || {}).length, "keys");
-      console.log("Current language:", window.__lang);
-    </script>
+<script>
+  window.__i18n = JSON.parse(
+    document.getElementById("translations").textContent
+  );
+  window.__lang = "{{ lang | default('en') }}";
+
+  console.log(
+    "Translations loaded:",
+    Object.keys(window.__i18n).length,
+    "keys"
+  );
+  console.log("Current language:", window.__lang);
+</script>
 
     <script src="{{ url_for('static', filename='js/global.js') }}"></script>
 

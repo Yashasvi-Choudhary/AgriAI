@@ -28,17 +28,6 @@
   "fert_soil_sandy": "रेतीली मिट्टी",
   "fert_soil_clay": "चिकनी मिट्टी",
 
-<<<<<<< HEAD
-
-
-  "fert_label_temperature": "तापमान (°C) — वैकल्पिक",
-  "fert_temp_placeholder": "जैसे 28",
-
-  "fert_label_humidity": "ह्यूमिडिटी (%) — वैकल्पिक",
-  "fert_humidity_placeholder": "जैसे 40",
-
-  "fert_label_moisture": "मिट्टी की नमी (%) — वैकल्पिक",
-=======
   "fert_label_temperature": "तापमान (°C)",
   "fert_temp_placeholder": "जैसे 28",
 
@@ -46,7 +35,6 @@
   "fert_humidity_placeholder": "जैसे 40",
 
   "fert_label_moisture": "मिट्टी की नमी (%)",
->>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
   "fert_moisture_placeholder": "जैसे 45",
 
   "fert_label_nitrogen": "नाइट्रोजन (N) — mg/kg",
@@ -102,7 +90,6 @@
   "fert_history_no_records": "कोई संग्रहीत उर्वरक सुझाव नहीं मिला।",
   "fert_history_crop_label": "फसल",
   "fert_history_fertilizer_label": "उर्वरक",
-
   "fert_history_date_label": "दिनांक",
   "fert_history_delete": "हटाएँ",
   "fert_history_delete_confirm": "क्या आप इस सुझाव को हटाना चाहते हैं?"

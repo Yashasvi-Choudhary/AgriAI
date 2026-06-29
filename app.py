@@ -237,7 +237,15 @@ def dashboard():
 def about_page():
     if "user" not in session:
         return redirect('/login')
-    return render_template('dashboard/about.html')
+
+    lang = session.get("lang", "en")
+
+    translations = get_translations(lang, "about")
+
+    return render_template(
+        'dashboard/about.html',
+        t=translations
+    )
 
 
 @app.route('/profit')
@@ -1541,7 +1549,6 @@ def test_email():
 # ─────────────────────────────────────────────
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
-
     print("🔥 Forgot password API hit")
 
     if request.method == 'GET':
@@ -1552,6 +1559,8 @@ def forgot_password():
         email = (payload.get('email') or '').strip().lower()
     else:
         email = (request.form.get('email') or '').strip().lower()
+
+    print("📧 Email received:", email)
 
     if not email:
         return jsonify({"success": False, "message": "Email is required"}), 400
@@ -1566,7 +1575,6 @@ def forgot_password():
         conn.close()
         return jsonify({"success": False, "message": "Email not found"}), 404
 
-    # ✅ token generate
     token = str(uuid.uuid4())
     expiry = datetime.datetime.now() + datetime.timedelta(hours=1)
 
@@ -1581,7 +1589,6 @@ def forgot_password():
     reset_link = f"{request.host_url.rstrip('/')}/reset-password?token={token}"
     print("Reset link:", reset_link)
 
-    # ✅ EMAIL SEND (IMPORTANT FIX)
     msg = Message(
         subject="Password Reset",
         recipients=[email]
@@ -1593,7 +1600,7 @@ def forgot_password():
         if MAIL_USERNAME and MAIL_PASSWORD:
             mail.send(msg)
             email_sent = True
-            print("✅ Email sent")
+            print("✅ Email sent successfully")
         else:
             print("⚠️ Mail credentials not configured. Reset link generated:", reset_link)
     except Exception as e:
@@ -1647,7 +1654,6 @@ def reset_password(token=None):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    # ✅ token verify
     cursor.execute(
         "SELECT * FROM users WHERE reset_token=? AND token_expiry > ?",
         (token_value, datetime.datetime.now())
