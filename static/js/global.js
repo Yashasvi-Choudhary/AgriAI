@@ -2,7 +2,6 @@
    global.js — clean version, no opacity tricks needed
    The flash is eliminated by matching html background color.
    ============================================================ */
-window.DEV_MODE = window.DEV_MODE ?? true;
 
 window.currentLang = window.__lang || localStorage.getItem("lang") || "en";
 
@@ -45,14 +44,14 @@ function applyLang() {
 
   // Find and highlight the active language button by checking onclick attribute
   buttons.forEach(function (btn) {
-    var onclick = btn.getAttribute('onclick') || '';
+    var onclick = btn.getAttribute("onclick") || "";
     if (onclick.includes("setLang('" + window.currentLang + "')")) {
       btn.classList.add("bg-accent", "text-white", "font-semibold");
       btn.classList.remove("text-white/50");
     }
   });
-  
-  console.log('Language applied successfully:', window.currentLang);
+
+  console.log("Language applied successfully:", window.currentLang);
 }
 
 // Translation helper
@@ -155,16 +154,21 @@ function getStorageValue(key) {
   const userValue =
     localStorage.getItem(getStorageKey(key)) ||
     sessionStorage.getItem(getStorageKey(key));
-  const genericValue =
-    localStorage.getItem(key) || sessionStorage.getItem(key);
+  const genericValue = localStorage.getItem(key) || sessionStorage.getItem(key);
   return userValue || genericValue;
 }
 
 function getStoredLocationData() {
+  const uid = window._currentUserId || "guest";
+
   return {
-    lat: getStorageValue("lat"),
-    lon: getStorageValue("lon"),
-    locationName: getStorageValue("location_name"),
+    lat: localStorage.getItem(`lat_${uid}`) || localStorage.getItem("lat"),
+
+    lon: localStorage.getItem(`lon_${uid}`) || localStorage.getItem("lon"),
+
+    locationName:
+      localStorage.getItem(`location_name_${uid}`) ||
+      localStorage.getItem("location_name"),
   };
 }
 
@@ -211,7 +215,10 @@ async function getBrowserLocation() {
           );
           const data = await response.json();
           locationName =
-            data.address?.city || data.address?.town || data.address?.village || "Your Location";
+            data.address?.city ||
+            data.address?.town ||
+            data.address?.village ||
+            "Your Location";
         } catch (error) {
           console.warn("Reverse geocode failed:", error);
         }
@@ -276,85 +283,78 @@ function waitForUserAndLoadWeather() {
 
 window.globalWeatherData = null;
 
-async function fetchWeatherData() {
-  // remove this when API is ready, for testing without hitting rate limits
-
-  if (DEV_MODE) {
-    const today = new Date();
-    const forecast = Array.from({ length: 7 }, (_, index) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() + index);
-      const iso = date.toISOString().split("T")[0];
-      return {
-        date: iso,
-        label: date.toLocaleDateString("en", {
-          month: "short",
-          day: "numeric",
-        }),
-        day:
-          index === 0 ? "Today" : index === 1 ? "Tomorrow" : `Day ${index + 1}`,
-        max: 28 + ((index % 3) - 1),
-        min: 20 + (index % 2),
-        condition: index % 2 === 0 ? "Sunny" : "Partly Cloudy",
-      };
-    });
-    return {
-      temperature: 28,
-      windspeed: 10,
-      humidity: 70,
-      rainfall: 50,
-      description: "Clear",
-      forecast,
-    };
+async function fetchWeatherData(forceRefresh = false) {
+  if (window.globalWeatherData && !forceRefresh) {
+    return window.globalWeatherData;
   }
-  if (window.globalWeatherData) return window.globalWeatherData; // cache
 
   let { lat, lon, locationName } = getStoredLocationData();
 
+  // If no saved location, get GPS
   if (!lat || !lon) {
     const browserLocation = await getBrowserLocation();
-    if (browserLocation && browserLocation.lat && browserLocation.lon) {
-      lat = browserLocation.lat;
-      lon = browserLocation.lon;
-      locationName = locationName || browserLocation.locationName;
-      saveStoredLocationData({ lat, lon, locationName });
-    } else {
-      console.warn(
-        "No stored location coordinates found and browser geolocation unavailable.",
-      );
+
+    if (!browserLocation) {
+      console.log("No location available");
+
       return {
         temperature: "--",
         windspeed: "--",
         humidity: "--",
         rainfall: "--",
-        description: "N/A",
+        description: "Location not set",
         forecast: [],
       };
     }
+
+    lat = browserLocation.lat;
+    lon = browserLocation.lon;
+    locationName = browserLocation.locationName;
+
+    saveStoredLocationData({
+      lat,
+      lon,
+      locationName,
+    });
   }
 
   try {
-    const res = await fetch("/api/weather", {
+    console.log("Weather API Location:", lat, lon);
+
+    const response = await fetch("/api/weather", {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ lat, lon }),
+
+      body: JSON.stringify({
+        lat: Number(lat),
+        lon: Number(lon),
+      }),
     });
 
-    const data = await res.json();
+    if (!response.ok) {
+      throw new Error("Weather API failed");
+    }
 
-    window.globalWeatherData = data; // cache it
+    const data = await response.json();
+
+    console.log("Weather response:", data);
+
+    window.globalWeatherData = data;
+
     return data;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Weather fetch error:", error);
+
     return null;
   }
 }
 
 async function loadHeaderWeather() {
   // ...existing code...
-  const data = await fetchWeatherData();
+  const data = await fetchWeatherData(true);
   if (!data) {
     console.warn("loadHeaderWeather: No weather data returned");
     return;
@@ -382,12 +382,6 @@ async function loadHeaderWeather() {
     mobileEl.textContent = `${data.temperature}°C · ${city || "Your Location"}`;
   }
   // ...existing code...
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", waitForUserAndLoadWeather);
-} else {
-  waitForUserAndLoadWeather();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -786,72 +780,91 @@ function getProfileLocationStorageKey() {
   return `location_name_${userId}`;
 }
 
-function initializeProfileLocationField() {
-  const locationInput = document.getElementById("location");
-  if (!locationInput) return;
-
-  const storedLocation = localStorage.getItem(getProfileLocationStorageKey());
-  if (storedLocation) {
-    locationInput.value = storedLocation;
-  }
-
-  locationInput.addEventListener("input", function () {
-    localStorage.setItem(
-      getProfileLocationStorageKey(),
-      locationInput.value.trim(),
-    );
-  });
-}
-
 async function updateProfile() {
   const name = document.getElementById("name").value.trim();
   const phone = document.getElementById("phone").value.trim();
   const locationValue = document.getElementById("location").value.trim();
 
-  // Clear previous errors
-  document.querySelectorAll('[id^="error-"]').forEach((el) => {
-    el.classList.add("hidden");
-    el.textContent = "";
-  });
+  let latitude = null;
+  let longitude = null;
+
+  // Get lat lon from location name
+  if (locationValue) {
+    try {
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationValue)}&limit=1`,
+      );
+
+      const geoData = await geoRes.json();
+
+      if (geoData.length > 0) {
+        latitude = geoData[0].lat;
+        longitude = geoData[0].lon;
+      }
+    } catch (err) {
+      console.log("Geocode failed", err);
+    }
+  }
 
   try {
     const res = await fetch("/update-profile", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, location: locationValue }),
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        name,
+        phone,
+        location: locationValue,
+        lat: latitude,
+        lon: longitude,
+      }),
     });
 
     const data = await res.json();
 
-    if (!data.success) {
-      for (const [field, msg] of Object.entries(data.errors)) {
-        const errorEl = document.getElementById(`error-${field}`);
-        if (errorEl) {
-          errorEl.textContent =
-            t(`profile_error_${field}_required`, msg) ||
-            t(`profile_error_${field}_invalid`, msg) ||
-            t(`profile_error_${field}_too_short`, msg) ||
-            msg;
-          errorEl.classList.remove("hidden");
-        }
+    if (data.success) {
+      const userId = window._currentUserId || "guest";
+
+      // USER STORAGE
+
+      localStorage.setItem(`location_name_${userId}`, locationValue);
+
+      if (latitude && longitude) {
+        localStorage.setItem(`lat_${userId}`, latitude);
+
+        localStorage.setItem(`lon_${userId}`, longitude);
+
+        // IMPORTANT
+        // WEATHER USES THESE
+
+        localStorage.setItem("location_name", locationValue);
+
+        localStorage.setItem("lat", latitude);
+
+        localStorage.setItem("lon", longitude);
       }
-    } else {
-      localStorage.setItem(getProfileLocationStorageKey(), locationValue);
-      if (data.lat && data.lon) {
-        const userId = window._currentUserId || "guest";
-        localStorage.setItem(`lat_${userId}`, data.lat);
-        localStorage.setItem(`lon_${userId}`, data.lon);
-        localStorage.setItem(`location_name_${userId}`, locationValue);
-      }
+
+      // remove old weather cache
+
+      window.globalWeatherData = null;
+
+      // reload weather immediately
+
+      await loadHeaderWeather();
+
       alert(t("profile_success", "Profile updated successfully"));
+
       window.location.reload();
+    } else {
+      console.log(data.errors);
     }
   } catch (err) {
-    console.error("Profile update error:", err);
-    alert(t("profile_error_failed", "An error occurred. Please try again."));
+    console.error("Profile update error", err);
   }
 }
-
 async function changePassword() {
   const current = document.getElementById("current_password").value;
   const newPass = document.getElementById("new_password").value;
@@ -904,20 +917,6 @@ async function changePassword() {
     console.error("Password change error:", err);
     alert(t("password_error_failed", "An error occurred. Please try again."));
   }
-}
-
-function clearProfitErrors() {
-  document.querySelectorAll('#profitForm [id^="error-"]').forEach((el) => {
-    el.classList.add("hidden");
-    el.textContent = "";
-  });
-}
-
-function showProfitError(field, message) {
-  const errorEl = document.getElementById(`error-${field}`);
-  if (!errorEl) return;
-  errorEl.textContent = t(message, message);
-  errorEl.classList.remove("hidden");
 }
 
 let profitHistoryVisible = true;
@@ -1174,7 +1173,6 @@ async function initProfitAnalyzer() {
 
 // Event listeners for profile page
 if (document.getElementById("profile-form")) {
-  initializeProfileLocationField();
   document
     .getElementById("profile-form")
     .addEventListener("submit", function (e) {
@@ -1217,148 +1215,6 @@ function showProfitError(field, message) {
   if (!errorEl) return;
   errorEl.textContent = t(message, message);
   errorEl.classList.remove("hidden");
-}
-
-function renderProfitHistory(history) {
-  const wrapper = document.getElementById("profitHistoryWrapper");
-  if (!wrapper) return;
-  wrapper.innerHTML = "";
-
-  if (!Array.isArray(history) || history.length === 0) {
-    const empty = document.createElement("p");
-    empty.className = "text-sm text-textMid";
-    empty.textContent = t("profit_analysis_no_history", "No history found");
-    wrapper.appendChild(empty);
-    return;
-  }
-
-  history.forEach((record) => {
-    const card = document.createElement("div");
-    card.className = "rounded-lg border border-backgroundDark p-4 bg-surface";
-    card.innerHTML = `
-      <div class="flex items-start justify-between gap-3 mb-3">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-textMid">${t("profit_history_crop", "Crop")}</p>
-          <p class="mt-1 font-semibold text-textDark text-sm">${record.crop_name || "N/A"}</p>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3 text-sm">
-        <div>
-          <p class="text-xs text-textMid">${t("profit_history_revenue", "Revenue")}</p>
-          <p class="mt-1 font-semibold">₹${Number(record.expected_revenue || 0).toFixed(2)}</p>
-        </div>
-        <div>
-          <p class="text-xs text-textMid">${t("profit_history_profit", "Profit")}</p>
-          <p class="mt-1 font-semibold">₹${Number(record.estimated_profit || 0).toFixed(2)}</p>
-        </div>
-      </div>
-    `;
-    wrapper.appendChild(card);
-  });
-}
-
-function renderProfitOutput(payload) {
-  if (!payload) return;
-  const current = window.currentLang === "hi" ? payload.hindi : payload.english;
-  if (!current) return;
-
-  const resultCard = document.getElementById("profitResultCard");
-  if (!resultCard) return;
-
-  document.getElementById("result_total_investment").textContent =
-    current.total_investment || "₹0.00";
-  document.getElementById("result_expected_revenue").textContent =
-    current.expected_revenue || "₹0.00";
-  document.getElementById("result_estimated_profit").textContent =
-    current.estimated_profit || "₹0.00";
-  document.getElementById("result_profit_percentage").textContent =
-    current.profit_percentage || "0.00%";
-  document.getElementById("result_profit_status").textContent =
-    current.profit_status || "N/A";
-  document.getElementById("result_analysis").textContent =
-    current.analysis || "";
-
-  resultCard.classList.remove("hidden");
-}
-
-async function getProfitAnalysis(event) {
-  if (event) event.preventDefault();
-
-  clearProfitErrors();
-
-  const submitButton = document.getElementById("profitSubmitBtn");
-  const spinner = document.getElementById("btnSpinner");
-  if (submitButton) {
-    submitButton.disabled = true;
-    submitButton.classList.add("opacity-70", "cursor-not-allowed");
-  }
-  if (spinner) {
-    spinner.classList.remove("hidden");
-  }
-
-  const payload = {
-    crop_name: document.getElementById("crop_name")?.value.trim() || "",
-    land_area: document.getElementById("land_area")?.value || "",
-    production_cost: document.getElementById("production_cost")?.value || "",
-    fertilizer_cost: document.getElementById("fertilizer_cost")?.value || "",
-    labor_cost: document.getElementById("labor_cost")?.value || "",
-    irrigation_cost: document.getElementById("irrigation_cost")?.value || "",
-    expected_yield: document.getElementById("expected_yield")?.value || "",
-    market_price: document.getElementById("market_price")?.value || "",
-    transport_cost: document.getElementById("transport_cost")?.value || "",
-    other_expenses: document.getElementById("other_expenses")?.value || "",
-    soil_type: document.getElementById("soil_type")?.value || "",
-  };
-
-  const userId = window._currentUserId || "guest";
-  payload.latitude = localStorage.getItem(`lat_${userId}`) || "";
-  payload.longitude = localStorage.getItem(`lon_${userId}`) || "";
-
-  try {
-    const response = await fetch("/api/profit-analysis", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await response.json();
-
-    if (!response.ok) {
-      if (data && data.errors) {
-        Object.entries(data.errors).forEach(([field, message]) =>
-          showProfitError(field, message),
-        );
-      } else {
-        showProfitError("general", "profit_error_failed");
-      }
-      return;
-    }
-
-    renderProfitOutput(data.data.profit_analysis);
-    renderProfitHistory(data.data.history || []);
-  } catch (err) {
-    console.error("Profit analysis error:", err);
-    showProfitError("general", "profit_error_failed");
-  } finally {
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.classList.remove("opacity-70", "cursor-not-allowed");
-    }
-    if (spinner) {
-      spinner.classList.add("hidden");
-    }
-  }
-}
-
-function initProfitAnalyzer() {
-  const profitForm = document.getElementById("profitForm");
-  if (!profitForm) return;
-  profitForm.addEventListener("submit", getProfitAnalysis);
-}
-// Initialize profit analyzer when DOM is ready
-function initOnDOMReady() {
-  setTimeout(function () {
-    initProfitAnalyzer();
-  }, 100);
 }
 
 if (document.readyState === "loading") {

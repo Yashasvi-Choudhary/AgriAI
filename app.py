@@ -265,7 +265,11 @@ def profile():
     
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT name, email, phone, location FROM users WHERE id=?", (session["user"]["id"],))
+    cursor.execute("""
+SELECT name,email,phone,location,lat,lon
+FROM users
+WHERE id=?
+""",(session["user"]["id"],))
     user = cursor.fetchone()
     conn.close()
     
@@ -284,6 +288,7 @@ def update_profile():
     phone = data.get('phone', '').strip()
     location = data.get('location', '').strip()
     
+    
     errors = {}
     if not name:
         errors['name'] = 'Username is required'
@@ -299,7 +304,12 @@ def update_profile():
     
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET name=?, phone=?, location=? WHERE id=?", (name, phone, location, session["user"]["id"]))
+    cursor.execute("""
+UPDATE users 
+SET name=?, phone=?, location=?, lat=?, lon=?
+WHERE id=?
+""",
+(name, phone, location, lat, lon, session["user"]["id"]))
     conn.commit()
     conn.close()
     
@@ -1454,36 +1464,89 @@ def save_location():
 # ─────────────────────────────────────────────
 @app.route("/api/weather", methods=["POST"])
 def get_weather():
-    data = request.get_json()
-    lat = data.get("lat")
-    lon = data.get("lon")
+    try:
+        data = request.get_json()
 
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
+        lat = data.get("lat")
+        lon = data.get("lon")
 
-    res = requests.get(url).json()
+        if not lat or not lon:
+            return jsonify({
+                "error": "Latitude and longitude required"
+            }), 400
 
-    daily = res.get("daily", {}) or {}
-    dates = daily.get("time", []) or []
-    forecast = []
-    for i, (day_date, day_max, day_min, code) in enumerate(zip(dates, daily.get("temperature_2m_max", []), daily.get("temperature_2m_min", []), daily.get("weathercode", []))):
-        label = "Today" if i == 0 else datetime.datetime.strptime(day_date, "%Y-%m-%d").strftime("%b %d")
-        forecast.append({
-            "date": day_date,
-            "label": label,
-            "day": "Today" if i == 0 else day_date,
-            "max": round(day_max, 1),
-            "min": round(day_min, 1),
-            "condition": describe_weather_code(code),
+        url = (
+            f"https://api.open-meteo.com/v1/forecast?"
+            f"latitude={lat}&longitude={lon}"
+            f"&current_weather=true"
+            f"&hourly=relativehumidity_2m,precipitation_probability"
+            f"&daily=temperature_2m_max,temperature_2m_min,weathercode"
+            f"&timezone=auto"
+        )
+
+        res = requests.get(url).json()
+
+        current = res.get("current_weather", {})
+        hourly = res.get("hourly", {})
+        daily = res.get("daily", {})
+
+        forecast = []
+
+        for i in range(7):
+            forecast.append({
+                "date": daily["time"][i],
+                "label": (
+                    "Today"
+                    if i == 0
+                    else datetime.datetime.strptime(
+                        daily["time"][i],
+                        "%Y-%m-%d"
+                    ).strftime("%b %d")
+                ),
+                "day": "Today" if i == 0 else daily["time"][i],
+                "max": daily["temperature_2m_max"][i],
+                "min": daily["temperature_2m_min"][i],
+                "condition": describe_weather_code(
+                    daily["weathercode"][i]
+                )
+            })
+
+
+        return jsonify({
+
+            "temperature": current.get("temperature", "--"),
+
+            "windspeed": current.get(
+                "windspeed",
+                "--"
+            ),
+
+            "humidity": hourly.get(
+                "relativehumidity_2m",
+                ["--"]
+            )[0],
+
+            "rainfall": hourly.get(
+                "precipitation_probability",
+                ["--"]
+            )[0],
+
+            "description": describe_weather_code(
+                current.get("weathercode", 0)
+            ),
+
+            "forecast": forecast
+
         })
 
-    return jsonify({
-        "temperature": res["current_weather"]["temperature"],
-        "windspeed": res["current_weather"]["windspeed"],
-        "humidity": res["hourly"]["relativehumidity_2m"][0],
-        "rainfall": res["hourly"]["precipitation_probability"][0],
-        "description": res["current_weather"].get("weathercode") and describe_weather_code(res["current_weather"]["weathercode"]) or "Clear",
-        "forecast": forecast,
-    })
+
+    except Exception as e:
+
+        print("Weather API error:", e)
+
+        return jsonify({
+            "error": "Weather fetch failed"
+        }),500
 
 
 def describe_weather_code(code):

@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadUser(); // wait until user + location ready
-  if (typeof initializeHeaderWeather === "function") {
-    await initializeHeaderWeather();
-  } else {
-    loadHeaderWeather();
+  await loadUser();
+
+  if (typeof loadHeaderWeather === "function") {
+    await loadHeaderWeather();
   }
-  loadDashboardWeather(); // then load weather
+
+  loadDashboardWeather();
 });
 
 // ─────────────────────────────
@@ -77,7 +77,9 @@ function initLocationPopup() {
 // LOAD SAVED LOCATION EVERYWHERE
 // ─────────────────────────────
 function loadSavedLocation() {
-  const city = localStorage.getItem(userKey("location_name")) || localStorage.getItem("location_name");
+  const city =
+    localStorage.getItem(userKey("location_name")) ||
+    localStorage.getItem("location_name");
   if (!city) return;
 
   const wLoc = document.getElementById("wLocation");
@@ -192,16 +194,17 @@ async function saveAndClose(city, lat, lon) {
 
   loadSavedLocation();
 
-  // 🔥 IMPORTANT: clear old cache
+  // clear old weather cache after location change
   window.globalWeatherData = null;
 
-  // 🔥 reload weather everywhere
+  // reload header weather
   if (typeof loadHeaderWeather === "function") {
-    loadHeaderWeather();
+    await loadHeaderWeather();
   }
 
+  // reload dashboard weather
   if (typeof loadDashboardWeather === "function") {
-    loadDashboardWeather();
+    await loadDashboardWeather();
   }
 
   closePopup();
@@ -232,13 +235,16 @@ function getSavedLon() {
   return localStorage.getItem(userKey("lon"));
 }
 function getSavedCity() {
-  return localStorage.getItem(userKey("location_name")) || localStorage.getItem("location_name");
+  return (
+    localStorage.getItem(userKey("location_name")) ||
+    localStorage.getItem("location_name")
+  );
 }
 
 //weather on dashboard
 
 async function loadDashboardWeather() {
-  const data = await fetchWeatherData();
+  const data = await fetchWeatherData(true);
   if (!data) return;
 
   // 🌡 Temperature

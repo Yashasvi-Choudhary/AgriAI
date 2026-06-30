@@ -115,6 +115,16 @@ CREATE TABLE IF NOT EXISTS users (
         cursor.execute("ALTER TABLE users ADD COLUMN location TEXT")
     except sqlite3.OperationalError:
         pass  # Column already exists
+    # Add latitude and longitude columns if they don't exist
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN lat REAL")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN lon REAL")
+    except sqlite3.OperationalError:
+        pass
 
     try:
         cursor.execute("ALTER TABLE farm_conditions ADD COLUMN location_name TEXT")
