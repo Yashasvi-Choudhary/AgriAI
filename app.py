@@ -1793,25 +1793,35 @@ def get_schemes():
         cursor.execute(query, params)
         rows = cursor.fetchall()
         conn.close()
-        
+
+        def parse_json_field(value):
+            if not value:
+                return {"en": "", "hi": ""}
+            if isinstance(value, str):
+                try:
+                    return json.loads(value)
+                except (json.JSONDecodeError, TypeError):
+                    return {"en": value, "hi": value}
+            return value
+
         schemes = []
         for row in rows:
             schemes.append({
                 "id": row[0],
-                "title": json.loads(row[1]) if row[1] else {"en": "", "hi": ""},
-                "description": json.loads(row[2]) if row[2] else {"en": "", "hi": ""},
-                "benefit": json.loads(row[3]) if row[3] else {"en": "", "hi": ""},
+                "title": parse_json_field(row[1]),
+                "description": parse_json_field(row[2]),
+                "benefit": parse_json_field(row[3]),
                 "state": row[4],
-                "crop_type": json.loads(row[5]) if row[5] else {"en": "", "hi": ""},
-                "eligibility": json.loads(row[6]) if row[6] else {"en": "", "hi": ""},
+                "crop_type": parse_json_field(row[5]),
+                "eligibility": parse_json_field(row[6]),
                 "website_link": row[7],
-                "created_at": row[8]
+                "created_at": row[8],
             })
-        
+
         return jsonify({
             "status": "success",
             "count": len(schemes),
-            "schemes": schemes
+            "schemes": schemes,
         })
         
     except Exception as e:

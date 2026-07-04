@@ -2,10 +2,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadUser();
 
   if (typeof loadHeaderWeather === "function") {
-    await loadHeaderWeather();
+    void loadHeaderWeather(false);
   }
 
-  loadDashboardWeather();
+  if (typeof loadDashboardWeather === "function") {
+    void loadDashboardWeather(false);
+  }
 });
 
 // ─────────────────────────────
@@ -77,9 +79,7 @@ function initLocationPopup() {
 // LOAD SAVED LOCATION EVERYWHERE
 // ─────────────────────────────
 function loadSavedLocation() {
-  const city =
-    localStorage.getItem(userKey("location_name")) ||
-    localStorage.getItem("location_name");
+  const { locationName: city } = getStoredLocationData();
   if (!city) return;
 
   const wLoc = document.getElementById("wLocation");
@@ -199,12 +199,12 @@ async function saveAndClose(city, lat, lon) {
 
   // reload header weather
   if (typeof loadHeaderWeather === "function") {
-    await loadHeaderWeather();
+    void loadHeaderWeather(true);
   }
 
   // reload dashboard weather
   if (typeof loadDashboardWeather === "function") {
-    await loadDashboardWeather();
+    void loadDashboardWeather(true);
   }
 
   closePopup();
@@ -243,8 +243,8 @@ function getSavedCity() {
 
 //weather on dashboard
 
-async function loadDashboardWeather() {
-  const data = await fetchWeatherData(true);
+async function loadDashboardWeather(forceRefresh = false) {
+  const data = await fetchWeatherData(forceRefresh);
   if (!data) return;
 
   // 🌡 Temperature

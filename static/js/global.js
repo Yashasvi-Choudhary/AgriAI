@@ -4,6 +4,9 @@
    ============================================================ */
 
 window.currentLang = window.__lang || localStorage.getItem("lang") || "en";
+window.__headerInitPromise = null;
+window.__weatherRequestPromise = null;
+window.__browserLocationPromise = null;
 
 // ─────────────────────────────────────────────────────────────
 // APPLY TRANSLATIONS
@@ -161,14 +164,26 @@ function getStorageValue(key) {
 function getStoredLocationData() {
   const uid = window._currentUserId || "guest";
 
+  const userLat =
+    localStorage.getItem(`lat_${uid}`) || sessionStorage.getItem(`lat_${uid}`);
+  const userLon =
+    localStorage.getItem(`lon_${uid}`) || sessionStorage.getItem(`lon_${uid}`);
+  const userLocationName =
+    localStorage.getItem(`location_name_${uid}`) ||
+    sessionStorage.getItem(`location_name_${uid}`);
+
+  const genericLat =
+    localStorage.getItem("lat") || sessionStorage.getItem("lat");
+  const genericLon =
+    localStorage.getItem("lon") || sessionStorage.getItem("lon");
+  const genericLocationName =
+    localStorage.getItem("location_name") ||
+    sessionStorage.getItem("location_name");
+
   return {
-    lat: localStorage.getItem(`lat_${uid}`) || localStorage.getItem("lat"),
-
-    lon: localStorage.getItem(`lon_${uid}`) || localStorage.getItem("lon"),
-
-    locationName:
-      localStorage.getItem(`location_name_${uid}`) ||
-      localStorage.getItem("location_name"),
+    lat: userLat || genericLat,
+    lon: userLon || genericLon,
+    locationName: userLocationName || genericLocationName,
   };
 }
 
@@ -250,9 +265,7 @@ function updateHeaderLocationText(locationName) {
 
 function syncHeaderLocationFromStorage() {
   const { locationName } = getStoredLocationData();
-  if (locationName) {
-    updateHeaderLocationText(locationName);
-  }
+  updateHeaderLocationText(locationName || "Your Location");
 }
 
 function shouldLoadWeatherWithoutUser() {
@@ -260,25 +273,54 @@ function shouldLoadWeatherWithoutUser() {
   return Boolean(lat && lon);
 }
 
-function waitForUserAndLoadWeather() {
-  syncHeaderLocationFromStorage();
+async function ensureInitialLocation() {
+  if (window.__browserLocationPromise) {
+    return window.__browserLocationPromise;
+  }
 
-  let tries = 0;
-  const interval = setInterval(() => {
-    const userId = window._currentUserId;
+  const { lat, lon } = getStoredLocationData();
+  if (lat && lon) {
+    return null;
+  }
 
-    if (userId || shouldLoadWeatherWithoutUser()) {
-      clearInterval(interval);
-      loadHeaderWeather();
-      return;
+  if (!navigator.geolocation) {
+    return null;
+  }
+
+  window.__browserLocationPromise = (async () => {
+    const browserLocation = await getBrowserLocation();
+    if (!browserLocation) {
+      return null;
     }
 
-    tries++;
-    if (tries > 10) {
-      clearInterval(interval);
-      loadHeaderWeather();
-    }
-  }, 200);
+    saveStoredLocationData({
+      lat: browserLocation.lat,
+      lon: browserLocation.lon,
+      locationName: browserLocation.locationName,
+    });
+    syncHeaderLocationFromStorage();
+    return browserLocation;
+  })().finally(() => {
+    window.__browserLocationPromise = null;
+  });
+
+  return window.__browserLocationPromise;
+}
+
+function initHeaderLocationAndWeather() {
+  if (window.__headerInitPromise) {
+    return window.__headerInitPromise;
+  }
+
+  window.__headerInitPromise = (async () => {
+    syncHeaderLocationFromStorage();
+    void ensureInitialLocation();
+    await loadHeaderWeather(false);
+  })().finally(() => {
+    window.__headerInitPromise = null;
+  });
+
+  return window.__headerInitPromise;
 }
 
 window.globalWeatherData = null;
@@ -288,15 +330,16 @@ async function fetchWeatherData(forceRefresh = false) {
     return window.globalWeatherData;
   }
 
-  let { lat, lon, locationName } = getStoredLocationData();
+  if (window.__weatherRequestPromise) {
+    return window.__weatherRequestPromise;
+  }
 
-  // If no saved location, get GPS
+  let { lat, lon } = getStoredLocationData();
+
   if (!lat || !lon) {
-    const browserLocation = await getBrowserLocation();
-
+    const browserLocation = await ensureInitialLocation();
     if (!browserLocation) {
       console.log("No location available");
-
       return {
         temperature: "--",
         windspeed: "--",
@@ -309,55 +352,49 @@ async function fetchWeatherData(forceRefresh = false) {
 
     lat = browserLocation.lat;
     lon = browserLocation.lon;
-    locationName = browserLocation.locationName;
-
-    saveStoredLocationData({
-      lat,
-      lon,
-      locationName,
-    });
   }
 
-  try {
-    console.log("Weather API Location:", lat, lon);
+  window.__weatherRequestPromise = (async () => {
+    try {
+      console.log("Weather API Location:", lat, lon);
 
-    const response = await fetch("/api/weather", {
-      method: "POST",
+      const response = await fetch("/api/weather", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          lat: Number(lat),
+          lon: Number(lon),
+        }),
+      });
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+      if (!response.ok) {
+        throw new Error("Weather API failed");
+      }
 
-      body: JSON.stringify({
-        lat: Number(lat),
-        lon: Number(lon),
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Weather API failed");
+      const data = await response.json();
+      console.log("Weather response:", data);
+      window.globalWeatherData = data;
+      return data;
+    } catch (error) {
+      console.error("Weather fetch error:", error);
+      return null;
     }
+  })().finally(() => {
+    window.__weatherRequestPromise = null;
+  });
 
-    const data = await response.json();
-
-    console.log("Weather response:", data);
-
-    window.globalWeatherData = data;
-
-    return data;
-  } catch (error) {
-    console.error("Weather fetch error:", error);
-
-    return null;
-  }
+  return window.__weatherRequestPromise;
 }
 
-async function loadHeaderWeather() {
-  // ...existing code...
-  const data = await fetchWeatherData(true);
+async function loadHeaderWeather(forceRefresh = false) {
+  syncHeaderLocationFromStorage();
+
+  const data = await fetchWeatherData(forceRefresh);
   if (!data) {
     console.warn("loadHeaderWeather: No weather data returned");
-    return;
+    return null;
   }
 
   const { locationName: city } = getStoredLocationData();
@@ -376,12 +413,25 @@ async function loadHeaderWeather() {
   if (rainEl) rainEl.textContent = data.rainfall + "%";
   if (condEl) condEl.textContent = data.description || "Clear";
 
-  updateHeaderLocationText(city);
+  updateHeaderLocationText(city || "Your Location");
 
   if (mobileEl) {
     mobileEl.textContent = `${data.temperature}°C · ${city || "Your Location"}`;
   }
-  // ...existing code...
+
+  if (locEl) {
+    locEl.textContent = city || "Your Location";
+  }
+
+  return data;
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    void initHeaderLocationAndWeather();
+  });
+} else {
+  void initHeaderLocationAndWeather();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -389,7 +439,7 @@ async function loadHeaderWeather() {
 // ─────────────────────────────────────────────────────────────
 
 function updateLocationDisplay() {
-  const locationName = localStorage.getItem(getStorageKey("location_name"));
+  const { locationName } = getStoredLocationData();
   const displayEl = document.getElementById("locationDisplay");
   if (displayEl) {
     displayEl.value = locationName || "Not set";
@@ -413,9 +463,7 @@ async function updateLocation() {
       const lat = data[0].lat;
       const lon = data[0].lon;
 
-      localStorage.setItem(getStorageKey("lat"), lat);
-      localStorage.setItem(getStorageKey("lon"), lon);
-      localStorage.setItem(getStorageKey("location_name"), locationName);
+      saveStoredLocationData({ lat, lon, locationName });
 
       updateLocationDisplay();
       updateHeaderLocationText(locationName);
@@ -447,9 +495,7 @@ async function getMarketPrice() {
   // Check if location input differs from stored, update if needed
   const locationInput = document.getElementById("locationDisplay");
   const currentLocationValue = locationInput.value.trim();
-  const storedLocation =
-    localStorage.getItem(`location_name_${userId}`) ||
-    localStorage.getItem("location_name");
+  const storedLocation = getStoredLocationData().locationName;
   if (
     currentLocationValue &&
     currentLocationValue !== storedLocation &&
@@ -458,13 +504,11 @@ async function getMarketPrice() {
     await updateLocation();
   }
 
-  const latitude =
-    localStorage.getItem(`lat_${userId}`) || localStorage.getItem("lat");
-  const longitude =
-    localStorage.getItem(`lon_${userId}`) || localStorage.getItem("lon");
-  const locationName =
-    localStorage.getItem(`location_name_${userId}`) ||
-    localStorage.getItem("location_name");
+  const {
+    lat: latitude,
+    lon: longitude,
+    locationName,
+  } = getStoredLocationData();
 
   if (!latitude || !longitude || !locationName) {
     showMarketError(
