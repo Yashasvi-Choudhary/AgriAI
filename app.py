@@ -9,9 +9,9 @@ from flask import Flask, jsonify, render_template, session, redirect, request, f
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from dotenv import load_dotenv
 from database import create_tables, migrate_fertilizer_history
 from routes.auth_routes import auth_bp
-
 from routes.community_routes import community
 from routes.crop_routes import crop as crop_bp, generate_crop_response
 from fertilizer_history_routes import fertilizer_history_bp
@@ -24,9 +24,6 @@ import joblib
 import os
 import sys
 import importlib.util
-
-# Fix: Import load_dotenv for environment variable loading
-from dotenv import load_dotenv
 
 # ─────────────────────────────────────────────
 # APP INIT
@@ -145,7 +142,6 @@ def inject_globals():
     "fertilizer-guide": "fertilizer-guide",
     "profit-analyzer": "profit",
     "market-price": "market",
-    "profit-analyzer": "profit",
     "government-schemes": "government-schemes",
     "community": "community",
     "assistant": "assistant",
@@ -177,8 +173,8 @@ def inject_globals():
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(community, url_prefix='/community')
+app.register_blueprint(crop_bp)
 app.register_blueprint(fertilizer_history_bp, url_prefix='/api')
-
 
 create_tables()
 migrate_fertilizer_history()
@@ -269,7 +265,11 @@ def profile():
     
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT name, email, phone, location FROM users WHERE id=?", (session["user"]["id"],))
+    cursor.execute("""
+SELECT name,email,phone,location,lat,lon
+FROM users
+WHERE id=?
+""",(session["user"]["id"],))
     user = cursor.fetchone()
     conn.close()
     
@@ -288,6 +288,7 @@ def update_profile():
     phone = data.get('phone', '').strip()
     location = data.get('location', '').strip()
     
+    
     errors = {}
     if not name:
         errors['name'] = 'Username is required'
@@ -303,7 +304,12 @@ def update_profile():
     
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET name=?, phone=?, location=? WHERE id=?", (name, phone, location, session["user"]["id"]))
+    cursor.execute("""
+UPDATE users 
+SET name=?, phone=?, location=?, lat=?, lon=?
+WHERE id=?
+""",
+(name, phone, location, lat, lon, session["user"]["id"]))
     conn.commit()
     conn.close()
     
@@ -352,9 +358,6 @@ def change_password():
 # ─────────────────────────────────────────────
 # FEATURE PAGES
 # ─────────────────────────────────────────────
-
-
-
 
 @app.route('/crop-recommendation', methods=['GET', 'POST'])
 def crop_recommendation():
@@ -694,8 +697,6 @@ def delete_profit_history():
     conn.close()
 
     return jsonify({"status": "success", "message": "Deleted successfully"})
-
-
 # ─────────────────────────────────────────────
 # ✅ CROP PREDICTION API (MAIN FEATURE ADDED)
 # ─────────────────────────────────────────────
@@ -907,8 +908,6 @@ def delete_yield_history(history_id):
         return jsonify({"status": "error", "message": "History item not found"}), 404
 
     return jsonify({"status": "success", "message": "History deleted"})
-
-
 # ─────────────────────────────────────────────
 # MARKET PRICE API
 # ─────────────────────────────────────────────
@@ -1015,10 +1014,10 @@ def get_market_history():
     cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT id, crop_name, location_name, current_price, market_name
+    SELECT id, crop_name, location_name, current_price, market_name, created_at
     FROM market_price_history
     WHERE user_id = ?
-    ORDER BY id DESC
+    ORDER BY created_at DESC
     LIMIT 20
     """, (user_id,))
 
@@ -1032,7 +1031,8 @@ def get_market_history():
             "crop_name": row[1],
             "location_name": row[2],
             "current_price": row[3],
-            "market_name": row[4]
+            "market_name": row[4],
+            "created_at": row[5]
         })
 
     return jsonify({"status": "success", "data": history})
@@ -1312,8 +1312,6 @@ def choose_best_market_record(records, location, user_lat=None, user_lon=None, s
         "match_level": chosen_level,
         "is_nearby": is_nearby,
     }
-
-
 def normalize_price_field(record, fields):
     for field in fields:
         value = record.get(field)
@@ -1342,7 +1340,6 @@ def fetch_crop_market_price(crop_name, location, lat, lon):
     state_filter = infer_state_filter(location)
     if state_filter:
         params["filters[state]"] = state_filter
-
     headers = {"User-Agent": "AgriAI Market Price Client"}
 
     session = requests.Session()
@@ -1467,36 +1464,89 @@ def save_location():
 # ─────────────────────────────────────────────
 @app.route("/api/weather", methods=["POST"])
 def get_weather():
-    data = request.get_json()
-    lat = data.get("lat")
-    lon = data.get("lon")
+    try:
+        data = request.get_json()
 
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
+        lat = data.get("lat")
+        lon = data.get("lon")
 
-    res = requests.get(url).json()
+        if not lat or not lon:
+            return jsonify({
+                "error": "Latitude and longitude required"
+            }), 400
 
-    daily = res.get("daily", {}) or {}
-    dates = daily.get("time", []) or []
-    forecast = []
-    for i, (day_date, day_max, day_min, code) in enumerate(zip(dates, daily.get("temperature_2m_max", []), daily.get("temperature_2m_min", []), daily.get("weathercode", []))):
-        label = "Today" if i == 0 else datetime.datetime.strptime(day_date, "%Y-%m-%d").strftime("%b %d")
-        forecast.append({
-            "date": day_date,
-            "label": label,
-            "day": "Today" if i == 0 else day_date,
-            "max": round(day_max, 1),
-            "min": round(day_min, 1),
-            "condition": describe_weather_code(code),
+        url = (
+            f"https://api.open-meteo.com/v1/forecast?"
+            f"latitude={lat}&longitude={lon}"
+            f"&current_weather=true"
+            f"&hourly=relativehumidity_2m,precipitation_probability"
+            f"&daily=temperature_2m_max,temperature_2m_min,weathercode"
+            f"&timezone=auto"
+        )
+
+        res = requests.get(url).json()
+
+        current = res.get("current_weather", {})
+        hourly = res.get("hourly", {})
+        daily = res.get("daily", {})
+
+        forecast = []
+
+        for i in range(7):
+            forecast.append({
+                "date": daily["time"][i],
+                "label": (
+                    "Today"
+                    if i == 0
+                    else datetime.datetime.strptime(
+                        daily["time"][i],
+                        "%Y-%m-%d"
+                    ).strftime("%b %d")
+                ),
+                "day": "Today" if i == 0 else daily["time"][i],
+                "max": daily["temperature_2m_max"][i],
+                "min": daily["temperature_2m_min"][i],
+                "condition": describe_weather_code(
+                    daily["weathercode"][i]
+                )
+            })
+
+
+        return jsonify({
+
+            "temperature": current.get("temperature", "--"),
+
+            "windspeed": current.get(
+                "windspeed",
+                "--"
+            ),
+
+            "humidity": hourly.get(
+                "relativehumidity_2m",
+                ["--"]
+            )[0],
+
+            "rainfall": hourly.get(
+                "precipitation_probability",
+                ["--"]
+            )[0],
+
+            "description": describe_weather_code(
+                current.get("weathercode", 0)
+            ),
+
+            "forecast": forecast
+
         })
 
-    return jsonify({
-        "temperature": res["current_weather"]["temperature"],
-        "windspeed": res["current_weather"]["windspeed"],
-        "humidity": res["hourly"]["relativehumidity_2m"][0],
-        "rainfall": res["hourly"]["precipitation_probability"][0],
-        "description": res["current_weather"].get("weathercode") and describe_weather_code(res["current_weather"]["weathercode"]) or "Clear",
-        "forecast": forecast,
-    })
+
+    except Exception as e:
+
+        print("Weather API error:", e)
+
+        return jsonify({
+            "error": "Weather fetch failed"
+        }),500
 
 
 def describe_weather_code(code):
@@ -1600,7 +1650,7 @@ def forgot_password():
     conn.close()
 
     reset_link = f"{request.host_url.rstrip('/')}/reset-password?token={token}"
-    print("🔗 Reset link:", reset_link)
+    print("Reset link:", reset_link)
 
     msg = Message(
         subject="Password Reset",
@@ -1629,7 +1679,7 @@ def forgot_password():
 # ─────────────────────────────────────────────
 # reset password
 # ─────────────────────────────────────────────
-@app.route('/reset-password', defaults={'token': None}, methods=['GET', 'POST'])
+@app.route('/reset-password', methods=['GET', 'POST'])
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token=None):
     token_value = request.args.get('token') or token or ''
@@ -1689,6 +1739,16 @@ def reset_password(token=None):
 
     return jsonify({"success": True, "message": "Password reset successful"})
 
+    cursor.execute(
+        "UPDATE users SET password=?, reset_token=NULL, token_expiry=NULL WHERE reset_token=?",
+        (hashed, token_value)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": "Password reset successful"})
+
 
 # ─────────────────────────────────────────────
 # GOVERNMENT SCHEMES API
@@ -1733,25 +1793,35 @@ def get_schemes():
         cursor.execute(query, params)
         rows = cursor.fetchall()
         conn.close()
-        
+
+        def parse_json_field(value):
+            if not value:
+                return {"en": "", "hi": ""}
+            if isinstance(value, str):
+                try:
+                    return json.loads(value)
+                except (json.JSONDecodeError, TypeError):
+                    return {"en": value, "hi": value}
+            return value
+
         schemes = []
         for row in rows:
             schemes.append({
                 "id": row[0],
-                "title": json.loads(row[1]) if row[1] else {"en": "", "hi": ""},
-                "description": json.loads(row[2]) if row[2] else {"en": "", "hi": ""},
-                "benefit": json.loads(row[3]) if row[3] else {"en": "", "hi": ""},
+                "title": parse_json_field(row[1]),
+                "description": parse_json_field(row[2]),
+                "benefit": parse_json_field(row[3]),
                 "state": row[4],
-                "crop_type": json.loads(row[5]) if row[5] else {"en": "", "hi": ""},
-                "eligibility": json.loads(row[6]) if row[6] else {"en": "", "hi": ""},
+                "crop_type": parse_json_field(row[5]),
+                "eligibility": parse_json_field(row[6]),
                 "website_link": row[7],
-                "created_at": row[8]
+                "created_at": row[8],
             })
-        
+
         return jsonify({
             "status": "success",
             "count": len(schemes),
-            "schemes": schemes
+            "schemes": schemes,
         })
         
     except Exception as e:
@@ -1761,7 +1831,8 @@ def get_schemes():
             "message": "Error fetching schemes"
         }), 500
 
-# ─────────────────────────────────────────────
+
+ # ─────────────────────────────────────────────
 # RUN SERVER
 # ─────────────────────────────────────────────
 if __name__ == '__main__':

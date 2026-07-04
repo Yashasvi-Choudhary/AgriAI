@@ -30,11 +30,14 @@
   "market_result_min_price": "न्यूनतम मूल्य",
   "market_result_max_price": "अधिकतम मूल्य",
   "market_result_analysis": "विश्लेषण",
-  "market_result_nearby_market": "नजदीकी बाजार",
 
   "market_history_section_title": "मूल्य इतिहास",
+
+  "market_result_nearby_market": "नजदीकी बाजार",
+
   "market_history_show": "इतिहास दिखाएँ",
   "market_history_hide": "इतिहास छिपाएँ",
+
   "market_history_empty": "अभी कोई बाजार इतिहास नहीं है। कीमत जांचकर शुरुआत करें!",
   "market_history_date": "तारीख",
   "market_history_crop": "फसल",
@@ -47,7 +50,10 @@
   "market_error_no_crop": "कृपया फसल चुनें",
   "market_error_no_location": "स्थान नहीं मिला। कृपया पहले अपना स्थान सेट करें",
   "market_error_no_data": "आपके क्षेत्र में इस फसल के लिए कोई बाजार डेटा उपलब्ध नहीं है",
+
   "market_error_no_match": "इस स्थान के लिए कोई बाजार डेटा नहीं मिला।",
+
+
   "market_error_api_error": "बाजार डेटा प्राप्त करने में त्रुटि। कृपया पुनः प्रयास करें",
   "market_error_server_error": "सर्वर त्रुटि। कृपया बाद में पुनः प्रयास करें",
   "market_error_invalid_location": "अमान्य स्थान। कृपया एक वैध स्थान दर्ज करें।",

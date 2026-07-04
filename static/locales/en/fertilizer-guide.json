@@ -90,7 +90,6 @@
   "fert_history_no_records": "No saved fertilizer recommendations yet.",
   "fert_history_crop_label": "Crop",
   "fert_history_fertilizer_label": "Fertilizer",
-
   "fert_history_date_label": "Date",
   "fert_history_delete": "Delete",
   "fert_history_delete_confirm": "Delete this recommendation?"

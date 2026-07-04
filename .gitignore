@@ -21,4 +21,12 @@ model/*.pkl
 model/*.h5
 
 # Data files (optional but recommended)
+<<<<<<< HEAD
+<<<<<<< HEAD
 data/
+=======
+data/
+>>>>>>> bfc39489398e30c9057e1e32688b0793db3f36c6
+=======
+data/
+>>>>>>> 8ca166d519185d8c0368df6f6d0e0b98761d39c0

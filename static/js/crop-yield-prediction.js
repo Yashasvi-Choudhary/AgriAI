@@ -13,6 +13,27 @@ function showState(id) {
 
 /* ── Get current language from DOM ── */
 function getCurrentLanguage() {
+
+  const htmlLang = document.documentElement.lang || "en";
+  return htmlLang === "hi" ? "hi" : "en";
+}
+
+/* ── Render result dashboard ── */
+function renderResult(response) {
+  const t = window.__i18n || {};
+  const lang = getCurrentLanguage();
+
+  // Parse response structure
+  const yieldData = response?.data?.yield_prediction?.[lang];
+  if (!yieldData) throw new Error("Invalid response structure");
+
+  const yieldValue = parseFloat(yieldData.predicted_yield || 0).toFixed(2);
+  const unit = yieldData.unit || "kg/hectare";
+  const analysis = yieldData.analysis || "";
+  const suggestion = yieldData.suggestion || "";
+
+
+
   const htmlLang = document.documentElement.lang || window.currentLang || "en";
   return htmlLang === "hi" ? "hi" : "en";
 }
@@ -236,6 +257,7 @@ function renderResult(response) {
   const yieldValue = parseFloat(yieldData.predicted_yield || 0).toFixed(2);
   const unit = yieldData.unit || "kg/hectare";
 
+
   // Display main yield result
   document.getElementById("resultYieldValue").textContent = yieldValue;
   document.getElementById("resultYieldUnit").textContent = unit;
@@ -336,10 +358,12 @@ async function getCropYieldPrediction() {
   };
 
   // Validation
+
   if (
     !formData.crop ||
     !["rice", "maize", "chickpea", "cotton"].includes(formData.crop)
   ) {
+
     alert(
       t["yield_alert_crop"] || "Please select a crop type before proceeding.",
     );
@@ -416,6 +440,7 @@ async function getCropYieldPrediction() {
       throw new Error(t["yield_error_no_result"] || "Invalid response format.");
     }
 
+
     const historyId = data.data.history_id;
     if (historyId) {
       const areas = JSON.parse(
@@ -424,6 +449,7 @@ async function getCropYieldPrediction() {
       areas[String(historyId)] = formData.area;
       localStorage.setItem("yieldHistoryAreas", JSON.stringify(areas));
     }
+
 
     renderResult(data);
     await loadYieldHistory();
@@ -444,6 +470,9 @@ async function getCropYieldPrediction() {
 
 /* ── Initialize on page load ── */
 document.addEventListener("DOMContentLoaded", function () {
+
+  showState("emptyState");
+
   const toggleText = document.getElementById("yieldHistoryToggleText");
   const content = document.getElementById("yieldHistoryContent");
 
@@ -460,4 +489,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   loadYieldHistory();
+
 });

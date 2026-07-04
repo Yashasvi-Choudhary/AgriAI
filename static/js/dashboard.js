@@ -1,11 +1,13 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadUser(); // wait until user + location ready
-  if (typeof initializeHeaderWeather === "function") {
-    await initializeHeaderWeather();
-  } else {
-    loadHeaderWeather();
+  await loadUser();
+
+  if (typeof loadHeaderWeather === "function") {
+    void loadHeaderWeather(false);
   }
-  loadDashboardWeather(); // then load weather
+
+  if (typeof loadDashboardWeather === "function") {
+    void loadDashboardWeather(false);
+  }
 });
 
 // ─────────────────────────────
@@ -77,7 +79,7 @@ function initLocationPopup() {
 // LOAD SAVED LOCATION EVERYWHERE
 // ─────────────────────────────
 function loadSavedLocation() {
-  const city = localStorage.getItem(userKey("location_name")) || localStorage.getItem("location_name");
+  const { locationName: city } = getStoredLocationData();
   if (!city) return;
 
   const wLoc = document.getElementById("wLocation");
@@ -192,16 +194,17 @@ async function saveAndClose(city, lat, lon) {
 
   loadSavedLocation();
 
-  // 🔥 IMPORTANT: clear old cache
+  // clear old weather cache after location change
   window.globalWeatherData = null;
 
-  // 🔥 reload weather everywhere
+  // reload header weather
   if (typeof loadHeaderWeather === "function") {
-    loadHeaderWeather();
+    void loadHeaderWeather(true);
   }
 
+  // reload dashboard weather
   if (typeof loadDashboardWeather === "function") {
-    loadDashboardWeather();
+    void loadDashboardWeather(true);
   }
 
   closePopup();
@@ -232,13 +235,16 @@ function getSavedLon() {
   return localStorage.getItem(userKey("lon"));
 }
 function getSavedCity() {
-  return localStorage.getItem(userKey("location_name")) || localStorage.getItem("location_name");
+  return (
+    localStorage.getItem(userKey("location_name")) ||
+    localStorage.getItem("location_name")
+  );
 }
 
 //weather on dashboard
 
-async function loadDashboardWeather() {
-  const data = await fetchWeatherData();
+async function loadDashboardWeather(forceRefresh = false) {
+  const data = await fetchWeatherData(forceRefresh);
   if (!data) return;
 
   // 🌡 Temperature
